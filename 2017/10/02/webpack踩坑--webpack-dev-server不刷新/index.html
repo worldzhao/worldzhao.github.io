@@ -30,7 +30,7 @@
   <style type="text/css">
   
     #container.show {
-      background: linear-gradient(200deg,#a0cfe4,#e8c37e);
+      background: linear-gradient(to bottom, #E5E5BE, #003973);
     }
   </style>
   
@@ -44,7 +44,7 @@
     <canvas id="anm-canvas" class="anm-canvas"></canvas>
     <div class="left-col" q-class="show:isShow">
       
-<div class="overlay" style="background: #696969"></div>
+<div class="overlay" style="background: linear-gradient(to bottom, #348f50, #56b4d3)"></div>
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
@@ -97,7 +97,7 @@
     <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
       
 <nav id="mobile-nav">
-  	<div class="overlay js-overlay" style="background: #696969"></div>
+  	<div class="overlay js-overlay" style="background: linear-gradient(to bottom, #348f50, #56b4d3)"></div>
 	<div class="btnctn js-mobile-btnctn">
   		<div class="slider-trigger list" q-on="click: openSlider(e)"><i class="icon icon-sort"></i></div>
 	</div>
@@ -205,12 +205,12 @@
 <li>通过命令行启动webpack-dev-server服务，也会根据webpack.config.js配置文件直接进行打包，但不会在output路径下生成一个bundle.js，而是在内存中生成，每次文件发生变化也会自动生成,而是在服务器根目录contentBase下存在一个bundle.js，我们看不见。</li>
 </ul>
 <p>比如文件结构如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">----index.html</span><br><span class="line">----dist</span><br><span class="line">--------bundle.js</span><br></pre></td></tr></table></figure></p>
-<p>我们会在index.html中如此引用bundle.js<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./dist/bundle.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
-<p>没毛病。<br>但是如果你起了一个webpack-dev-server，服务器根目录为’./‘即项目根目录，那么这样你的网页并不会实时刷新，因为引用的一直是webpack打包生成的那个bundle.js，而非webpack-dev-server生成的bundle.js，我们应当改为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./bundle.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
+<p>我们会在index.html中如此引用bundle.js<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./dist/bundle.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<p>没毛病。<br>但是如果你起了一个webpack-dev-server，服务器根目录为’./‘即项目根目录，那么这样你的网页并不会实时刷新，因为引用的一直是webpack打包生成的那个bundle.js，而非webpack-dev-server生成的bundle.js，我们应当改为：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./bundle.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
 <p>这样便可以引用到最新的bundle.js，实现实时刷新。</p>
 <p>其实可以将index.html也放进dist目录，再将contentBase更改为’./dist’</p>
 <p>如此一来webpack生成的bundle.js与webpack-dev-server生成的bundle.js便可以通过相同路径引用了，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./bundle.js"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">"text/javascript"</span> src=<span class="string">"./bundle.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
 <p>webpack-dev-server的原理我猜应该是通过检测文件变化，随后使用websocket之类的能够由服务器向客户端发送信息的方式进行实时刷新。</p>
 <p>对了，在package.json中配置如下命令可以通过npm start快速执行webpack-dev-server，少打几个字母。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"scripts"</span>: &#123;</span><br><span class="line">    <span class="string">"start"</span>: <span class="string">"webpack-dev-server --inline"</span></span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure></p>
 
@@ -440,15 +440,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">http</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">react</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">css3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">http</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/heart/index.html</loc>
+    
+    <lastmod>2018-01-08T14:54:41.013Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/worldzhao/index.html</loc>
     
     <lastmod>2018-01-08T14:51:26.824Z</lastmod>

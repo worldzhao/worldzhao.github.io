@@ -6,24 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>html5 audio控件重写 | worldzhao</title>
+  <title>js动画函数封装 | worldzhao</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="预览地址：https://cdn.rawgit.com/hackerwen/SoulBeats/cba064a9/index.html项目地址：https://github.com/hackerwen/SoulBeats界面参考：https://github.com/wangpengfei15975/skPlayer?utm_source=tuicool&amp;amp;utm_medium=refer">
-<meta name="keywords" content="js,html5">
+  <meta name="description" content="前言这是我的第一篇关于js的文章，如有错误，恳请指正。这一系列文章的主题是复习动画函数，本文为第一篇。动画并不是真的在动，而是每隔一个极小的时间将一个element移动一个极小的距离，使人产生动画的效果，如果读者看过小时候快速翻页就会产生动画效果的小人书那应当不难理解。">
+<meta name="keywords" content="js">
 <meta property="og:type" content="article">
-<meta property="og:title" content="html5 audio控件重写">
-<meta property="og:url" content="http://yoursite.com/2017/07/04/html5audio控件重写/index.html">
+<meta property="og:title" content="js动画函数封装">
+<meta property="og:url" content="http://yoursite.com/2017/03/16/js动画函数封装/index.html">
 <meta property="og:site_name" content="worldzhao">
-<meta property="og:description" content="预览地址：https://cdn.rawgit.com/hackerwen/SoulBeats/cba064a9/index.html项目地址：https://github.com/hackerwen/SoulBeats界面参考：https://github.com/wangpengfei15975/skPlayer?utm_source=tuicool&amp;amp;utm_medium=refer">
+<meta property="og:description" content="前言这是我的第一篇关于js的文章，如有错误，恳请指正。这一系列文章的主题是复习动画函数，本文为第一篇。动画并不是真的在动，而是每隔一个极小的时间将一个element移动一个极小的距离，使人产生动画的效果，如果读者看过小时候快速翻页就会产生动画效果的小人书那应当不难理解。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4869616-86d09dc68110cfdd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4869616-bd63b802a15a4da9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/4869616-8cc01a867c27e212.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-07-04T14:20:32.000Z">
+<meta property="og:updated_time" content="2018-01-08T15:23:48.268Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="html5 audio控件重写">
-<meta name="twitter:description" content="预览地址：https://cdn.rawgit.com/hackerwen/SoulBeats/cba064a9/index.html项目地址：https://github.com/hackerwen/SoulBeats界面参考：https://github.com/wangpengfei15975/skPlayer?utm_source=tuicool&amp;amp;utm_medium=refer">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/4869616-86d09dc68110cfdd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="js动画函数封装">
+<meta name="twitter:description" content="前言这是我的第一篇关于js的文章，如有错误，恳请指正。这一系列文章的主题是复习动画函数，本文为第一篇。动画并不是真的在动，而是每隔一个极小的时间将一个element移动一个极小的距离，使人产生动画的效果，如果读者看过小时候快速翻页就会产生动画效果的小人书那应当不难理解。">
   
     <link rel="alternative" href="/atom.xml" title="worldzhao" type="application/atom+xml">
   
@@ -161,53 +157,70 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-html5audio控件重写" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-js动画函数封装" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      html5 audio控件重写
+      js动画函数封装
     </h1>
   
 
         
-        <a href="/2017/07/04/html5audio控件重写/" class="archive-article-date">
-  	<time datetime="2017-07-04T14:20:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-04</time>
+        <a href="/2017/03/16/js动画函数封装/" class="archive-article-date">
+  	<time datetime="2017-03-15T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-16</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <blockquote>
-<p>预览地址：<a href="https://cdn.rawgit.com/hackerwen/SoulBeats/cba064a9/index.html" target="_blank" rel="noopener">https://cdn.rawgit.com/hackerwen/SoulBeats/cba064a9/index.html</a><br>项目地址：<a href="https://github.com/hackerwen/SoulBeats" target="_blank" rel="noopener">https://github.com/hackerwen/SoulBeats</a><br>界面参考：<a href="https://github.com/wangpengfei15975/skPlayer?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">https://github.com/wangpengfei15975/skPlayer?utm_source=tuicool&amp;utm_medium=referral</a></p>
-</blockquote>
+        <ul>
+<li>前言<br>这是我的第一篇关于js的文章，如有错误，恳请指正。<br>这一系列文章的主题是复习动画函数，本文为第一篇。<br>动画并不是真的在动，而是每隔一个极小的时间将一个element移动一个极小的距离，使人产生动画的效果，如果读者看过小时候快速翻页就会产生动画效果的小人书那应当不难理解。</li>
+</ul>
 <a id="more"></a>
-<p>暂停界面：<br><img src="http://upload-images.jianshu.io/upload_images/4869616-86d09dc68110cfdd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>播放界面：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/4869616-bd63b802a15a4da9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
-<p>最近想用Vue写一个网页播放器，但是一直没有找到好用的api，室友正在研究网易云api转发，过几天应该就能弄出来啦。<br>自己就干脆练练原生js，参照了上面那位同学的界面（配色以及布局）写出了这个播放器。<br>主要是html5的audio标签控件的重写。<br>等室友api弄好啦就用vue重构弄成在线的播放器。<br>技术：</p>
+<p>好了，让我们开始吧。</p>
+<ul>
+<li>函数最终代码（初步）</li>
+</ul>
+<p>//elem:要移动的元素 fianl_x final_y 目的地坐标(相对于父盒子)<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span>(<span class="params">elem, final_x, final_y</span>) </span>&#123;</span><br><span class="line">  clearInterval(elem.timer); <span class="comment">//要用定时器，先清定时器</span></span><br><span class="line">  elem.timer = setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x = <span class="built_in">parseInt</span>(elem.style.left) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> y = <span class="built_in">parseInt</span>(elem.style.top) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (x === final_x &amp;&amp; y === final_y) &#123;</span><br><span class="line">      clearInterval(elem.timer); <span class="comment">//用完定时器，清除定时器</span></span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> distx = (final_x - x) / <span class="number">10</span>;</span><br><span class="line">    distx = distx &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(distx) : <span class="built_in">Math</span>.floor(distx);</span><br><span class="line">    x = x + distx;</span><br><span class="line">    <span class="keyword">var</span> disty = (final_y - y) / <span class="number">10</span>;</span><br><span class="line">    disty = disty &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(disty) : <span class="built_in">Math</span>.floor(disty);</span><br><span class="line">    y = y + disty;</span><br><span class="line">    elem.style.left = x + <span class="string">"px"</span>;</span><br><span class="line">    elem.style.top = y + <span class="string">"px"</span>;</span><br><span class="line">  &#125;, <span class="number">25</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ol>
-<li>Html</li>
-<li>Css</li>
-<li>JavaScript</li>
+<li>准备工作<br>首先，要移动的元素必须是绝对定位的，前面也说了，我们是不断地在一个极小的事件不断的更新元素的横竖位置(相对于父盒子)，而符合我们要求的便是绝对定位了，通过更改left,right,top,bottom等属性的值来更改元素的位置。参数里有元素的最终位置，我们也需要获取元素的初始位置。<br>注意:此处要转为整型，因为ele.style.left获取的是一个字符串，带单位”px”.</li>
 </ol>
-<p>功能实现：</p>
-<ol>
-<li>上/下一首</li>
-<li>播放模式切换（单曲、顺序、列表、随机）</li>
-<li>html5 audio控件重写</li>
-</ol>
-<p>使用方法：<br>1.js入口处配置歌曲列表json生成列表（音乐外链折腾了我很久，室友通过api加密转发弄出了网易云的外链，但是貌似链接有时间限制，坑，用毕竟静态页面，还是有很多不足，目前选择的是七牛云服务）</p>
-<blockquote>
-<p>七牛云音乐外链生成教程：<a href="http://jingyan.baidu.com/article/f54ae2fc34c9d41e92b849af.html" target="_blank" rel="noopener">http://jingyan.baidu.com/article/f54ae2fc34c9d41e92b849af.html</a></p>
-</blockquote>
-<p><img src="http://upload-images.jianshu.io/upload_images/4869616-8cc01a867c27e212.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="入口配置.png"></p>
-<p>如果喜欢请给一颗star 过几天用尝试用vue重构写在线版</p>
-<blockquote>
-<p>项目地址：<a href="https://github.com/hackerwen/SoulBeats" target="_blank" rel="noopener">https://github.com/hackerwen/SoulBeats</a></p>
-</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span>(<span class="params">elem,final_x,fianl_y</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x,y;</span><br><span class="line">    <span class="keyword">if</span>(elem.style.left)&#123;</span><br><span class="line">         x = <span class="built_in">parseInt</span>(elem.style.left);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">         x = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(elem.style.top)&#123;</span><br><span class="line">         y = <span class="built_in">parseInt</span>(elem.style.top);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">         y = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是可能这个元素并没有设置left以及top的值，于是我们需要进行检测,如果没有这两个值则将它们设置为0(实际上一个绝对定位的元素如果没有设置值的话默认为0，0)；</p>
+<p>好啦，现在我们得到了元素的起始位置，那么什么时候这个函数才算完成了任务呢？没错，就是起始位置与终止位置相等时。于是我们加入函数结束的条件。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(x==final_x&amp;&amp;y==final_y)&#123;<span class="comment">//如果起始位置与目标位置一致</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来我们的问题就是该怎么移动这个元素了。  </p>
+<p>不断的移动一个微小的距离，造成动画的效果。  </p>
+<p>敲黑板，划重点。    </p>
+<p>“不断”。没错就是我们的setInterval(a,b)定时器。这个函数有两个参数，第一个参数a是要执行的代码块，第二个参数b是执行的间隔时间,这里我们让它每25ms执行一次吧。  </p>
+<p>我们的逻辑就是：每隔一段时间，获取一次元素当前位置，让元素移动一个微小的距离，如果当前位置等于目标位置，我们就退出setInterval函数,如果不等于，则重复执行代码块a。</p>
+<p>现在的代码如下：  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">setInterval(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x,y;</span><br><span class="line">    <span class="keyword">if</span>(elem.style.left)&#123;</span><br><span class="line">         x = <span class="built_in">parseInt</span>(elem.style.left);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">         x = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(elem.style.top)&#123;</span><br><span class="line">         y = <span class="built_in">parseInt</span>(elem.style.top);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">         y = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(x==final_x&amp;&amp;y==final_y)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="number">25</span>);</span><br></pre></td></tr></table></figure>
+<p>“一个微小的距离”。即我们每个25ms让其移动的距离，这里我们取10px;</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> x, y;</span><br><span class="line">  <span class="keyword">if</span> (elem.style.left) &#123;</span><br><span class="line">    x = <span class="built_in">parseInt</span>(elem.style.left);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    x = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (elem.style.top) &#123;</span><br><span class="line">    y = <span class="built_in">parseInt</span>(elem.style.top);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    y = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (x === final_x &amp;&amp; y === final_y) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">var</span> dist = <span class="number">10</span>; <span class="comment">//我们移动的距离</span></span><br><span class="line">  <span class="keyword">if</span> (x &lt; fianl_x) &#123; <span class="comment">//如果横向在目标位置左侧，则+10向目标位置前进</span></span><br><span class="line">    x = x + <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (x &gt; final_x) &#123; <span class="comment">//如果横向在目标位置右侧，则-10向目标位置后退</span></span><br><span class="line">    x = x - <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (y &lt; fianl_y) &#123; <span class="comment">//同上</span></span><br><span class="line">    y = y + <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (y &gt; fianl_y) &#123;</span><br><span class="line">    y = y - <span class="number">10</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;, <span class="number">25</span>);</span><br></pre></td></tr></table></figure>
+<p>然后再将增加或减少了的x,y重新赋值给元素的left以及top属性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elem.style.left = x + <span class="string">"px"</span>;</span><br><span class="line">elem.style.top = y + <span class="string">"px"</span>;</span><br></pre></td></tr></table></figure>
+<p>这样，我们就初步完成了动画函数，每隔25ms将元素移动10px(x轴与y轴)，如果当前位置等于了目标位置，则退出setInterval函数，animate执行完毕。此时代码清单如下:<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span>(<span class="params">elem, final_x, fianl_y</span>) </span>&#123;</span><br><span class="line">  setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x, y;</span><br><span class="line">    <span class="keyword">if</span> (elem.style.left) &#123;</span><br><span class="line">      x = <span class="built_in">parseInt</span>(elem.style.left);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      x = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (elem.style.top) &#123;</span><br><span class="line">      y = <span class="built_in">parseInt</span>(elem.style.top);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      y = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x == final_x &amp;&amp; y == final_y) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> dist = <span class="number">10</span>; <span class="comment">//我们移动的距离</span></span><br><span class="line">    <span class="keyword">if</span> (x &lt; fianl_x) &#123; <span class="comment">//如果横向在目标位置左侧，则+10向目标位置前进</span></span><br><span class="line">      x = x + <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; final_x) &#123; <span class="comment">//如果横向在目标位置右侧，则-10向目标位置后退</span></span><br><span class="line">      x = x - <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (y &lt; fianl_y) &#123; <span class="comment">//同上</span></span><br><span class="line">      y = y + <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (y &gt; fianl_y) &#123;</span><br><span class="line">      y = y - <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, <span class="number">25</span>);</span><br><span class="line">  elem.style.left = x + <span class="string">"px"</span>;</span><br><span class="line">  elem.style.top = y + <span class="string">"px"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>但是这串代码既不健壮也不简洁，还可以优化。  </p>
+<p>我们可以先简化一下代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span>(<span class="params">elem, final_x, final_y</span>) </span>&#123;</span><br><span class="line">  setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x = <span class="built_in">parseInt</span>(elem.style.left) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> y = <span class="built_in">parseInt</span>(elem.style.top) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (x === final_x &amp;&amp; y === final_y) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> dist = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">if</span> (x &lt; fianl_x) &#123; <span class="comment">//如果横向在目标位置左侧，则+10向目标位置前进</span></span><br><span class="line">      x += <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; final_x) &#123; <span class="comment">//如果横向在目标位置右侧，则-10向目标位置后退</span></span><br><span class="line">      x -= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (y &lt; fianl_y) &#123; <span class="comment">//同上</span></span><br><span class="line">      y += <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (y &gt; fianl_y) &#123;</span><br><span class="line">      y -= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    elem.style.left = x + <span class="string">"px"</span>;</span><br><span class="line">    elem.style.top = y + <span class="string">"px"</span>;</span><br><span class="line">  &#125;, <span class="number">25</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>问题1. 移动距离每次都是固定的(10px)，是匀速移动。我们想逼真一点，当距离目标位置越近时速度变得越慢，产生渐变的效果；  </p>
+<p>问题2. 定时器没有及时清除。  </p>
+<p>假如你先想通过调用animate函数将elem移动到目标位置1，在其还未到达的时候，又改变主意让它移动到目标位置2，再调用animate函数，传入了新的final_x,final_y，此时就会造成两个定时器同时运作，产生混乱。  </p>
+<p>定时器A想让它到目标位置1，定时器B想让它到目标位置2,获取的元素当前位置却是同一个，就会造成elem摇摆不定，所以要以后一次的调用为准，清除前一次的定时器。对了，到达目标位置后也要清除，总不能把人家白白搁在那。  </p>
+<p>要养成好习惯：要用定时器，先清定时器。用完定时器，清除定时器。</p>
+<p>首先解决问题1。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> distx = (final_x - x) / <span class="number">10</span>;</span><br><span class="line"><span class="keyword">var</span> disty = (final_y - y) / <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>此时，我们的移动的距离不再是相同的10px，而是根据目标位置与当前位置的差（距离差）来进行动态计算，当前位置距离目标位置越近我们移动的距离越小,每次移动距离差的十分之一，这样我们就不再是匀速运动了，距离差在不断减小，我们移动距离dist也在不断减小。<br>那些if也让人看着生厌，这时我们的distx,disty已经带有正负号，可以直接加在x,y上了。<br>/10要有取整处理，正负数的向上取整不同。代码如下：  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> distx = (final_x - x) / <span class="number">10</span>;</span><br><span class="line">distx = distx &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(distx) : <span class="built_in">Math</span>.floor(distx);</span><br><span class="line">x = x + distx;</span><br><span class="line"><span class="keyword">var</span> disty = (final_y - y) / <span class="number">10</span>;</span><br><span class="line">disty = disty &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(disty) : <span class="built_in">Math</span>.floor(disty);</span><br><span class="line">y = y + disty;</span><br></pre></td></tr></table></figure>
+<p>问题1结束。</p>
+<p>其次解决问题2。</p>
+<p>我们可以知道，多个定时器都是作用在同一个元素上面，我们可以将每次进行的定时器的ID绑定在元素上，下一次执行新的定时器时将元素本身的定时器clear（也就是上一个定时器）,再将此次定时器ID绑定即可。</p>
+<p>最终代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span>(<span class="params">elem, final_x, final_y</span>) </span>&#123;</span><br><span class="line">  clearInterval(elem.timer); <span class="comment">//要用定时器，先清定时器</span></span><br><span class="line">  elem.timer = setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> x = <span class="built_in">parseInt</span>(elem.style.left) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> y = <span class="built_in">parseInt</span>(elem.style.top) || <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (x === final_x &amp;&amp; y === final_y) &#123;</span><br><span class="line">      clearInterval(elem.timer); <span class="comment">//用完定时器，清除定时器</span></span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> distx = (final_x - x) / <span class="number">10</span>;</span><br><span class="line">    distx = distx &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(distx) : <span class="built_in">Math</span>.floor(distx);</span><br><span class="line">    x = x + distx;</span><br><span class="line">    <span class="keyword">var</span> disty = (final_y - y) / <span class="number">10</span>;</span><br><span class="line">    disty = disty &gt; <span class="number">0</span> ? <span class="built_in">Math</span>.ceil(disty) : <span class="built_in">Math</span>.floor(disty);</span><br><span class="line">    y = y + disty;</span><br><span class="line">    elem.style.left = x + <span class="string">"px"</span>;</span><br><span class="line">    elem.style.top = y + <span class="string">"px"</span>;</span><br><span class="line">  &#125;, <span class="number">25</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
 
@@ -223,10 +236,6 @@
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">js</a>
         		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">html5</a>
-        		</li>
       		
 		</ul>
 	</div>
@@ -237,7 +246,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/html,js/" class="article-tag-list-link color3">html,js</a>
+        			<a href="/categories/js/" class="article-tag-list-link color3">js</a>
         		</li>
       		
 		</ul>
@@ -292,7 +301,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/07/04/html5audio控件重写/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/16/js动画函数封装/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -306,20 +315,15 @@
   
 <nav id="article-nav">
   
-    <a href="/2017/07/04/我的青春/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2017/03/17/css3选择器/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          我纵身一跃，跳进人的海洋
+          css3选择器
         
       </div>
     </a>
   
-  
-    <a href="/2017/07/04/12-call与apply/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">call与apply</div>
-      <i class="icon-circle-right"></i>
-    </a>
   
 </nav>
 
@@ -331,7 +335,7 @@
   
   <div class="duoshuo">
 	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="html5audio控件重写" data-title="html5 audio控件重写" data-url="http://yoursite.com/2017/07/04/html5audio控件重写/"></div>
+	<div class="ds-thread" data-thread-key="js动画函数封装" data-title="js动画函数封装" data-url="http://yoursite.com/2017/03/16/js动画函数封装/"></div>
 	<!-- 多说评论框 end -->
 	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
 	<script type="text/javascript">
@@ -439,6 +443,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">css3</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">http</a>
               </li>
              
@@ -447,7 +455,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">css3</a>
+                <a href="javascript:void(0)" class="js-tag color5">phantomjs</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -459,27 +467,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">html5</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">node</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">phantomjs</a>
+                <a href="javascript:void(0)" class="js-tag color3">webpack</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Vue</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Vuex</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">webpack</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -488,6 +484,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">数据结构</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Vuex</a>
               </li>
              
               <li class="article-tag-list-item">

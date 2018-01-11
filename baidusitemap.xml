@@ -3,6 +3,7 @@
 
 
     
+    
   <url>
     <loc>http://yoursite.com/2017/03/16/js%E5%8A%A8%E7%94%BB%E5%87%BD%E6%95%B0%E5%B0%81%E8%A3%85/</loc>
     <lastmod>2018-01-08T15:23:48.268Z</lastmod>
@@ -22,7 +23,6 @@
     </data>
     </url>
 
-    
     
     
     
@@ -536,9 +536,9 @@
         <title>记一次使用node+phantomjs+mongodb的任务</title>
         <pubTime>2017-07-27T03:19:50.000Z</pubTime>
         
-        <tag>phantomjs</tag>
-         
         <tag>node</tag>
+         
+        <tag>phantomjs</tag>
          
         <tag>mongodb</tag>
          

@@ -1,7 +1,8 @@
 ---
 title: webpack踩坑（二）——图片打包及路径问题
+date: 2017-10-02
 tags: [webpack]
-categories: webpack
+categories: 构建工具
 ---
 >本文非本人原创，转自[webpack踩坑之路 (2)——图片的路径与打包](http://www.cnblogs.com/ghost-xyx/p/5812902.html)，用于记录自己踩过的坑，谢谢作者大大，现在前端同质性文章太多了，提笔之前一搜，好文章一大把，就没有写的必要了，譬如这篇，太棒了。
 

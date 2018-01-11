@@ -1,14 +1,14 @@
 
 ---
 title: ZhihuDaily-React项目总结
-tags: [react]
-categories: react
+date: 2017-10-09
+tags: [React]
+categories: js
 ---
 API：[点这里，感谢](https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90)
 
 项目地址：[Github](https://github.com/hackerwen/ZhihuDaily-React)
 
-预览地址：[初次加载有点慢...](http://112.74.202.2/)
 
 ![pc主页.png](http://upload-images.jianshu.io/upload_images/4869616-fa384335b62c2ea2?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 

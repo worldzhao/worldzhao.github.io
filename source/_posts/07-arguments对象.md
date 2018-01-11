@@ -1,6 +1,7 @@
 ---
 title: arguments对象
-tags: [js]
+date: 2017-07-04
+tags: [原生js]
 categories: js
 ---
 #### arguments对象

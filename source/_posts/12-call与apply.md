@@ -1,6 +1,7 @@
 ---
 title: call与apply
-tags: [js]
+date: 2017-07-04
+tags: [原生js]
 categories: js
 ---
 #### call与apply

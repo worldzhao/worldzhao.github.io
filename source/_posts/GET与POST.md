@@ -1,6 +1,7 @@
 ---
 title: HTTP中GET与POST的区别
-tags: [http]
+date: 2017-09-14
+tags: [ajax]
 categories: http
 ---
 1. GET在浏览器回退时是无害的，而POST会再次提交请求。

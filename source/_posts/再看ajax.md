@@ -1,6 +1,7 @@
 ---
-title: 初识ajax
-tags: [http]
+title: 再看ajax
+date: 2017-09-13
+tags: [ajax]
 categories: http
 ---
 在学习ajax之前,如果想要发出http请求(form表单或者输入地址回车),页面会整个刷新,极其影响用户体验.  

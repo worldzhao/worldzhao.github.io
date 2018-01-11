@@ -1,6 +1,6 @@
 ---
 title: css3过渡
-date: 2017-03-20 13:22:31
+date: 2017-03-20
 tags: [css3]
 categories: css
 ---

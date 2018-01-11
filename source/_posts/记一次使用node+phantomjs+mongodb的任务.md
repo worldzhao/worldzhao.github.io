@@ -1,7 +1,8 @@
 ---
 title: 记一次使用node+phantomjs+mongodb的任务
+date: 2017-07-27
 tags: [phantomjs,node,mongodb]
-categories: js,db
+categories: node
 ---
 
 ### 网页抓取分析服务系列之三（服务封装）

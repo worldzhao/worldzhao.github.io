@@ -1,5 +1,6 @@
 ---
 title: vuex-demo 记事本
+date: 2017-07-08
 tags: [Vue,Vuex]
 categories: js
 ---

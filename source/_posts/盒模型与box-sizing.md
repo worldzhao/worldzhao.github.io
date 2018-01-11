@@ -1,8 +1,8 @@
 ---
 title: 盒子模型与box-sizing
-date: 2017-03-18 23:17:04
-tags: [css]
-categories: css3
+date: 2017-03-18
+tags: [css3]
+categories: css
 ---
 # 传统的盒子模型
 最终表现出来的宽度=内容宽度(width)+2padding+2border  

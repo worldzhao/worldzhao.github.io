@@ -1,7 +1,7 @@
 ---
 title: js动画函数封装
 date: 2017-03-16
-tags: [js]
+tags: [原生js]
 categories: js
 ---
 * 前言

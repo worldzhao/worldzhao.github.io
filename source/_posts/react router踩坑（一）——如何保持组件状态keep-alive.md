@@ -1,8 +1,9 @@
 
 ---
 title: react router(1)-实现keep-alive
-tags: [react]
-categories: react
+date: 2017-10-05
+tags: [React Router]
+categories: js
 ---
 ## 前言
 

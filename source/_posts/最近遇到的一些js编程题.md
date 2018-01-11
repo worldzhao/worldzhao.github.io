@@ -1,6 +1,7 @@
 ---
 title: 最近遇到的一些js编程题
-tags: [js]
+date: 2017-09-27
+tags: [原生js]
 categories: js
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: css3文本效果
-date: 2017-03-20 13:22:59
+date: 2017-03-20
 tags: [css3]
 categories: css
 ---

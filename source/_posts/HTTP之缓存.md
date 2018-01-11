@@ -1,5 +1,6 @@
 ---
 title: HTTP中的缓存机制
+date: 2017-09-14
 tags: [http]
 categories: http
 ---

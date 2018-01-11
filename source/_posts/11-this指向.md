@@ -1,6 +1,7 @@
 ---
 title: this指向问题
-tags: [js]
+date: 2017-07-04
+tags: [原生js]
 categories: js
 ---
 #### 首先我们需要复习函数的前三种调用模式

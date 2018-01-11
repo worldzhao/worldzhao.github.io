@@ -1,7 +1,8 @@
 ---
 title: webpack踩坑（一）——webpack-dev-server不更新
+date: 2017-10-02
 tags: [webpack]
-categories: webpack
+categories: 构建工具
 ---
 ## 前言
 第一次接触webpack是使用vue-cli的时候，方便极了，一行命令chua！chua！chua！

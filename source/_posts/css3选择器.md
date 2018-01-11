@@ -1,6 +1,6 @@
 ---
 title: css3选择器
-date: 2017-03-17 23:37:21
+date: 2017-03-17
 tags: [css3]
 categories: css
 ---

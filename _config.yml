@@ -82,7 +82,7 @@ category_generator:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: Anisina
+theme: landscape
 
 # jsonContent:
 #     meta: false

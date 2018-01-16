@@ -68,29 +68,40 @@ time_format: HH:mm:ss
 per_page: 10
 pagination_dir: page
 
+archive_generator:
+  per_page: 20   # 为0时表示不分页全展示
+  yearly: true   # 按年生成归档
+  monthly: true  # 按月生成归档
+
+tag_generator:
+  per_page: 10
+
+category_generator:
+  per_page: 10
+
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: landscape
 
-jsonContent:
-    meta: false
-    pages: false
-    posts:
-      title: true
-      date: true
-      path: true
-      text: true
-      raw: false
-      content: false
-      slug: false
-      updated: false
-      comments: false
-      link: false
-      permalink: false
-      excerpt: false
-      categories: false
-      tags: true
+# jsonContent:
+#     meta: false
+#     pages: false
+#     posts:
+#       title: true
+#       date: true
+#       path: true
+#       text: true
+#       raw: false
+#       content: false
+#       slug: false
+#       updated: false
+#       comments: false
+#       link: false
+#       permalink: false
+#       excerpt: false
+#       categories: false
+#       tags: true
       
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html

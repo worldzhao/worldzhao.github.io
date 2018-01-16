@@ -1,6 +1,5 @@
-
 ---
-title: react router(1)-实现keep-alive
+title: react router-模拟keep-alive
 date: 2017-10-05
 tags: [React Router]
 categories: js

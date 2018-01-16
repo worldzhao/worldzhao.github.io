@@ -1,5 +1,5 @@
 ---
-title: webpack踩坑（一）——webpack-dev-server不更新
+title: webpack之webpack-dev-server
 date: 2017-10-02
 tags: [webpack]
 categories: 构建工具
@@ -29,7 +29,7 @@ npm install webpack-dev-server --save-dev
 #### 配置
 * 使用babel-loader以及各种相关的preset解析我们的react语法jsx以及es语法;
 * 使用css-loader以及style-loader让我们能够在jsx中引入css文件;
-* 使用file-loader以及url-loader对图片进行处理（还有坑爹的路径问题，下一篇文章写）。
+* 使用file-loader以及url-loader对图片进行处）。
 代码如下：
 ```js
 var webpack = require('webpack');
@@ -37,6 +37,8 @@ var path = require('path');
 
 module.exports = {
     entry: {
+        // path.join用于连接路径。该方法的主要用途在于，会正确使用当前系统的路径分隔符，Unix系统是"/"，Windows系统是"\"。
+        // 同时__dirname是指当前文件目录的绝对路径，我们一般写绝对路径避免出现一些问题
         app: path.join(__dirname, 'src', 'index.js')
     },
     module: {
@@ -60,19 +62,37 @@ module.exports = {
             }
         ]
     },
-    plugins: [ // 热更新需要的插件
+    plugins: [ // 热更新插件
         new webpack.HotModuleReplacementPlugin(),
     ],
     output: {
         path: path.resolve(__dirname, "dist"),// webpack后的bundle.js所在目录
-        filename: "bundle.js"
+        filename: "bundle.js",
+        publicPath: '/public/'
     },
     devServer: { // 开发服务器配置
-        contentBase: "./dist", // 起服务器的目录,指定了服务器资源的根目录,服务器打包的bundle.js在内存中，通过改路径引用，而非output路径
-        historyApiFallback: true,
-        port: 8000,
+        // '0,0,0,0'表示我们可以用任何方式进行访问 如localhost 127.0.0.1 以及外网ip 若配置为'localhost'
+        // 或'127.0.0.1'别人无法从外网进行调试
+        host: '0.0.0.0',
+        // 起服务的端口
+        port: '8888',
+        // 起服务的目录，此处与output一致，此处有坑(要考虑publicPath，还要知晓webpack-dev-server生成的文件在内存中，若项目中已经有
+        // 了dist则以项目中的dist为准，所以删掉dist吧)
+        contentBase: './',
+        // 热更新 如果不配置webpack-dev-server会在文件修改后全局刷新而非局部替换
         hot: true,
-        inline: true
+        overlay: {
+        // 如果打包过程中出现错误在浏览器中渲染一层overlay进行展示
+        errors: true
+        },
+        // 以下两项弄懂了publicPath就好理解
+        // 在此处设置与output相同的publicPath,把静态资源文件放在public文件夹下
+        // 使得output.publicPath得以正常运行，其实这里的publicPath更像是output.path
+        publicPath: '/public/',
+        // 解决刷新404问题（服务端没有前端路由指向的文件） 全都返回index.html
+        historyApiFallback: {
+        index: '/public/index.html'
+        }
     }
 }
 
@@ -116,19 +136,7 @@ module.exports = {
 ```
 这样便可以引用到最新的bundle.js，实现实时刷新。
 
-其实可以将index.html也放进dist目录，再将contentBase更改为'./dist'
-
-如此一来webpack生成的bundle.js与webpack-dev-server生成的bundle.js便可以通过相同路径引用了，
-
+最好的办法是将webpack-dev-server的contentBase与webpack.config.js的output.path设为一致，如此一来webpack生成的bundle.js与webpack-dev-server生成的bundle.js便可以通过相同路径引用了,即
 ```js
-<script type="text/javascript" src="./bundle.js"></script>
-```
-
-webpack-dev-server的原理我猜应该是通过检测文件变化，随后使用websocket之类的能够由服务器向客户端发送信息的方式进行实时刷新。
-
-对了，在package.json中配置如下命令可以通过npm start快速执行webpack-dev-server，少打几个字母。
-```js
-"scripts": {
-    "start": "webpack-dev-server --inline"
-  },
+contentBase: path.resolve(__dirname, "dist")
 ```

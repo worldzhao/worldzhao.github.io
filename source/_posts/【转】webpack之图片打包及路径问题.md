@@ -1,10 +1,10 @@
 ---
-title: 【转】webpack踩坑（二）——图片打包及路径问题
+title: 【转】webpack之图片打包及路径问题
 date: 2017-10-02
 tags: [webpack]
 categories: 构建工具
 ---
->本文非本人原创，转自[webpack踩坑之路 (2)——图片的路径与打包](http://www.cnblogs.com/ghost-xyx/p/5812902.html)，用于记录自己踩过的坑，谢谢作者大大，现在前端同质性文章太多了，提笔之前一搜，好文章一大把，就没有写的必要了，譬如这篇，太棒了。
+>转自[webpack踩坑之路 (2)——图片的路径与打包](http://www.cnblogs.com/ghost-xyx/p/5812902.html)
 
 ## 正文
 在实际生产中有以下几种图片的引用方式：
@@ -88,7 +88,8 @@ module: {
  上例中的 name 字段指定了在打包根目录（output.path）下生成名为 images 的文件夹，并在原图片名前加上8位 hash 值。
 例：工程目录如下:
 
-![project](https://images2015.cnblogs.com/blog/613712/201608/613712-20160829110930980-61005633.png)
+![project.png](http://upload-images.jianshu.io/upload_images/4869616-34f583ff266893e2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 在 main.css 中引用了同级 images 文件夹下的 bg.jpg 图片
 ```css
@@ -96,7 +97,8 @@ background-image: url(./images/bg.jpg);
 ```
 通过之前的配置，使用 $ webpack 命令对代码进行打包后生成如下目录:
 
-![images](https://images2015.cnblogs.com/blog/613712/201608/613712-20160829111126058-1615962110.png)
+![images.png](http://upload-images.jianshu.io/upload_images/4869616-74d9ee7e759d3d4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 打包目录中，css 文件和 images 文件夹保持了同样的层级，可以不做任务修改即能访问到图片。区别是打包后的图片加了 hash 值，bundle.css 文件里引入的也是有hash值的图片。
 

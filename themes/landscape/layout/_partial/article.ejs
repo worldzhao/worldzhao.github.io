@@ -19,13 +19,10 @@
           </p>
         <% } %>
       <% } else { %>
-        <!-- 文章目录 -->
-    <% if (!index && post.toc){ %>
       <div id="toc" class="toc-article">
           <strong class="toc-title">文章目录</strong>
-          <%- toc(post.content, {list_number: false}) %>
-      </div>
-      <% } %>
+          <%- toc(post.content) %>
+        </div>
         <%- post.content %>
       <% } %>
     </div>

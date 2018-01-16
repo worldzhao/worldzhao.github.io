@@ -1,7 +1,7 @@
 ---
 title: Hello World
 date: 2017-03-18
-tags: [闲扯]
+tags: [随笔]
 categories: 琐事
 ---
 * 前言  

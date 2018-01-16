@@ -1,7 +1,6 @@
 ---
 title: 一定微不足道的css
 date: 2017-10-22
-tags: [css]
 categories: css
 ---
 最近被CSS怼成傻逼，总结一下平时没有注意的点，持续更新。

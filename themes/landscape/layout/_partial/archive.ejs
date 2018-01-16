@@ -25,9 +25,9 @@
 <% } %>
 <% if (page.total > 1){ %>
   <nav id="page-nav">
-    <%- paginator({
-      prev_text: "&laquo; __('prev')",
-      next_text: "__('next') &raquo;"
-    }) %>
+      <%- paginator({
+        prev_text: "&laquo; " + __('prev'),
+        next_text: __('next') + " &raquo;"
+      }) %>
   </nav>
 <% } %>

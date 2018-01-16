@@ -9,18 +9,15 @@ categories: 高屋建瓴
 ## 工程架构
 
 1. 解放生产力。浏览器实时刷新/打包压缩/项目环境构建等等重复性工作无需重复解决，解放开发人员生产力：
-
     * 源代码预处理；
     * 自动打包，自动更新页面显示；
     * 自动处理图片依赖，保证开发和正式环境的统一。
 
 2. 围绕解决方案搭建环境。根据不同的解决方案搭建不同的环境，使用React有针对jsx以及其生态圈的一套环境，使用Angular有针对typescript以及angular生态圈的一套环境等等：
-
     * 不同的前端框架需要不同的运行架构；
     * 预期可能出现的问题并规避。例如项目初期编写css较为随意，后期项目扩大，类名冲突等问题接踵而来，要不要使用CSS Module或者预处理器等。
 
 3. 保证项目质量。代码规范检查eslint的使用等等：
-
     * code lint；
     * 不同环境排除差异 .editorconfig文件 indent_style/indet_size/charset/end_of_line/insert_final_newline/trim_trailing_whitespace
     * git commit 预处理

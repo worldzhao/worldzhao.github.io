@@ -23,7 +23,7 @@ categories: js
 
 下面是将要用来测试我们所构建的 React Router 的代码。最终的代码实例你可以在[这里](https://codepen.io/anon/pen/MpexLL)得到。
 
-```javascript {.line-numbers}
+```js
 
 const Home = () => (
   <h2>Home</h2>

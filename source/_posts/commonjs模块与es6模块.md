@@ -51,6 +51,7 @@ export {a}
 import {a} from './a'
 ```
 花括号就是解构赋值的语法，我们可以理解为`export`导出了一个对象，对象里存在a这个函数，就像下面这样
+
 ```js
 {
   a:function(){}
@@ -64,6 +65,7 @@ import {a} from './a'
 `default`可以理解为这一语法的语法糖
 
 导出接口
+
 ```js
 // d.js
 export default function() {}
@@ -72,13 +74,16 @@ export default function() {}
 function a() {};
 export {a as default};
 ```
+
 导入模块
+
 ```js
 import a from './d';
 
 // 等效于，或者说就是下面这种写法的简写，是同一个意思
 import {default as a} from './d';
 ``` 
+
 这个语法糖的好处就是import的时候，可以省去花括号{}。
 
 简单的说，如果import的时候，你发现某个变量没有花括号括起来（没有*号），那么你在脑海中应该把它还原成有花括号的as语法。
@@ -95,11 +100,13 @@ stackoverflow上有一个针对本文题目比较好的回答，原文如下：
 我来翻译下[原文](https://stackoverflow.com/questions/43247696/javascript-require-vs-require-default)：
 
 最后，require和require.default...当在node中处理ES6 模块(export default mycomponent)导入的时候，导出的模块格式为
+
 ```js
 {
   "default": mycomponent
 }
 ```
+
 `import` 语句正确地为你处理了这个问题，然而你必须自己执行 `require("./mycomponent").default`. HMR(热更新模块)不在 `inline` 模式工作的情况下，接口代码不能使用 `import` ，如果你想避免，使用`module.exports`而不是`export default`;
 
 

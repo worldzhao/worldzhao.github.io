@@ -6,6 +6,8 @@ categories: 高屋建瓴
 ---
 # WebApp架构简介
 
+> 该文章总结自：[慕课网: Webpack+React全栈工程架构项目实战精讲](https://coding.imooc.com/class/161.html)
+
 ## 工程架构
 
 1. 解放生产力。浏览器实时刷新/打包压缩/项目环境构建等等重复性工作无需重复解决，解放开发人员生产力：
@@ -32,4 +34,3 @@ categories: 高屋建瓴
 2. 数据解决方案 [redux/reflux/mobx]
 3. 整体代码风格 [目录结构/命名方式/数据存储redux|mobx|component]
 
-> 该文章总结自：[慕课网: Webpack+React全栈工程架构项目实战精讲](https://coding.imooc.com/class/161.html)

@@ -62,6 +62,8 @@ react本身并不难，无非就是使用jsx编写视图，重点在于掌握生
 
 前端路由：前端通过hash或者html 5的history api对url进行操作，浏览器内部消化url而不发送至后端，同时进行视图切换。
 
+![react-router.png](http://upload-images.jianshu.io/upload_images/4869616-e627d9dcc4735111.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 [前端路由学习总结](https://worldzhao.github.io/2017/10/21/%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1%E6%80%BB%E7%BB%93/)
 
 对了，当初想找到类似vue-router的keep-alive的api，但是rrv4就是没有提供，还总结了一番。
@@ -86,6 +88,8 @@ react本身并不难，无非就是使用jsx编写视图，重点在于掌握生
 在没有状态管理工具之前，我们只能通过props传递数据（不考虑context），可是某些信息是需要被许多组件公用的，并且这些组件不是简单的父子关系，用props十分繁琐，所以才需要状态管理工具，你可以理解为将那些需要公用的state变成了一个全局变量。
 
 全局变量是魔鬼，于是redux设置了一些规则来规范开发者去变动state的行为，流程大致如图所示：
+
+![redux.png](http://upload-images.jianshu.io/upload_images/4869616-af7401b4779dfce4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 “当你在考虑要不要上redux的时候，你其实并不需要redux”，这句话在我没有听过redux的时候就早有耳闻。
 

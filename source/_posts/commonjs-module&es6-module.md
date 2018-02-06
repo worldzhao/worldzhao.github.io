@@ -148,7 +148,5 @@ export {a as default}
 
 我们的疑问也就迎刃而解了。
 
-注：以上所有代码都是在webpack开发环境（babel）中运行（保证ES6模块语法可以被识别）。
-
 参考：[Node中没搞明白require和import，你会被坑的很惨](http://imweb.io/topic/582293894067ce9726778be9) <br>
 [Javascript require vs require .default](https://stackoverflow.com/questions/43247696/javascript-require-vs-require-default)

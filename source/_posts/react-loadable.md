@@ -50,7 +50,11 @@ const AsyncHome = Loadable({
  <Route path="/" exact component={AsyncHome} />
 ```
 
-这样，你就会发现只有路由匹配的时候，home组件才被import进来，达到了`code splitting`的效果，也就是我们常说的按需加载，代码分块，而不是一开始就将全部组件加载。
+这样，你就会发现只有路由匹配的时候，组件才被import进来，达到了`code splitting`的效果，也就是我们常说的按需加载，代码分块，而不是一开始就将全部组件加载。
+
+![chunk](http://upload-images.jianshu.io/upload_images/4869616-87139115a2c3215e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+可以观察到，点击不同的路由都会加载一个chunk.js，这就是我们所分的块。
 
 ## 核心：import()
 不要把 `import`关键字和`import()`方法弄混了，该方法是为了进行动态加载才被引入的。
@@ -163,6 +167,9 @@ export default function Loadable(
   };
 }
 ```
+
+安利一下我正在练习的项目[react-music](https://github.com/worldzhao/music-react)
+
 参考资料：
 
 [React Loadable 介绍](http://web.jobbole.com/91704/)

@@ -13,14 +13,12 @@ categories: js
 
 * addEventListener,W3C标准方法，功能也最强大，支持添加多个事件
 
-{% codeblock lang:javascript %}
-
-    //element.addEventListener(type,listener,useCapture);
-    obj.addEventListener("click",method1,false);
-    obj.addEventListener("click",method2,false);
-    obj.addEventListener("click",method3,false);
-    
-{% endcodeblock %} 
+```js
+//element.addEventListener(type,listener,useCapture);
+obj.addEventListener("click",method1,false);
+obj.addEventListener("click",method2,false);
+obj.addEventListener("click",method3,false);
+```   
 
 执行顺序为method1->method2->method3，第三个参数是指以“冒泡”还是“捕获”的标准绑定事件，一般为false(冒泡).
 
@@ -31,87 +29,78 @@ categories: js
 
 如果浏览器不支持 removeEventListener() 方法，你可以使用 detachEvent() 方法实现。
 
-{% codeblock lang:javascript %}
-
-     var x = document.getElementById("myDIV");
-     if (x.removeEventListener) {                   // // 所有浏览器，除了 IE 8 及更早IE版本
-           x.removeEventListener("mousemove", myFunction);
-     } else if (x.detachEvent) {                   // IE 8 及更早IE版本
-           x.detachEvent("onmousemove", myFunction);
-      }
-
-{% endcodeblock %} 
+```js
+var x = document.getElementById("myDIV");
+if (x.removeEventListener) {                   // // 所有浏览器，除了 IE 8 及更早IE版本
+    x.removeEventListener("mousemove", myFunction);
+} else if (x.detachEvent) {                   // IE 8 及更早IE版本
+    x.detachEvent("onmousemove", myFunction);
+}
+```
 
 * attachEvent,IE家的方法，火狐与其他家浏览器都不支持,attachEvent——兼容：IE7、IE8；不兼容firefox、chrome、IE9、IE10、IE11、safari、opera.尽量不要用，支持绑定多个事件，与addEventListener()执行顺序相反，即method3->method2->method1
 
 下面我们来进行兼容性处理：
 1. 通过if判断
 
-{% codeblock lang:javascript %}
-
-    if(document.addEventListener){//功能最强大 
-        div.addEventListener('click',function(){
-            alert('hello,world');
-        });
-    }else if(document.attachEvent){//非标准特性 尽量不要使用
-        div.attachEvent('click',function(){
-            alert('hello,world');
-        });
-    }else{//支持最好
-        div['onclick']=function(){
-            alert('hello,world');
-        }
+```js
+if(document.addEventListener){//功能最强大 
+    div.addEventListener('click',function(){
+        alert('hello,world');
+    });
+}else if(document.attachEvent){//非标准特性 尽量不要使用
+    div.attachEvent('click',function(){
+        alert('hello,world');
+    });
+}else{//支持最好
+    div['onclick']=function(){
+        alert('hello,world');
     }
-
-{% endcodeblock %} 
+}
+```
 
 2. 封装成函数
 
-{% codeblock lang:javascript %}
-
-    function registeEvent(elem,type,handler,useCapture){
-        if(document.addEventListener){//功能最强大
-            elem.addEventListener(type,handler,useCapture);
-        }else if(document.attachEvent){//非标准特性 尽量不要使用
-            elem.attachEvent(type,handler);
-        }else{//支持最好
-            elem['on'+type]=handler;
-        }
+```js
+function registeEvent(elem,type,handler,useCapture){
+    if(document.addEventListener){//功能最强大
+        elem.addEventListener(type,handler,useCapture);
+    }else if(document.attachEvent){//非标准特性 尽量不要使用
+        elem.attachEvent(type,handler);
+    }else{//支持最好
+        elem['on'+type]=handler;
     }
-
-{% endcodeblock %} 
+}
+```
 
 到这里，我们每次注册事件时都通过registeEvent注册，很明显，每次注册都要判断浏览器的能力是否支持，每一次都要检测，这不是我们想要的。
 
 3. 可以通过一个立即执行函数解决这个问题。
 
-{% codeblock lang:javascript %}
-
-    var registeEvent=(function  createEventRegister(){
-        if(document.addEventListener){
-            return function(elem,type,handler,useCapture){
-                elem.addEventListener(type,handler,useCapture);
-            }
-        }else if(document.attachEvent){
-            return function(elem,type,handler){
-                elem.attachEvent(type,function(){
-                    handler.call(elem,window.event);//注:attachEvent内部this指向window而不是触发对象,使用call方法修改this
-                });
-            }
-        }else{
-            return function(elem,type,handler){
-                elem['on'+type]=handler;
-            }
+```js
+var registeEvent=(function  createEventRegister(){
+    if(document.addEventListener){
+        return function(elem,type,handler,useCapture){
+            elem.addEventListener(type,handler,useCapture);
         }
-    })()
+    }else if(document.attachEvent){
+        return function(elem,type,handler){
+            elem.attachEvent(type,function(){
+                handler.call(elem,window.event);//注:attachEvent内部this指向window而不是触发对象,使用call方法修改this
+            });
+        }
+    }else{
+        return function(elem,type,handler){
+            elem['on'+type]=handler;
+        }
+    }
+})()
+```
 
-{% endcodeblock %} 
 此后只用通过registeEvent方法注册事件即可，且只在最开始的时候进行一次能力检测.
 
-{% codeblock lang:javascript %}
-
-     registeEvent(div,"click",function(){
-            alert('hello,world');
-     })
-
-{% endcodeblock %} 
+```js
+registeEvent(div,"click",function(){
+    alert('hello,world');
+})
+```

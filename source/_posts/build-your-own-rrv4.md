@@ -1,7 +1,7 @@
 ---
 title: 【转】Build your own React Router v4
 date: 2018-01-11
-tags: [React Router]
+tags: [router]
 categories: js
 toc: true
 ---

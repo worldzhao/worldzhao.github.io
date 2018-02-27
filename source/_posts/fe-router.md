@@ -1,7 +1,7 @@
 ---
 title: 前端路由总结
 date: 2017-10-22
-tags: [原生js]
+tags: [router]
 categories: js
 ---
 
@@ -48,10 +48,12 @@ http://www.example.com/category/add
 
 ## 实现简易前端路由
 
+
+### 方式一：html5 history
 首先我们需要了解HTML5为我们提供的history API，准确的说是这里面的两个方法:
 history.pushState和history.replaceState
 
-### history.pushState
+#### history.pushState
 
 >带有三个参数：一个状态对象，一个标题（现在被忽略了），以及一个可选的URL地址。下面将对这三个参数进行细致的检查：
 
@@ -82,7 +84,7 @@ window.history.pushState(null, null, "http://www.tonylee.pw?name=tonylee");
 //error: 由于跨域将产生错误
 ```
 
-### history.replaceState
+#### history.replaceState
 
 pushState()和replaceState()参数一样。
 两个方法的主要区别就是：pushState()是在history栈中添加一个新的条目，replaceState()是替换当前的记录值。关于API的详细解释可以[戳这里](http://blog.jobbole.com/78876/)
@@ -97,7 +99,7 @@ pushState()和replaceState()参数一样。
 
 那我们就需要在这两个方法被调用的时候，触发一个方法去切换视图，好在HTML5也给我们提供了一个事件。
 
-### window.onpopstate
+#### window.onpopstate
 
 浏览器本身会自带一个popstate事件，但是只有在我们点击返回或前进按钮时才会正常触发。
 
@@ -121,7 +123,7 @@ window.onpopstate = history.onpushstate = function(event) {
 
 如此一来，进行pushState操作会触发onpushstate事件，我们可以在onpushstate事件的回调中进行视图切换了，而前进后退我们可以通过popstate来操作。
 
-别忘了给a标签做一些必要操作，阻止默认跳转，而是通过pushState改变url，然后由于pushState被调用，又会触发onpushstate事件，其内的逻辑代码就会被执行，比如，切换视图。
+别忘了给a标签做一些必要操作，阻止默认跳转，而是通过pushState改变url，然后由于pushState被调用，又会触发onpushstate事件，其内的逻辑代码就会被执行，比如，更改视图。
 
 ```js
 var elements = document.getElementsByTagName('a');
@@ -134,9 +136,56 @@ for(var i = 0, len = elements.length; i < len; i++) {
 }
 ```
 
-前端路由的基本实现就是以上了，代码来自[余博伦-知乎首页](https://www.zhihu.com/people/yubolun/activities)，现在再回头看vue-router/react-router是否清晰了一点呢，当然其内部实现远远不是这么简单。
+这只是一个思路，当然，当初学习vue-router的时候还有个hash模式以及html5 history模式，后者无疑就是我们刚才实现的方式，前者则兼容性更好，也更为容易理解。
 
-## 小知识-pjax
+### 使用hash完成前端路由
+```html
+<ul>
+    <li><a href="#/">turn white</a></li>
+    <li><a href="#/blue">turn blue</a></li>
+    <li><a href="#/green">turn green</a></li>
+</ul>
+```
+
+```js
+function Router() {
+  this.routes = {};
+  this.currentUrl = "";
+}
+// 注册路由
+Router.prototype.route = function(path, callback) {
+  this.routes[path] = callback || function() {};
+};
+Router.prototype.refresh = function() {
+  console.log("触发一次 hashchange，hash 值为", location.hash);
+  this.currentUrl = location.hash.slice(1) || "/";
+  // 触发回调
+  this.routes[this.currentUrl]();
+};
+Router.prototype.init = function() {
+  // 监听load以及hashchange事件
+  window.addEventListener("load", this.refresh.bind(this), false);
+  window.addEventListener("hashchange", this.refresh.bind(this), false);
+};
+window.Router = new Router();
+window.Router.init();
+var content = document.querySelector("body");
+// change Page anything
+function changeBgColor(color) {
+  content.style.backgroundColor = color;
+}
+Router.route("/", function() {
+  changeBgColor("white");
+});
+Router.route("/blue", function() {
+  changeBgColor("blue");
+});
+Router.route("/green", function() {
+  changeBgColor("green");
+});
+
+```
+### 小知识-pjax
 
 pjax是一种基于ajax+history.pushState的新技术，该技术可以无刷新改变页面的内容，并且可以改变页面的URL。pjax是ajax+pushState的封装，同时支持本地存储、动画等多种功能。目前支持jquery、qwrap、kissy等多种版本。
 

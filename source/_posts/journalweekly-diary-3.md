@@ -28,7 +28,7 @@ categories: 琐事
 3. 利用`gh-pages`将music-react在线展示。不需要同原来一样去修改 `publicPath` ，新建 `gh-pages` 分支了，大致操作如下(除了第一步，你build之后react都会告诉你如何操作)：
     - `BrowseRouter` 添加 `basename`属性
       ```js
-      <BrowserRouter basename="music-react">
+      <BrowserRouter basename="/music-react/">
       ```
     - `package.json` 文件添加 `homepage` 字段
       ```js

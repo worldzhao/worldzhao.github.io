@@ -21,10 +21,10 @@ categories: 琐事
 3. 这周六就可以回学校了，哈哈哈哈哈
 
 ## 学习
-1. 封装了 `react-tiny-swiper` 组件并发布到了npm。学会了如何编写组件，搭建组件开发环境，开发打包测试一条龙服务
+1. 封装了 `react-tiny-swiper` 组件并发布到了npm。学会了如何编写组件，搭建组件开发环境，开发打包测试一条龙服务。
     - [发布react组件到npm总结](https://worldzhao.github.io/2018/03/23/publish-your-first-react-component-to-npm/)
     - [react-tiny-swiper](https://github.com/worldzhao/react-tiny-swiper)
-2. 重新老老实实的学习webpack，理一遍概念，在看慕课视频的同时看这篇文章-[从零搭建React全家桶框架教程](https://github.com/brickspert/blog/issues/1#react-router)
+2. 重新老老实实的学习webpack，理一遍概念，在看慕课视频的同时看这篇文章-[从零搭建React全家桶框架教程](https://github.com/brickspert/blog/issues/1#react-router)。
 3. 利用`gh-pages`将music-react在线展示。不需要同原来一样去修改 `publicPath` ，新建 `gh-pages` 分支了，大致操作如下(除了第一步，你build之后react都会告诉你如何操作)：
     - `BrowseRouter` 添加 `basename`属性
       ```js
@@ -56,7 +56,7 @@ categories: 琐事
 4. 在进行3的过程中，发现 `gh-pages` 是https网页，里面禁止http请求（css,js,img会报warning,其他请求ajax等直接block报error）。[music-react](https://worldzhao.github.io/music-react/)，如下图：
 ![error.png](https://upload-images.jianshu.io/upload_images/4869616-988a4e2192d33543.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ![warning.png](https://upload-images.jianshu.io/upload_images/4869616-9ead2522991a91ae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-原来展示是可以的，因为使用的是自定义域名`http://blog.hackerwen.tech`，没有使用`https://worldzhao.github.io`这个域名，要么重新自定义域名，要么升级服务到https
+原来展示是可以的，因为使用的是自定义域名`http://blog.hackerwen.tech`，没有使用`https://worldzhao.github.io`这个域名，要么重新自定义域名，要么升级服务到https。
 5. 在编写 `react-tiny-swiper` 过程中看了一下zeng-alert/swiper源码，学习到了一些东西。
     - [让繁琐的if else逼格高一点点](https://mp.weixin.qq.com/s/cInFsWjCRGtKnZ17IfFXUw)，这是我很久之前看的一篇文章，在自己也在践行，zent中处理样式的时候也是这种方式
     - 代码尽可能的小，这个是我最大的收获了。

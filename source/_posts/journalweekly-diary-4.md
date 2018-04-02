@@ -130,36 +130,39 @@ luke.sayWithArrow()
 luke.sayWithGlobalArrow()
 ```
 5. 系统性的学习了一下webpack，对webpack在浏览器上实现模块化进行了一些思考（webpack在多页应用单页应用使用情景的差别），部分笔记如下：
-- ES6,7/react => babel
-- css相关 => css-loader style-loader extra-text-webpack-plugin
-- 代码规范 => eslint
-- 图片，字体 => file-loader url-loader
-- 开发热更新环境 => webpack-dev-server
-- Common chunk
-- Code splitting && lazy load
-- Uglify && Minisize
+    - ES6,7/react => babel
+    - css相关 => css-loader style-loader extra-text-webpack-plugin
+    - 代码规范 => eslint
+    - 图片，字体 => file-loader url-loader
+    - 开发热更新环境 => webpack-dev-server
+    - Common chunk
+    - Code splitting && lazy load
+    - Uglify && Minisize
 
-提取公共代码：CommonChunkPlugin 通过将公共模块拆出来，最终合成的文件能够在最开始的时候加载一次，便存到缓存中供后续使用。这个带来速度上的提升，因为浏览器会迅速将公共的代码从缓存中取出来，而不是每次访问一个新页面时，再去加载一个更大的文件。4.0版本已经移除
+    提取公共代码：CommonChunkPlugin 通过将公共模块拆出来，最终合成的文件能够在最开始的时候加载一次，便存到缓存中供后续使用。这个带来速度上的提升，因为浏览器会迅速将公共的代码从缓存中取出来，而不是每次访问一个新页面时，再去加载一个更大的文件。4.0版本已经移除
 
-css相关：
-- css引入：
-    - style-loader ：创建style标签
-    - css-loader：使得css可被import
-- Css modules
-- 配置less/sass/stylus
-- 抽离css： extra-text-webpack-plugin 可以将css或各种预处理器[转换成css]抽离出来，有利于缓存，异步组件无法抽离，需要配置fallback，不能抽离的css动态生成style标签，官方文档很完善【重复@import的css代码若不抽离会被打入js两次】
+    css相关：
+    - css引入：
+        - style-loader ：创建style标签
+        - css-loader：使得css可被import
+    - Css modules
+    - 配置less/sass/stylus
+    - 抽离css： extra-text-webpack-plugin 可以将css或各种预处理器[转换成css]抽离出来，有利于缓存，异步组件无法抽离，需要配置fallback，不能抽离的css动态生成style标签，官方文档很完善【重复@import的css代码若不抽离会被打入js两次】
 
-代码分割和懒加载： 不需要配置webpack，只需要自己在代码中实现即可。
-- import(). [react-loadable]
-- require.ensure([],function(){})
-- 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
-- [webpack异步加载的原理](https://github.com/yongningfu/webpa_ensure)
+    代码分割和懒加载： 不需要配置webpack，只需要自己在代码中实现即可。
+    - import(). [react-loadable]
+    - require.ensure([],function(){})
+    - 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
+    - [webpack异步加载的原理](https://github.com/yongningfu/webpa_ensure)
 
 6. koa中间件原理。koa-compose:
-看源码。
+    - 回忆过去，[最近遇到的一些js编程题:实现一个compose方法，要求如下](https://www.jianshu.com/p/4443733f72b4)
+    - [可能是目前市面上比较有诚意的Koa2源码解读](https://zhuanlan.zhihu.com/p/34797505)
+    - 看源码
+
 
 好累，写不动了。
 
-7. 看关键字
-8. 看关键字
-9. 看关键字
+7. 看关键字，好贵。
+8. 看关键字，终于看了课外书。
+9. 看关键字，爽死了。

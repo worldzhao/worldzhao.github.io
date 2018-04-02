@@ -31,13 +31,13 @@ categories: 琐事
 
     上几张图咯。
 
-![1.jpeg](https://upload-images.jianshu.io/upload_images/4869616-4eb1aaa6ce043370.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+  ![1.jpeg](https://upload-images.jianshu.io/upload_images/4869616-4eb1aaa6ce043370.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-![2.jpeg](https://upload-images.jianshu.io/upload_images/4869616-5b2b292a8c63aa3a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+  ![2.jpeg](https://upload-images.jianshu.io/upload_images/4869616-5b2b292a8c63aa3a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-![3.jpeg](https://upload-images.jianshu.io/upload_images/4869616-b7ce808e0f8b2ca2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+  ![3.jpeg](https://upload-images.jianshu.io/upload_images/4869616-b7ce808e0f8b2ca2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-![4.jpeg](https://upload-images.jianshu.io/upload_images/4869616-857e88538234a72c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+  ![4.jpeg](https://upload-images.jianshu.io/upload_images/4869616-857e88538234a72c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 2.  订阅管理上线前优化需求。特意留了一个星期来修复 bug，结果偏偏最后一天冒出四五个需求，还撞上了培训， 真是全场最佳。还好有暖心的同事。
 
@@ -45,94 +45,94 @@ categories: 琐事
 
 1.  回顾 js 异步发展史，真的真的特别重要，原来直接跳过了 generator 到了 async，这周静下心来梳理了一下，配合 co 也算是会入门使用了，但是没有去看 co 的源码，下周可以看看。上码：
 
-```js
-const fs = require('fs')
+  ```js
+  const fs = require('fs')
 
-// 第一阶段 callback
-function readFile(cb) {
-  fs.readFile('./package.json', cb)
-}
+  // 第一阶段 callback
+  function readFile(cb) {
+    fs.readFile('./package.json', cb)
+  }
 
-readFile((err, data) => {
-  if (!err) {
+  readFile((err, data) => {
+    if (!err) {
+      data = JSON.parse(data)
+      console.log(data.name)
+    }
+  })
+
+  // 第二阶段 promise
+  function readFileAsync(path) {
+    return new Promise((reslove, reject) => {
+      fs.readFile(path, (err, data) => {
+        if (err) reject(err)
+        else reslove(data)
+      })
+    })
+  }
+
+  readFileAsync('./package.json')
+    .then(data => {
+      data = JSON.parse(data)
+      console.log(data.name)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+
+  // 第三阶段  co + generator function + promise
+  const co = require('co')
+  const util = require('util')
+
+  co(function*() {
+    let data = yield util.promisify(fs.readFile)('./package.json')
+    data = JSON.parse(data)
+    console.log(data.name)
+  })
+
+  // 第四阶段 async
+  const readAsync = util.promisify(fs.readFile)
+  async function readWithAsync(path) {
+    let data = await readAsync(path)
     data = JSON.parse(data)
     console.log(data.name)
   }
-})
 
-// 第二阶段 promise
-function readFileAsync(path) {
-  return new Promise((reslove, reject) => {
-    fs.readFile(path, (err, data) => {
-      if (err) reject(err)
-      else reslove(data)
-    })
-  })
-}
-
-readFileAsync('./package.json')
-  .then(data => {
-    data = JSON.parse(data)
-    console.log(data.name)
-  })
-  .catch(err => {
-    console.log(err)
-  })
-
-// 第三阶段  co + generator function + promise
-const co = require('co')
-const util = require('util')
-
-co(function*() {
-  let data = yield util.promisify(fs.readFile)('./package.json')
-  data = JSON.parse(data)
-  console.log(data.name)
-})
-
-// 第四阶段 async
-const readAsync = util.promisify(fs.readFile)
-async function readWithAsync(path) {
-  let data = await readAsync(path)
-  data = JSON.parse(data)
-  console.log(data.name)
-}
-
-readWithAsync('./package.json')
-```
+  readWithAsync('./package.json')
+  ```
 
 2.  回顾箭头函数，上码。
 
-```js
-const luke = {
-  id: 1,
-  say: function() {
-    setTimeout(function() {
-      console.log('id:', this.id)
-    }, 500)
-  },
-  sayWithThis: function() {
-    let that = this
-    setTimeout(function() {
-      console.log('this id:', that.id)
-    }, 1000)
-  },
-  sayWithArrow: function() {
-    setTimeout(() => {
-      console.log('arrow id:', this.id)
-    }, 1500)
-  },
-  sayWithGlobalArrow: () => {
-    setTimeout(() => {
-      console.log('global arrow id:', this.id)
-    }, 2000)
+  ```js
+  const luke = {
+    id: 1,
+    say: function() {
+      setTimeout(function() {
+        console.log('id:', this.id)
+      }, 500)
+    },
+    sayWithThis: function() {
+      let that = this
+      setTimeout(function() {
+        console.log('this id:', that.id)
+      }, 1000)
+    },
+    sayWithArrow: function() {
+      setTimeout(() => {
+        console.log('arrow id:', this.id)
+      }, 1500)
+    },
+    sayWithGlobalArrow: () => {
+      setTimeout(() => {
+        console.log('global arrow id:', this.id)
+      }, 2000)
+    }
   }
-}
 
-luke.say()
-luke.sayWithThis()
-luke.sayWithArrow()
-luke.sayWithGlobalArrow()
-```
+  luke.say()
+  luke.sayWithThis()
+  luke.sayWithArrow()
+  luke.sayWithGlobalArrow()
+  ```
 
 3.  系统性的学习了一下 webpack，对 webpack 在浏览器上实现模块化进行了一些思考（webpack 在多页应用单页应用使用情景的差别），部分笔记如下：
 

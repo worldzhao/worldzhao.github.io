@@ -1,26 +1,27 @@
 ---
 title: 【周记】2018.03.26-2018.03.31
-date: 2018-03-25
+date: 2018-03-31
 tags: [周记]
 categories: 琐事
 ---
 
 > 孤山寺北贾亭西，水面初平云脚低。几处早莺争暖树，谁家新燕啄春泥。乱花渐欲迷人眼，浅草才能没马蹄。最爱湖东行不足，绿杨阴里白沙堤。 　　- 白居易《钱塘湖春行》
 
-
 关键字：
-1. 百乐门培训
-2. 订阅管理上线前优化需求
-3. 回顾js异步发展史callback => promise => co + generator => async + await + promise
-4. 回顾箭头函数
-5. 阅读webpack官方指南/掘金小册，还有视频
-6. 初读koa源码，重点：koa中间件实现原理
-7. 买了15个月的腾讯云服务器
-8. 明朝那些事儿【朱佑樘，朱厚照】
-9. 返校
+
+1.  百乐门培训
+2.  订阅管理上线前优化需求
+3.  回顾 js 异步发展史 callback => promise => co + generator => async + await + promise
+4.  回顾箭头函数
+5.  阅读 webpack 官方指南/掘金小册，还有视频
+6.  初读 koa 源码，重点：koa 中间件实现原理
+7.  买了 15 个月的腾讯云服务器
+8.  明朝那些事儿【朱佑樘，朱厚照】
+9.  返校
 
 ## 工作
-1. 周四晚上到周六一整天都是公司新员工培训，周四晚上组队并且进行团队介绍，周五前往西溪湿地公园“寻宝”，周六培训业务相关（然而我已经回学校了）。
+
+1.  周四晚上到周六一整天都是公司新员工培训，周四晚上组队并且进行团队介绍，周五前往西溪湿地公园“寻宝”，周六培训业务相关（然而我已经回学校了）。
 
 一点感触，不要因为自己是实习生就对别人太 过于 有礼貌，正常交流即可，可能技术比工作了五年的老哥们差了不少，但大家都会是正式员工，是平等的，不存在上下级关系，弱势久了能想象得到以后工作很麻烦。
 
@@ -38,10 +39,12 @@ categories: 琐事
 
 ![4.jpeg](https://upload-images.jianshu.io/upload_images/4869616-857e88538234a72c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-2. 订阅管理上线前优化需求。特意留了一个星期来修复bug，结果偏偏最后一天冒出四五个需求，还撞上了培训，真是全场最佳。还好有暖心的同事。
+2.  订阅管理上线前优化需求。特意留了一个星期来修复 bug，结果偏偏最后一天冒出四五个需求，还撞上了培训， 真是全场最佳。还好有暖心的同事。
 
 ## 学习
-1. 回顾js异步发展史，真的真的特别重要，原来直接跳过了generator到了async，这周静下心来梳理了一下，配合co也算是会入门使用了，但是没有去看co的源码，下周可以看看。上码：
+
+1.  回顾 js 异步发展史，真的真的特别重要，原来直接跳过了 generator 到了 async，这周静下心来梳理了一下，配合 co 也算是会入门使用了，但是没有去看 co 的源码，下周可以看看。上码：
+
 ```js
 const fs = require('fs')
 
@@ -67,7 +70,7 @@ function readFileAsync(path) {
   })
 }
 
-readFileAsync('./package.json') 
+readFileAsync('./package.json')
   .then(data => {
     data = JSON.parse(data)
     console.log(data.name)
@@ -78,7 +81,7 @@ readFileAsync('./package.json')
 
 // 第三阶段  co + generator function + promise
 const co = require('co')
-const util = require('util') 
+const util = require('util')
 
 co(function*() {
   let data = yield util.promisify(fs.readFile)('./package.json')
@@ -95,9 +98,10 @@ async function readWithAsync(path) {
 }
 
 readWithAsync('./package.json')
-
 ```
-2. 回顾箭头函数，上码。
+
+2.  回顾箭头函数，上码。
+
 ```js
 const luke = {
   id: 1,
@@ -129,40 +133,43 @@ luke.sayWithThis()
 luke.sayWithArrow()
 luke.sayWithGlobalArrow()
 ```
-5. 系统性的学习了一下webpack，对webpack在浏览器上实现模块化进行了一些思考（webpack在多页应用单页应用使用情景的差别），部分笔记如下：
-    - ES6,7/react => babel
-    - css相关 => css-loader style-loader extra-text-webpack-plugin
-    - 代码规范 => eslint
-    - 图片，字体 => file-loader url-loader
-    - 开发热更新环境 => webpack-dev-server
-    - Common chunk
-    - Code splitting && lazy load
-    - Uglify && Minisize
 
-    提取公共代码：CommonChunkPlugin 通过将公共模块拆出来，最终合成的文件能够在最开始的时候加载一次，便存到缓存中供后续使用。这个带来速度上的提升，因为浏览器会迅速将公共的代码从缓存中取出来，而不是每次访问一个新页面时，再去加载一个更大的文件。4.0版本已经移除
+5.  系统性的学习了一下 webpack，对 webpack 在浏览器上实现模块化进行了一些思考（webpack 在多页应用单页应用使用情景的差别），部分笔记如下：
 
-    css相关：
-    - css引入：
-        - style-loader ：创建style标签
-        - css-loader：使得css可被import
-    - Css modules
-    - 配置less/sass/stylus
-    - 抽离css： extra-text-webpack-plugin 可以将css或各种预处理器[转换成css]抽离出来，有利于缓存，异步组件无法抽离，需要配置fallback，不能抽离的css动态生成style标签，官方文档很完善【重复@import的css代码若不抽离会被打入js两次】
+    * ES6,7/react => babel
+    * css 相关 => css-loader style-loader extra-text-webpack-plugin
+    * 代码规范 => eslint
+    * 图片，字体 => file-loader url-loader
+    * 开发热更新环境 => webpack-dev-server
+    * Common chunk
+    * Code splitting && lazy load
+    * Uglify && Minisize
 
-    代码分割和懒加载： 不需要配置webpack，只需要自己在代码中实现即可。
-    - import(). [react-loadable]
-    - require.ensure([],function(){})
-    - 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
-    - [webpack异步加载的原理](https://github.com/yongningfu/webpa_ensure)
+    提取公共代码：CommonChunkPlugin 通过将公共模块拆出来，最终合成的文件能够在最开始的时候加载一次，便存到缓存中供后续使用。这个带来速度上的提升，因为浏览器会迅速将公共的代码从缓存中取出来，而不是每次访问一个新页面时，再去加载一个更大的文件。4.0 版本已经移除
 
-6. koa中间件原理。koa-compose:
-    - 回忆过去，[最近遇到的一些js编程题:实现一个compose方法，要求如下](https://www.jianshu.com/p/4443733f72b4)
-    - [可能是目前市面上比较有诚意的Koa2源码解读](https://zhuanlan.zhihu.com/p/34797505)
-    - 看源码
+    css 相关：
 
+    * css 引入：
+      * style-loader ：创建 style 标签
+      * css-loader：使得 css 可被 import
+    * Css modules
+    * 配置 less/sass/stylus
+    * 抽离 css： extra-text-webpack-plugin 可以将 css 或各种预处理器[转换成 css]抽离出来，有利于缓存，异步组件无法抽离，需要配置 fallback，不能抽离的 css 动态生成 style 标签，官方文档很完善【重复@import 的 css 代码若不抽离会被打入 js 两次】
+
+    代码分割和懒加载： 不需要配置 webpack，只需要自己在代码中实现即可。
+
+    * import(). [react-loadable]
+    * require.ensure([],function(){})
+    * 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
+    * [webpack 异步加载的原理](https://github.com/yongningfu/webpa_ensure)
+
+6.  koa 中间件原理。koa-compose:
+    * 回忆过去，[最近遇到的一些 js 编程题:实现一个 compose 方法，要求如下](https://www.jianshu.com/p/4443733f72b4)
+    * [可能是目前市面上比较有诚意的 Koa2 源码解读](https://zhuanlan.zhihu.com/p/34797505)
+    * 看源码
 
 好累，写不动了。
 
-7. 看关键字，好贵。
-8. 看关键字，终于看了课外书。
-9. 看关键字，爽死了。
+7.  看关键字，好贵。
+8.  看关键字，终于看了课外书。
+9.  看关键字，爽死了。

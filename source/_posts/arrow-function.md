@@ -4,10 +4,12 @@ date: 2017-10-14
 tags: [原生js]
 categories: js
 ---
+
 # 什么时候你不能使用箭头函数？
+
 译者：王仕军
 
->共 2670 字，读完需 5 分钟。编译自 Dmitri Pavlutin 的文章，对原文内容做了精简和代码风格优化。ES6 中引入的箭头函数可以让我们写出更简洁的代码，但是部分场景下使用箭头函数会带来严重的问题，有哪些场景？会导致什么问题？该怎么解决，容我慢慢道来。
+> 共 2670 字，读完需 5 分钟。编译自 Dmitri Pavlutin 的文章，对原文内容做了精简和代码风格优化。ES6 中引入的箭头函数可以让我们写出更简洁的代码，但是部分场景下使用箭头函数会带来严重的问题，有哪些场景？会导致什么问题？该怎么解决，容我慢慢道来。
 
 能见证每天在用的编程语言不断演化是一件让人非常兴奋的事情，从错误中学习、探索更好的语言实现、创造新的语言特性是推动编程语言版本迭代的动力。JS 近几年的变化就是最好的例子， 以 ES6 引入的箭头函数（arrow functions）、class 等特性为代表，把 JS 的易用性推到了新的高度。
 
@@ -20,80 +22,83 @@ JS 中对象方法的定义方式是在对象上定义一个指向函数的属�
 ### 1.1 定义字面量方法
 
 因为箭头函数的语法很简洁，可能不少同学会忍不住用它来定义字面量方法，比如下面的例子：
+
 ```js
 const calculator = {
-    array: [1, 2, 3],
-    sum: () => {
-        console.log(this === window); // => true
-        return this.array.reduce((result, item) => result + item);
-    }
-};
+  array: [1, 2, 3],
+  sum: () => {
+    console.log(this === window) // => true
+    return this.array.reduce((result, item) => result + item)
+  }
+}
 
-console.log(this === window); // => true
+console.log(this === window) // => true
 
 // Throws "TypeError: Cannot read property 'reduce' of undefined"
-calculator.sum();
+calculator.sum()
 ```
+
 calculator.sum 使用箭头函数来定义，但是调用的时候会抛出 TypeError，因为运行时 this.array 是未定义的，调用 calculator.sum 的时候，执行上下文里面的 this 仍然指向的是 window，原因是箭头函数把函数上下文绑定到了 window 上，this.array 等价于 window.array，显然后者是未定义的。
 
 解决的办法是，使用函数表达式或者方法简写（ES6 中已经支持）来定义方法，这样能确保 this 是在运行时是由包含它的上下文决定的，修正后的代码如下：
 
 ```js
 const calculator = {
-    array: [1, 2, 3],
-    sum() {
-        console.log(this === calculator); // => true
-        return this.array.reduce((result, item) => result + item);
-    }
-};
-calculator.sum(); // => 6
-```
-这样 calculator.sum 就变成了普通函数，执行时 this 就指向 calculator 对象，自然能得到正确的计算结果。
-
---------------------------------赵志文的分割线开始-----------------------------
-
-补充一个在sg看到的提问：
-
-```js
-var name="window";
-var obj={
-  name:'netease',
-   print1:()=>{
-    console.log(this.name);
-  
+  array: [1, 2, 3],
+  sum() {
+    console.log(this === calculator) // => true
+    return this.array.reduce((result, item) => result + item)
   }
 }
-obj.print1();//window
+calculator.sum() // => 6
 ```
 
-题主描述：es6中的this是定义时绑定，跟运行时无关，我很纳闷就是这个例子中，定义时 print1方法里面的this不是应该最先查找到的就是obj里面的name吗，为什么输出是window，还是绑定到全局变量上去了?不是明明print1里面没有this，再查找外围this，先找到的应该是obj中的this吗？
+这样 calculator.sum 就变成了普通函数，执行时 this 就指向 calculator 对象，自然能得到正确的计算结果。
+
+--------------------------------海秋的分割线开始-----------------------------
+
+补充一个在 sg 看到的提问：
+
+```js
+var name = 'window'
+var obj = {
+  name: 'netease',
+  print1: () => {
+    console.log(this.name)
+  }
+}
+obj.print1() //window
+```
+
+题主描述：es6 中的 this 是定义时绑定，跟运行时无关，我很纳闷就是这个例子中，定义时 print1 方法里面的 this 不是应该最先查找到的就是 obj 里面的 name 吗，为什么输出是 window，还是绑定到全局变量上去了?不是明明 print1 里面没有 this，再查找外围 this，先找到的应该是 obj 中的 this 吗？
 
 最佳回答：
 
->箭头函数没有 this/super/arguments/new.target的绑定，这些值是由外围最近一层非箭头函数决定。
+> 箭头函数没有 this/super/arguments/new.target 的绑定，这些值是由外围最近一层非箭头函数决定。
 
-箭头函数的this和普通函数的this可以看成完全两个概念的东西，不用传统的this去理解。
+箭头函数的 this 和普通函数的 this 可以看成完全两个概念的东西，不用传统的 this 去理解。
 
-我对外围的理解是，这个外围指的是()=>{}整体的外围，比如你的代码中：name属性的外围是什么？print1的外围是什么？。所以 ()=>{console.log(this.name);}的外围已经出了obj，从而进入window
+我对外围的理解是，这个外围指的是()=>{}整体的外围，比如你的代码中：name 属性的外围是什么？print1 的外围是什么？。所以 ()=>{console.log(this.name);}的外围已经出了 obj，从而进入 window
 可以借助我下面的代码来理解：
+
 ```js
-var name = "window";
-    var obj = {
-        name: 'netease',
-        print1: () => {
-            console.log(this.name);
-        },
-        print3: function () {
-            return ()=>{
-                console.log(this.name);
-            }
-        }
+var name = 'window'
+var obj = {
+  name: 'netease',
+  print1: () => {
+    console.log(this.name)
+  },
+  print3: function() {
+    return () => {
+      console.log(this.name)
     }
-    obj.print1();// window
-    obj.print3()();// netease 注意是返回闭包函数
+  }
+}
+obj.print1() // window
+obj.print3()() // netease 注意是返回闭包函数
 ```
 
---------------------------------赵志文的分割线结束-----------------------------
+--------------------------------海秋的分割线结束-----------------------------
 
 ### 1.2 定义原型方法
 
@@ -101,80 +106,81 @@ var name = "window";
 
 ```js
 function Cat(name) {
-    this.name = name;
+  this.name = name
 }
 
 Cat.prototype.sayCatName = () => {
-    console.log(this === window); // => true
-    return this.name;
-};
+  console.log(this === window) // => true
+  return this.name
+}
 
-const cat = new Cat('Mew');
-cat.sayCatName(); // => undefined
+const cat = new Cat('Mew')
+cat.sayCatName() // => undefined
 ```
 
 使用传统的函数表达式就能解决问题：
 
 ```js
 function Cat(name) {
-    this.name = name;
+  this.name = name
 }
 
-Cat.prototype.sayCatName = function () {
-    console.log(this === cat); // => true
-    return this.name;
-};
+Cat.prototype.sayCatName = function() {
+  console.log(this === cat) // => true
+  return this.name
+}
 
-const cat = new Cat('Mew');
-cat.sayCatName(); // => 'Mew'
+const cat = new Cat('Mew')
+cat.sayCatName() // => 'Mew'
 ```
 
 sayCatName 变成普通函数之后，被调用时的执行上下文就会指向新创建的 cat 实例。
 
---------------------------------赵志文的分割线开始-----------------------------
+--------------------------------海秋的分割线开始-----------------------------
 
-来看看ES6中的class定义方法（传统写法、箭头函数写法）
+来看看 ES6 中的 class 定义方法（传统写法、箭头函数写法）
 
 ```js
-class Person { 
-
-  Run() {    //传统形式的函数写法
-    this;
+class Person {
+  Run() {
+    //传统形式的函数写法
+    this
   }
 
-  eat = () => {    //es6中的箭头函数写法
-    this;
+  eat = () => {
+    //es6中的箭头函数写法
+    this
   }
-
-}   
+}
 ```
 
-在ES5中
+在 ES5 中
 
 ```js
-var Person = (function () {
-
-    function Person() {
-        var _this = this;
-        this.eat = function () {    //箭头写法直接挂到Person的this下
-            _this;
-        };
+var Person = (function() {
+  function Person() {
+    var _this = this
+    this.eat = function() {
+      //箭头写法直接挂到Person的this下
+      _this
     }
-    Person.prototype.Run = function () {    //传统写法则挂到prototype中定义
-        this;
-    };
-    
-    return Person;
-}());    
+  }
+  Person.prototype.Run = function() {
+    //传统写法则挂到prototype中定义
+    this
+  }
+
+  return Person
+})()
 ```
 
-所以在ES6的class中定义的传统形式的函数写法是挂在到prototype上的，但是箭头函数并不是直接将挂载在原型上的函数写为箭头形式，而是在构造函数内定义。
+所以在 ES6 的 class 中定义的传统形式的函数写法是挂在到 prototype 上的，但是箭头函数并不是直接将挂载在原型上的函数写为箭头形式，而是在构造函数内定义。
 
-直接在ES6的class中定义箭头函数方法，this是可以指向实例的(外层是构造函数，this指向实例)。
+直接在 ES6 的 class 中定义箭头函数方法，this 是可以指向实例的(外层是构造函数，this 指向实例)。
 
-但是在ES5的原型上挂载箭头函数方法this就无法指向实例了（参考上文）。
+但是在 ES5 的原型上挂载箭头函数方法 this 就无法指向实例了（参考上文）。
 
---------------------------------赵志文的分割线结束-----------------------------
+--------------------------------海秋的分割线结束-----------------------------
 
 ## 2. 定义事件回调函数
 
@@ -183,11 +189,11 @@ this 是 JS 中很强大的特性，可以通过多种方式改变函数执行�
 但是，箭头函数在声明的时候就绑定了执行上下文，要动态改变上下文是不可能的，在需要动态上下文的时候它的弊端就凸显出来。比如在客户端编程中常见的 DOM 事件回调函数（event listenner）绑定，触发回调函数时 this 指向当前发生事件的 DOM 节点，而动态上下文这个时候就非常有用，比如下面这段代码试图使用箭头函数来作事件回调函数：
 
 ```js
-const button = document.getElementById('myButton');
+const button = document.getElementById('myButton')
 button.addEventListener('click', () => {
-    console.log(this === window); // => true
-    this.innerHTML = 'Clicked button';
-});
+  console.log(this === window) // => true
+  this.innerHTML = 'Clicked button'
+})
 ```
 
 在全局上下文下定义的箭头函数执行时 this 会指向 window，当单击事件发生时，浏览器会尝试用 button 作为上下文来执行事件回调函数，但是箭头函数预定义的上下文是不能被修改的，这样 this.innerHTML 就等价于 window.innerHTML，而后者是没有任何意义的。
@@ -195,11 +201,11 @@ button.addEventListener('click', () => {
 使用函数表达式就可以在运行时动态的改变 this，修正后的代码：
 
 ```js
-const button = document.getElementById('myButton');
+const button = document.getElementById('myButton')
 button.addEventListener('click', function() {
-    console.log(this === button); // => true
-    this.innerHTML = 'Clicked button';
-});
+  console.log(this === button) // => true
+  this.innerHTML = 'Clicked button'
+})
 ```
 
 当用户单击按钮时，事件回调函数中的 this 实际指向 button，这样的 this.innerHTML = 'Clicked button' 就能按照预期修改按钮中的文字。
@@ -211,21 +217,21 @@ button.addEventListener('click', function() {
 换句话说，箭头构造函数的执行并没有任何意义，并且是有歧义的。比如，当我们运行下面的代码：
 
 ```js
-const Message = (text) => {
-    this.text = text;
-};
+const Message = text => {
+  this.text = text
+}
 // Throws "TypeError: Message is not a constructor"
-const helloMessage = new Message('Hello World!');
+const helloMessage = new Message('Hello World!')
 ```
 
 构造新的 Message 实例时，JS 引擎抛了错误，因为 Message 不是构造函数。在笔者看来，相比旧的 JS 引擎在出错时悄悄失败的设计，ES6 在出错时给出具体错误消息是非常不错的实践。可以通过使用函数表达式或者函数声明 来声明构造函数修复上面的例子：
 
 ```js
 const Message = function(text) {
-    this.text = text;
-};
-const helloMessage = new Message('Hello World!');
-console.log(helloMessage.text); // => 'Hello World!'
+  this.text = text
+}
+const helloMessage = new Message('Hello World!')
+console.log(helloMessage.text) // => 'Hello World!'
 ```
 
 ## 4. 追求过短的代码
@@ -233,27 +239,27 @@ console.log(helloMessage.text); // => 'Hello World!'
 箭头函数允许你省略参数两边的括号、函数体的花括号、甚至 return 关键词，这对编写更简短的代码非常有帮助。这让我想起大学计算机老师给学生留过的有趣作业：看谁能使用 C 语言编写出最短的函数来计算字符串的长度，这对学习和探索新语言特性是个不错的法子。但是，在实际的软件工程中，代码写完之后会被很多工程师阅读，真正的 write once, read many times，在代码可读性方面，最短的代码可能并不总是最好的。一定程度上，压缩了太多逻辑的简短代码，阅读起来就没有那么直观，比如下面的例子：
 
 ```js
-const multiply = (a, b) => b === undefined ? b => a * b : a * b;
-const double = multiply(2);
-double(3);      // => 6
-multiply(2, 3); // => 6
+const multiply = (a, b) => (b === undefined ? b => a * b : a * b)
+const double = multiply(2)
+double(3) // => 6
+multiply(2, 3) // => 6
 ```
 
 multiply 函数会返回两个数字的乘积或者返回一个可以继续调用的固定了一个参数的函数。代码看起来很简短，但大多数人第一眼看上去可能无法立即搞清楚它干了什么，怎么让这段代码可读性更高呢？有很多办法，可以在箭头函数中加上括号、条件判断、返回语句，或者使用普通的函数：
 
 ```js
 function multiply(a, b) {
-    if (b === undefined) {
-        return function (b) {
-            return a * b;
-        }
+  if (b === undefined) {
+    return function(b) {
+      return a * b
     }
-    return a * b;
+  }
+  return a * b
 }
 
-const double = multiply(2);
-double(3); // => 6
-multiply(2, 3); // => 6
+const double = multiply(2)
+double(3) // => 6
+multiply(2, 3) // => 6
 ```
 
 为了让代码可读性更高，在简短和啰嗦之间把握好平衡是非常有必要的。

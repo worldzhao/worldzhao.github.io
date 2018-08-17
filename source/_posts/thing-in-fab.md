@@ -1,7 +1,7 @@
 ---
 title: 关于斐波那契数列的一些思考
 date: 2017-09-27
-tags: [原生js]
+tags: [斐波那契,递归]
 categories: js
 ---
 

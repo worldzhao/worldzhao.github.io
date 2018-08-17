@@ -1,7 +1,7 @@
 ---
 title: 【转】什么时候你不能使用箭头函数？
 date: 2017-10-14
-tags: [原生js]
+tags: [js]
 categories: js
 ---
 

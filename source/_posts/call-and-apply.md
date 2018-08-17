@@ -1,7 +1,7 @@
 ---
 title: call与apply
 date: 2017-07-04
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
 

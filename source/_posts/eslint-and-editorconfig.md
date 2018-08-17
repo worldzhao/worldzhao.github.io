@@ -2,15 +2,13 @@
 title: 使用eslint和editorconfig规范代码
 date: 2018-01-17
 tags: [eslint]
-categories: 环境配置
+categories: 工程化
 ---
 
 # 使用 eslint 和 editorconfig 规范代码
 
 > 该文章总结自：[慕课网: Webpack+React 全栈工程架构项目实战精讲](https://coding.imooc.com/class/161.html) <br>
-> 参考：<br>[vue 项目配置 eslint(附 visio studio code 配置)](https://www.jianshu.com/p/c94db34e525b) <br>
-> [VS Code 里面怎么根据 eslint 来格式化代码？-刘祺的回答](https://www.zhihu.com/question/52777843)<br>
-> [VS Code 中的插件以及相关配置](http://idealife.github.io/2017/06/29/VS-Code%E4%B8%AD%E7%9A%84%E6%8F%92%E4%BB%B6%E4%BB%A5%E5%8F%8A%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/)
+> 参考：<br>[vue 项目配置 eslint(附 visio studio code 配置)](https://www.jianshu.com/p/c94db34e525b) <br> > [VS Code 里面怎么根据 eslint 来格式化代码？-刘祺的回答](https://www.zhihu.com/question/52777843)<br> > [VS Code 中的插件以及相关配置](http://idealife.github.io/2017/06/29/VS-Code%E4%B8%AD%E7%9A%84%E6%8F%92%E4%BB%B6%E4%BB%A5%E5%8F%8A%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/)
 
 ## 为什么要使用这些
 

@@ -1,8 +1,8 @@
 ---
 title: react-loadable原理浅析
 date: 2018-02-06
-tags: [react]
-categories: js
+tags: [react-loadable]
+categories: react
 ---
 
 # react-loadable

@@ -1,7 +1,7 @@
 ---
 title: require('./expample.js).default详解
 date: 2018-01-17
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
 

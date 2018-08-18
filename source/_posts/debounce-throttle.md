@@ -1,7 +1,7 @@
 ---
 title: 函数节流与函数防抖
 date: 2017-09-12
-tags: [原生js]
+tags: [优化]
 categories: js
 ---
 

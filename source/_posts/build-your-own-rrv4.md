@@ -1,16 +1,17 @@
 ---
 title: 【转】Build your own React Router v4
 date: 2018-01-11
-tags: [router]
-categories: js
+tags: [react-router]
+categories: react
 toc: true
 ---
+
 # 【转】Build your own React Router v4
 
 > 作者：Tyler <br/>
-编译：胡子大哈 <br/>
-翻译原文：http://huziketang.com/blog/posts/detail?postId=58d36df87413fc2e82408555 <br/>
-英文原文：https://tylermcginnis.com/build-your-own-react-router-v4/
+> 编译：胡子大哈 <br/>
+> 翻译原文：http://huziketang.com/blog/posts/detail?postId=58d36df87413fc2e82408555 <br/>
+> 英文原文：https://tylermcginnis.com/build-your-own-react-router-v4/
 
 **转载请注明出处，保留原文链接以及作者信息**
 
@@ -25,21 +26,14 @@ toc: true
 下面是将要用来测试我们所构建的 React Router 的代码。最终的代码实例你可以在[这里](https://codepen.io/anon/pen/MpexLL)得到。
 
 ```js
-
-const Home = () => (
-  <h2>Home</h2>
-)
-const About = () => (
-  <h2>About</h2>
-)
-const Topic = ({ topicId }) => (
-  <h3>{topicId}</h3>
-)
+const Home = () => <h2>Home</h2>
+const About = () => <h2>About</h2>
+const Topic = ({ topicId }) => <h3>{topicId}</h3>
 const Topics = ({ match }) => {
   const items = [
     { name: 'Rendering with React', slug: 'rendering' },
     { name: 'Components', slug: 'components' },
-    { name: 'Props v. State', slug: 'props-v-state' },
+    { name: 'Props v. State', slug: 'props-v-state' }
   ]
   return (
     <div>
@@ -52,45 +46,53 @@ const Topics = ({ match }) => {
         ))}
       </ul>
       {items.map(({ name, slug }) => (
-        <Route 
-          key={name} 
-          path={`${match.path}/${slug}`} 
-          render={() => (
-            <Topic topicId={name} />
-        )} />
+        <Route
+          key={name}
+          path={`${match.path}/${slug}`}
+          render={() => <Topic topicId={name} />}
+        />
       ))}
-      <Route exact path={match.url} render={() => (
-        <h3>Please select a topic.</h3>
-      )}/>
+      <Route
+        exact
+        path={match.url}
+        render={() => <h3>Please select a topic.</h3>}
+      />
     </div>
   )
 }
 const App = () => (
   <div>
     <ul>
-      <li><Link to="/">Home</Link></li>
-      <li><Link to="/about">About</Link></li>
-      <li><Link to="/topics">Topics</Link></li>
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/about">About</Link>
+      </li>
+      <li>
+        <Link to="/topics">Topics</Link>
+      </li>
     </ul>
-    <hr/>
-    <Route exact path="/" component={Home}/>
-    <Route path="/about" component={About}/>
+    <hr />
+    <Route exact path="/" component={Home} />
+    <Route path="/about" component={About} />
     <Route path="/topics" component={Topics} />
   </div>
 )
-
 ```
+
 如果你还不熟悉 React Router v4，就先了解几个基本问题。`Route` 用来渲染 UI，当一个 URL 匹配上了你所指定的路由路径，就进行渲染。`Link` 提供了一个可以浏览访问你 app 的方法。换句话讲，`Link` 组件允许你更新你的 URL，而 `Route` 组件根据你所提供的新 URL 来改变 UI。
 
-*本文并不会手把手的教你 RRV4 的基础，所以如果上面的代码你看起来很费劲的话，可以先来这里看一下[官方文档](https://reacttraining.com/react-router/)。把玩一下里面的例子，当你觉得顺手了的时候，欢迎回来继续阅读。*
+_本文并不会手把手的教你 RRV4 的基础，所以如果上面的代码你看起来很费劲的话，可以先来这里看一下[官方文档](https://reacttraining.com/react-router/)。把玩一下里面的例子，当你觉得顺手了的时候，欢迎回来继续阅读。_
 
 如上段所说，路由给我们提供了两个组件可以用于你的 app：`Link` 和 `Route`。我喜欢 React Router v4 的原因是它的 API “只是组件”而已，可以理解成没有引入其他概念。这就是说如果你对 React 很熟悉的话，那么你对组件以及怎么组合组件一定有自己的理解，而这对于你写路由代码依然适用。这就很方便了，因为已经熟悉了如何创造组件，那么创建你自己的 React Router 就只是做你已经熟悉的事情——创建组件。
 
 ---
 
-worldzhao:自己从无到有搭建一个前端路由库很麻烦（比如根据url切换视图），但是依赖于React,我们可以很轻松的做到，就是render函数嘛，所以react router v4的组件和我们平时编写的组件除了功能之外并无其他区别，这便是'Just Components'的魅力了吧。
+worldzhao:自己从无到有搭建一个前端路由库很麻烦（比如根据 url 切换视图），但是依赖于 React,我们可以很轻松的做到，就是 render 函数嘛，所以 react router v4 的组件和我们平时编写的组件除了功能之外并无其他区别，这便是'Just Components'的魅力了吧。
 
 ---
+
 ## Route
 
 现在就来一起创建我们的 `Route` 组件。在上面的例子中，可以注意到 `<Route>` 使用了三个属性：`exact`、`path` 和 `component`。他们的属性类型（propTypes）对于 `Route` 组件来是这样的：
@@ -106,9 +108,12 @@ static propTypes = {
 这里有些小细节。首先，`path` 并不需要，因为如果路由中没有给 `path` 那么将会自动渲染。第二，`component` 也不需要，是因为如果路径匹配上了，有很多不同的方法来告诉 React Router 要渲染什么 UI。其中一个上面没有提到的方法就是使用 `render` 来通知 React Router，具体代码像这样：
 
 ```js
-<Route path='/settings' render={({ match }) => {
-  return <Settings authed={isAuthed} match={match} />
-}} />
+<Route
+  path="/settings"
+  render={({ match }) => {
+    return <Settings authed={isAuthed} match={match} />
+  }}
+/>
 ```
 
 `render` 允许你创建一个直接返回 UI 的内联函数而不用创建额外的组件，所以我们也可以把它添加到 proTypes 中：
@@ -132,25 +137,26 @@ class Route extends Component {
     exact: PropTypes.bool,
     path: PropTypes.string,
     component: PropTypes.func,
-    render: PropTypes.func,
-  };
+    render: PropTypes.func
+  }
 
   render() {
-    const {path, exact, component, render} = this.props;
-    const match = matchPath(window.location.pathname, {path, exact});
-    if (!match) { // 如果没有匹配到，就什么都不渲染
-      return null;
+    const { path, exact, component, render } = this.props
+    const match = matchPath(window.location.pathname, { path, exact })
+    if (!match) {
+      // 如果没有匹配到，就什么都不渲染
+      return null
     }
     // 如果匹配到了 并且 component 存在
     if (component) {
       // 以 component 创建新元素并且通过 match 传递
-      return React.createElement(component, {match});
+      return React.createElement(component, { match })
     }
     // 如果匹配到了 但是没有 component ， 有 render 方法
     if (render) {
-      return render({match});
+      return render({ match })
     }
-    return null;
+    return null
   }
 }
 ```
@@ -159,25 +165,25 @@ class Route extends Component {
 
 我们再来谈一下路由的问题。在客户端应用这边，一般来讲只有两种方式更新 URL。
 
-1. 一种是用户点击 a 标签。
+1.  一种是用户点击 a 标签。
 
-2. 一种是点击后退/前进按钮。
+2.  一种是点击后退/前进按钮。
 
 基本上我们的路由只要关心 URL 的变化并且返回相应的 UI 即可。
 
 ---
 
-worldzhao: 就是我们的Route组件要根据url的变化来update，监听url变化重新渲染Route组件(forceupdate).
+worldzhao: 就是我们的 Route 组件要根据 url 的变化来 update，监听 url 变化重新渲染 Route 组件(forceupdate).
 
 ---
 
-假设我们知道更新 URL 的方式只有上面两种，那么就可以针对这两种情况做特殊处理了。稍后在构建 <Link> 组件的时候再详细介绍 a 标签的情况，这里先讨论后退/前进按钮。 
+假设我们知道更新 URL 的方式只有上面两种，那么就可以针对这两种情况做特殊处理了。稍后在构建 <Link> 组件的时候再详细介绍 a 标签的情况，这里先讨论后退/前进按钮。
 
-React Router 使用了 History工程里的 .listen 方法来监听当前 URL 的变化，为了避免再引入其他的库，我们使用 HTML5 的 popstate 事件来实现这一功能。
+React Router 使用了 History 工程里的 .listen 方法来监听当前 URL 的变化，为了避免再引入其他的库，我们使用 HTML5 的 popstate 事件来实现这一功能。
 
 当用户点击了后退/前进按钮，popstate 就被触发，我们需要的就是这个功能。
 
-因为 Route 渲染 UI 是根据当前 URL来做的，因此给 Route 配上监听能力也是合理的，在 popstate 触发的地方重新渲染 UI。就是说在触发 popstate 时检查是否匹配上了新的 URL，如果是则渲染 UI，如果不是，什么也不做，下面看一下代码。
+因为 Route 渲染 UI 是根据当前 URL 来做的，因此给 Route 配上监听能力也是合理的，在 popstate 触发的地方重新渲染 UI。就是说在触发 popstate 时检查是否匹配上了新的 URL，如果是则渲染 UI，如果不是，什么也不做，下面看一下代码。
 
 ```js
 class Route extends Component {
@@ -185,33 +191,25 @@ class Route extends Component {
     path: PropTypes.string,
     exact: PropTypes.bool,
     component: PropTypes.func,
-    render: PropTypes.func,
+    render: PropTypes.func
   }
   componentWillMount() {
     // 监听前进后退事件
-    addEventListener("popstate", this.handlePop)
+    addEventListener('popstate', this.handlePop)
   }
   componentWillUnmount() {
-    removeEventListener("popstate", this.handlePop)
+    removeEventListener('popstate', this.handlePop)
   }
   handlePop = () => {
     // 重新刷新
     this.forceUpdate()
   }
   render() {
-    const {
-      path,
-      exact,
-      component,
-      render,
-    } = this.props
+    const { path, exact, component, render } = this.props
     const match = matchPath(location.pathname, { path, exact })
-    if (!match)
-      return null
-    if (component)
-      return React.createElement(component, { match })
-    if (render)
-      return render({ match })
+    if (!match) return null
+    if (component) return React.createElement(component, { match })
+    if (render) return render({ match })
     return null
   }
 }
@@ -230,14 +228,14 @@ class Route extends Component {
 接下来就来具体实现 `matchPath` 函数。如果你回头看一下上面 `Route` 组件的代码，你可以看到 `matchPath` 函数是这样的：
 
 ```js
-const match = matchPath(window.location.pathname, {path, exact});
+const match = matchPath(window.location.pathname, { path, exact })
 ```
 
-这里的match要么是对象，要么是null，这得取决于是否匹配上path。根据这个声明，我们来写matchPath代码：
+这里的 match 要么是对象，要么是 null，这得取决于是否匹配上 path。根据这个声明，我们来写 matchPath 代码：
 
 ```js
 const matchPath = (pathname, options) => {
-  const {exact = false, path} = options;
+  const { exact = false, path } = options
 }
 ```
 
@@ -247,15 +245,15 @@ const matchPath = (pathname, options) => {
 
 ```js
 const matchPath = (pathname, options) => {
-  const {exact = false, path} = options;
+  const { exact = false, path } = options
   if (!path) {
     return {
       path: null,
       url: pathname,
-      isExact: true,
+      isExact: true
     }
   }
-  const match = new RegExp(`^${path}`).exec(pathname);
+  const match = new RegExp(`^${path}`).exec(pathname)
 }
 ```
 
@@ -271,24 +269,24 @@ const matchPath = (pathname, options) => {
 
 ```js
 const matchPath = (pathname, options) => {
-  const {exact = false, path} = options;
+  const { exact = false, path } = options
   if (!path) {
     return {
       path: null,
       url: pathname,
-      isExact: true,
+      isExact: true
     }
   }
-  const match = new RegExp(`^${path}`).exec(pathname);
+  const match = new RegExp(`^${path}`).exec(pathname)
   if (!match) {
     // 没有匹配上
-    return null;
+    return null
   }
-  const url = match[0];
-  const isExact = pathname === url;
+  const url = match[0]
+  const isExact = pathname === url
   if (exact && !isExact) {
     // 要求精确匹配（exact为真） 却不是精确匹配(isExact为假)
-    return null;
+    return null
   }
   return {
     // 不要求精确匹配(exact === false) 或是精确匹配成功(exact === isExact === true)
@@ -296,10 +294,11 @@ const matchPath = (pathname, options) => {
     url,
     isExact
   }
-};
+}
 ```
 
 ---
+
 ## Link
 
 之前有讲过的，对于用户来讲，有两种方式更新 URL：通过后退/前进按钮和通过点击 a 标签。对于后退/前进点击来说，使用 `popstate` 事件给 `Route` 添加监听就可以，现在来看一下如何通过 `Link` 解决 a 标签问题。
@@ -307,7 +306,7 @@ const matchPath = (pathname, options) => {
 `Link` 的 API 如下：
 
 ```js
-<Link to='/some-path' replace={false} />
+<Link to="/some-path" replace={false} />
 ```
 
 这里 `to` 是一个 string 类型，指的是要链接到的地址。`replace` 是一个布尔值，如果是 true，那么点击链接将替换当前的实体到历史堆栈，而不是添加一个新的进去。
@@ -318,28 +317,26 @@ const matchPath = (pathname, options) => {
 class Link extends Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
-    replace: PropTypes.bool,
+    replace: PropTypes.bool
   }
 }
-
 ```
 
 我们知道在 `Link` 组件中的渲染函数需要返回一个 a 标签，但是我们不想每次变路由都进行一次全页面刷新，所以通过增加一个 `onClick` 处理程序来劫持 a 标签。
 
 ```js
-
 class Link extends Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
-    replace: PropTypes.bool,
+    replace: PropTypes.bool
   }
-  handleClick = (event) => {
+  handleClick = event => {
     const { replace, to } = this.props
     event.preventDefault()
     // 这里是路由,仅仅改变url（不会刷新页面）
   }
   render() {
-    const { to, children} = this.props
+    const { to, children } = this.props
     return (
       <a href={to} onClick={this.handleClick}>
         {children}
@@ -347,23 +344,21 @@ class Link extends Component {
     )
   }
 }
-
 ```
 
 ok，代码写到现在，就差更改当前 URL 了。在 React Router 是使用 [History 工程](https://github.com/reacttraining/history)里面的 `push` 和 `replace` 方法。为了避免增加新依赖，这里我使用 HTML5 的 `pushState` 和 `replaceState`。
 
->本文中我们为了防止引入额外的依赖，一直也没采用 History 库。但是它对真实的 React Router 却是至关重要的，因为它对不同的 session 管理和不同的浏览器环境进行了规范化处理。
+> 本文中我们为了防止引入额外的依赖，一直也没采用 History 库。但是它对真实的 React Router 却是至关重要的，因为它对不同的 session 管理和不同的浏览器环境进行了规范化处理。
 
 `pushState` 和 `replaceState` 都接收三个参数。第一个参数是一个与历史实体相关联的对象，我们不需要，所以设置成一个空对象。第二个参数是标题，我们也不需要，所以也设置成空。第三个是我们需要使用的，指的是：相关 URL。
 
 ```js
-const historyPush = (path) => {
+const historyPush = path => {
   history.pushState({}, null, path)
 }
-const historyReplace = (path) => {
+const historyReplace = path => {
   history.replaceState({}, null, path)
 }
-
 ```
 
 在 `Link` 组件内部，会调用 `historyPush` 或者 `historyReplace`，依赖于前面提到的 `replace` 属性。
@@ -372,15 +367,15 @@ const historyReplace = (path) => {
 class Link extends Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
-    replace: PropTypes.bool,
+    replace: PropTypes.bool
   }
-  handleClick = (event) => {
+  handleClick = event => {
     const { replace, to } = this.props
     event.preventDefault()
     replace ? historyReplace(to) : historyPush(to)
   }
   render() {
-    const { to, children} = this.props
+    const { to, children } = this.props
     return (
       <a href={to} onClick={this.handleClick}>
         {children}
@@ -392,7 +387,7 @@ class Link extends Component {
 
 ---
 
-## Link -> Url -> Route 
+## Link -> Url -> Route
 
 现在就只剩下最后一件很关键的问题了，如果你想把上面的例子用在自己的路由代码里面，你需要注意这个问题。
 
@@ -406,8 +401,8 @@ class Link extends Component {
 
 ```js
 let instances = []
-const register = (comp) => instances.push(comp)
-const unregister = (comp) => instances.splice(instances.indexOf(comp), 1)
+const register = comp => instances.push(comp)
+const unregister = comp => instances.splice(instances.indexOf(comp), 1)
 ```
 
 注意这里创建了两个函数。当 `<Route>` “装配”上，就调用 `register`；当“解装配”，就调用 `unregister`。然后只要调用 `historyPush` 或者 `historyReplace`（实际上用户每次点击 <Link> 都会调用），就遍历对象数组，并调用 `forceUpdate`。
@@ -438,12 +433,12 @@ class Route extends Component {
 再更新 `historyPush` 和 `historyReplace`：
 
 ```js
-const historyPush = (path) => {
+const historyPush = path => {
   history.pushState({}, null, path)
   // url变化后 遍历所有Route，刷新
   instances.forEach(instance => instance.forceUpdate())
 }
-const historyReplace = (path) => {
+const historyReplace = path => {
   history.replaceState({}, null, path)
   instances.forEach(instance => instance.forceUpdate())
 }
@@ -454,33 +449,33 @@ const historyReplace = (path) => {
 这就完成了所有的路由代码了，并且实例 app 用这些代码可以完美运行！
 
 ```js
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
-let instances = [];
-const register = (comp) => instances.push(comp);
-const unregister = (comp) => instances.splice(instances.indexOf(comp), 1);
+let instances = []
+const register = comp => instances.push(comp)
+const unregister = comp => instances.splice(instances.indexOf(comp), 1)
 
 // Route
 const matchPath = (pathname, options) => {
-  const {exact = false, path} = options;
+  const { exact = false, path } = options
   if (!path) {
     return {
       path: null,
       url: pathname,
-      isExact: true,
+      isExact: true
     }
   }
-  const match = new RegExp(`^${path}`).exec(pathname);
+  const match = new RegExp(`^${path}`).exec(pathname)
   if (!match) {
     // 没有匹配上
-    return null;
+    return null
   }
-  const url = match[0];
-  const isExact = pathname === url;
+  const url = match[0]
+  const isExact = pathname === url
   if (exact && !isExact) {
     // 要求精确匹配（exact为真） 却不是精确匹配(isExact为假)
-    return null;
+    return null
   }
   return {
     // 不要求精确匹配(exact === false) 或是精确匹配成功(exact === isExact === true)
@@ -488,83 +483,83 @@ const matchPath = (pathname, options) => {
     url,
     isExact
   }
-};
+}
 export class Route extends Component {
   static propTypes = {
     exact: PropTypes.bool,
     path: PropTypes.string,
     component: PropTypes.func,
-    render: PropTypes.func,
-  };
+    render: PropTypes.func
+  }
 
   componentWillMount() {
     // 监听前进后退事件
-    window.addEventListener("popstate", this.handlePop)
-    register(this);
+    window.addEventListener('popstate', this.handlePop)
+    register(this)
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.handlePop)
-    unregister(this);
+    window.removeEventListener('popstate', this.handlePop)
+    unregister(this)
   }
 
   handlePop = () => {
     this.forceUpdate()
-  };
+  }
 
   render() {
-    const {path, exact, component, render} = this.props;
-    const match = matchPath(window.location.pathname, {path, exact});
-    if (!match) { // 如果没有匹配到，就什么都不渲染
-      return null;
+    const { path, exact, component, render } = this.props
+    const match = matchPath(window.location.pathname, { path, exact })
+    if (!match) {
+      // 如果没有匹配到，就什么都不渲染
+      return null
     }
     // 如果匹配到了 并且 component 存在
     if (component) {
       // 以 component 创建新元素并且通过 match 传递
-      return React.createElement(component, {match});
+      return React.createElement(component, { match })
     }
     // 如果匹配到了 但是没有 component ， 有 render 方法
     if (render) {
-      return render({match});
+      return render({ match })
     }
-    return null;
+    return null
   }
 }
 
 // Link
-const historyPush = (path) => {
-  window.history.pushState({}, null, path);
-  instances.forEach(instance => instance.forceUpdate());
-};
+const historyPush = path => {
+  window.history.pushState({}, null, path)
+  instances.forEach(instance => instance.forceUpdate())
+}
 
-const historyReplace = (path) => {
-  window.history.replaceState({}, null, path);
-  instances.forEach(instance => instance.forceUpdate());
-};
+const historyReplace = path => {
+  window.history.replaceState({}, null, path)
+  instances.forEach(instance => instance.forceUpdate())
+}
 
 export class Link extends Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
-    replace: PropTypes.bool,
-  };
+    replace: PropTypes.bool
+  }
 
-  handleClick = (event) => {
-    const {replace, to} = this.props;
-    event.preventDefault();
+  handleClick = event => {
+    const { replace, to } = this.props
+    event.preventDefault()
     // 这里是路由,仅仅改变url（不会刷新页面）
-    replace ? historyReplace(to) : historyPush(to);
-  };
+    replace ? historyReplace(to) : historyPush(to)
+  }
 
   render() {
-    const {to, children} = this.props;
+    const { to, children } = this.props
     return (
       <a href={to} onClick={this.handleClick}>
-      {children}
+        {children}
       </a>
     )
   }
 }
-
 ```
 
 另外：React Router API 还自然派生出了 `<Redirect>` 组件。使用上面我们写的代码，这个组件可以直接写成：
@@ -576,7 +571,7 @@ class Redirect extends Component {
   }
   static propTypes = {
     to: PropTypes.string.isRequired,
-    push: PropTypes.bool.isRequired,
+    push: PropTypes.bool.isRequired
   }
   componentDidMount() {
     const { to, push } = this.props
@@ -590,6 +585,6 @@ class Redirect extends Component {
 
 注意这个组件并不渲染任何 UI，它只用来做路由定向使用。
 
-我希望这篇文章已经帮助你搭建出了一个React Router底层模型，并且能够体会到React Router的优雅以及‘仅仅是组件’的理念。我之前总是说React会使你成为一个更好的JavaScript开发者。我现在依旧相信React Router会是你成为一个更好的React开发者。因为一切皆组件，如果你会React，你就会React Router。
+我希望这篇文章已经帮助你搭建出了一个 React Router 底层模型，并且能够体会到 React Router 的优雅以及‘仅仅是组件’的理念。我之前总是说 React 会使你成为一个更好的 JavaScript 开发者。我现在依旧相信 React Router 会是你成为一个更好的 React 开发者。因为一切皆组件，如果你会 React，你就会 React Router。
 
 I hope this has helped you create a better mental model of what’s happening in React Router while also helping you to gain an appreciation for React Router’s elegance and “Just Components” API. I’ve always said that React will make you a better JavaScript developer. I now also believe that React Router will make you a better React developer. Because everything is just components, if you know React, you know React Router.

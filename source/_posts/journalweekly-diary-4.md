@@ -31,13 +31,13 @@ categories: 琐事
 
     上几张图咯。
 
-  ![1.jpeg](https://upload-images.jianshu.io/upload_images/4869616-4eb1aaa6ce043370.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![1.jpeg](https://upload-images.jianshu.io/upload_images/4869616-4eb1aaa6ce043370.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-  ![2.jpeg](https://upload-images.jianshu.io/upload_images/4869616-5b2b292a8c63aa3a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![2.jpeg](https://upload-images.jianshu.io/upload_images/4869616-5b2b292a8c63aa3a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-  ![3.jpeg](https://upload-images.jianshu.io/upload_images/4869616-b7ce808e0f8b2ca2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![3.jpeg](https://upload-images.jianshu.io/upload_images/4869616-b7ce808e0f8b2ca2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-  ![4.jpeg](https://upload-images.jianshu.io/upload_images/4869616-857e88538234a72c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![4.jpeg](https://upload-images.jianshu.io/upload_images/4869616-857e88538234a72c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 2.  订阅管理上线前优化需求。特意留了一个星期来修复 bug，结果偏偏最后一天冒出四五个需求，还撞上了培训， 真是全场最佳。还好有暖心的同事。
 
@@ -45,128 +45,130 @@ categories: 琐事
 
 1.  回顾 js 异步发展史，真的真的特别重要，原来直接跳过了 generator 到了 async，这周静下心来梳理了一下，配合 co 也算是会入门使用了，但是没有去看 co 的源码，下周可以看看。上码：
 
-  ```js
-  const fs = require('fs')
 
-  // 第一阶段 callback
-  function readFile(cb) {
-    fs.readFile('./package.json', cb)
-  }
+```js
+const fs = require('fs')
 
-  readFile((err, data) => {
-    if (!err) {
-      data = JSON.parse(data)
-      console.log(data.name)
-    }
-  })
+// 第一阶段 callback
+function readFile(cb) {
+  fs.readFile('./package.json', cb)
+}
 
-  // 第二阶段 promise
-  function readFileAsync(path) {
-    return new Promise((reslove, reject) => {
-      fs.readFile(path, (err, data) => {
-        if (err) reject(err)
-        else reslove(data)
-      })
-    })
-  }
-
-  readFileAsync('./package.json')
-    .then(data => {
-      data = JSON.parse(data)
-      console.log(data.name)
-    })
-    .catch(err => {
-      console.log(err)
-    })
-
-  // 第三阶段  co + generator function + promise
-  const co = require('co')
-  const util = require('util')
-
-  co(function*() {
-    let data = yield util.promisify(fs.readFile)('./package.json')
-    data = JSON.parse(data)
-    console.log(data.name)
-  })
-
-  // 第四阶段 async
-  const readAsync = util.promisify(fs.readFile)
-  async function readWithAsync(path) {
-    let data = await readAsync(path)
+readFile((err, data) => {
+  if (!err) {
     data = JSON.parse(data)
     console.log(data.name)
   }
+})
 
-  readWithAsync('./package.json')
-  ```
+// 第二阶段 promise
+function readFileAsync(path) {
+  return new Promise((reslove, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) reject(err)
+      else reslove(data)
+    })
+  })
+}
+
+readFileAsync('./package.json')
+  .then(data => {
+    data = JSON.parse(data)
+    console.log(data.name)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+
+// 第三阶段  co + generator function + promise
+const co = require('co')
+const util = require('util')
+
+co(function*() {
+  let data = yield util.promisify(fs.readFile)('./package.json')
+  data = JSON.parse(data)
+  console.log(data.name)
+})
+
+// 第四阶段 async
+const readAsync = util.promisify(fs.readFile)
+async function readWithAsync(path) {
+  let data = await readAsync(path)
+  data = JSON.parse(data)
+  console.log(data.name)
+}
+
+readWithAsync('./package.json')
+```
 
 2.  回顾箭头函数，上码。
 
-  ```js
-  const luke = {
-    id: 1,
-    say: function() {
-      setTimeout(function() {
-        console.log('id:', this.id)
-      }, 500)
-    },
-    sayWithThis: function() {
-      let that = this
-      setTimeout(function() {
-        console.log('this id:', that.id)
-      }, 1000)
-    },
-    sayWithArrow: function() {
-      setTimeout(() => {
-        console.log('arrow id:', this.id)
-      }, 1500)
-    },
-    sayWithGlobalArrow: () => {
-      setTimeout(() => {
-        console.log('global arrow id:', this.id)
-      }, 2000)
-    }
-  }
 
-  luke.say()
-  luke.sayWithThis()
-  luke.sayWithArrow()
-  luke.sayWithGlobalArrow()
-  ```
+```js
+const luke = {
+  id: 1,
+  say: function() {
+    setTimeout(function() {
+      console.log('id:', this.id)
+    }, 500)
+  },
+  sayWithThis: function() {
+    let that = this
+    setTimeout(function() {
+      console.log('this id:', that.id)
+    }, 1000)
+  },
+  sayWithArrow: function() {
+    setTimeout(() => {
+      console.log('arrow id:', this.id)
+    }, 1500)
+  },
+  sayWithGlobalArrow: () => {
+    setTimeout(() => {
+      console.log('global arrow id:', this.id)
+    }, 2000)
+  }
+}
+
+luke.say()
+luke.sayWithThis()
+luke.sayWithArrow()
+luke.sayWithGlobalArrow()
+```
 
 3.  系统性的学习了一下 webpack，对 webpack 在浏览器上实现模块化进行了一些思考（webpack 在多页应用单页应用使用情景的差别），部分笔记如下：
 
-    * ES6,7/react => babel
-    * css 相关 => css-loader style-loader extra-text-webpack-plugin
-    * 代码规范 => eslint
-    * 图片，字体 => file-loader url-loader
-    * 开发热更新环境 => webpack-dev-server
-    * Common chunk
-    * Code splitting && lazy load
-    * Uglify && Minisize
+    - ES6,7/react => babel
+    - css 相关 => css-loader style-loader extra-text-webpack-plugin
+    - 代码规范 => eslint
+    - 图片，字体 => file-loader url-loader
+    - 开发热更新环境 => webpack-dev-server
+    - Common chunk
+    - Code splitting && lazy load
+    - Uglify && Minisize
 
     提取公共代码：CommonChunkPlugin 通过将公共模块拆出来，最终合成的文件能够在最开始的时候加载一次，便存到缓存中供后续使用。这个带来速度上的提升，因为浏览器会迅速将公共的代码从缓存中取出来，而不是每次访问一个新页面时，再去加载一个更大的文件。4.0 版本已经移除
 
     css 相关：
 
-    * css 引入：
-      * style-loader ：创建 style 标签
-      * css-loader：使得 css 可被 import
-    * Css modules
-    * 配置 less/sass/stylus
-    * 抽离 css： extra-text-webpack-plugin 可以将 css 或各种预处理器[转换成 css]抽离出来，有利于缓存，异步组件无法抽离，需要配置 fallback，不能抽离的 css 动态生成 style 标签，官方文档很完善【重复@import 的 css 代码若不抽离会被打入 js 两次】
+    - css 引入：
+      - style-loader ：创建 style 标签
+      - css-loader：使得 css 可被 import
+    - Css modules
+    - 配置 less/sass/stylus
+    - 抽离 css： extra-text-webpack-plugin 可以将 css 或各种预处理器[转换成 css]抽离出来，有利于缓存，异步组件无法抽离，需要配置 fallback，不能抽离的 css 动态生成 style 标签，官方文档很完善【重复@import 的 css 代码若不抽离会被打入 js 两次】
 
     代码分割和懒加载： 不需要配置 webpack，只需要自己在代码中实现即可。
 
-    * import(). [react-loadable]
-    * require.ensure([],function(){})
-    * 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
-    * [webpack 异步加载的原理](https://github.com/yongningfu/webpa_ensure)
+    - import(). [react-loadable]
+    - require.ensure([],function(){})
+    - 因为分割成了多个文件，共同依赖存在重复打包的问题，在入口处进行引入减少重复打包
+    - [webpack 异步加载的原理](https://github.com/yongningfu/webpa_ensure)
 
 4.  koa 中间件原理。koa-compose:
-    * 回忆过去，[最近遇到的一些 js 编程题:实现一个 compose 方法，要求如下](https://www.jianshu.com/p/4443733f72b4)
-    * [可能是目前市面上比较有诚意的 Koa2 源码解读](https://zhuanlan.zhihu.com/p/34797505)
-    * 看源码
+    - 回忆过去，[最近遇到的一些 js 编程题:实现一个 compose 方法，要求如下](https://www.jianshu.com/p/4443733f72b4)
+    - [可能是目前市面上比较有诚意的 Koa2 源码解读](https://zhuanlan.zhihu.com/p/34797505)
+    - 看源码
 
 好累，写不动了。
 

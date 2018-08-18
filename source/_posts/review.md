@@ -1,23 +1,23 @@
 ---
 title: 复习及面向对象初步
 date: 2017-07-04
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
 
 ## JavaSript 包含三大部分
 
-* ECMAScript:规定 js 的语法规法
+- ECMAScript:规定 js 的语法规法
 
-* DOM: Document Object Model 文档对象模型,给我们提供了一套完整的操作页面 api
+- DOM: Document Object Model 文档对象模型,给我们提供了一套完整的操作页面 api
 
-* BOM: Browser Object Model 浏览器对象模型
+- BOM: Browser Object Model 浏览器对象模型
 
 ## 数据类型
 
-* 基本数据类型: string number boolean undefined
+- 基本数据类型: string number boolean undefined
 
-* 复杂数据类型(引用类型): Date Array Object RegExp String Number Boolean Function Math Null 等...
+- 复杂数据类型(引用类型): Date Array Object RegExp String Number Boolean Function Math Null 等...
 
 ```JS
 null == undefined // true
@@ -26,15 +26,15 @@ null === undefined // false
 
 ## in 关键字
 
-* 用于 for in 循环
+- 用于 for in 循环
 
-* 判断属性是否存在于对象中语法： 属性名 in 对象属性名要用引号
+- 判断属性是否存在于对象中语法： 属性名 in 对象属性名要用引号
 
 ```js
 var isExist = 'name' in obj
 ```
 
-* 数组用法 判断索引是否存在,而非值 "index in arr"
+- 数组用法 判断索引是否存在,而非值 "index in arr"
   console.log(0 in arr);
   0 是 index,也可用 console.log("0" in arr);
   此处会进行隐式转换,无问题
@@ -55,10 +55,10 @@ var isExist = 'name' in obj
 
 是指在对象创建出来之后,可以为对象动态添加新属性和新方法.
 
-* 使用点语法,例如 obj.name,可以获取对象的属性值,也可以修改对象的属性值,还可以为对象新增属性并赋值. 例如 obj.name="xxx",进行赋值的时候,如果存在该属性则进行修改值.  
+- 使用点语法,例如 obj.name,可以获取对象的属性值,也可以修改对象的属性值,还可以为对象新增属性并赋值. 例如 obj.name="xxx",进行赋值的时候,如果存在该属性则进行修改值.  
   如果对象不存在该属性,是给该对象添加属性或方法.
 
-* 可以通过对象名["属性名]访问对象的属性值,注意这里的属性名是字符串,如果这里使用的不是字符串,那么会隐式地转变成字符串.
+- 可以通过对象名["属性名]访问对象的属性值,注意这里的属性名是字符串,如果这里使用的不是字符串,那么会隐式地转变成字符串.
   例如 obj["name"],同时也可以也可以修改对象的属性值,还可以为对象新增属性并赋值.
 
 此处给 obj 对象添加了一个属性,这个属性也是一个对象:
@@ -128,8 +128,8 @@ for (var i = 0; i < ps.length; i++) {
 
 #### 函数封装解决方式
 
-* 使用函数将代码封装,使得复用性更高
-* 使用函数封装带来的问题: 1.全局变量污染 ;2.代码结构不够清晰,维护困难
+- 使用函数将代码封装,使得复用性更高
+- 使用函数封装带来的问题: 1.全局变量污染 ;2.代码结构不够清晰,维护困难
 
 ```js
 var divs = getElements('div')
@@ -154,9 +154,9 @@ function setStyle(elems) {
 
 使用对象封装后的优势
 
-* 暴露在全局中的只有一个对象名,不会造成全局变量污染
-* 是用对象将代码进行功能模块化的划分
-* 有利于日后的维护
+- 暴露在全局中的只有一个对象名,不会造成全局变量污染
+- 是用对象将代码进行功能模块化的划分
+- 有利于日后的维护
 
 ```js
 var zQuery = {
@@ -194,4 +194,4 @@ zQuery.setStyle(divs);
 zQuery.setStyle(ps);
 ```
 
-* 面向对象三大特征:封装 继承 多态
+- 面向对象三大特征:封装 继承 多态

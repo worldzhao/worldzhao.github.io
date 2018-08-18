@@ -1,7 +1,7 @@
 ---
 title: 盒子模型与box-sizing
 date: 2017-03-18
-tags: [css3]
+tags: [盒子模型]
 categories: css
 ---
 

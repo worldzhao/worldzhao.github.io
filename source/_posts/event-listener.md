@@ -1,7 +1,7 @@
 ---
 title: 实现通用的事件注册方法
 date: 2017-07-15
-tags: [原生js]
+tags: [兼容性]
 categories: js
 ---
 

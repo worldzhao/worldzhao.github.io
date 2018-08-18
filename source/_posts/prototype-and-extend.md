@@ -1,13 +1,13 @@
 ---
 title: 原型链继承/组合继承/寄生组合继承
 date: 2017-07-05
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
 
 ## 原型链
 
-* 定义: 每一个对象都存在构造函数,每一个构造函数都存在原型对象,每一个原型对象也存在构造函数,每一个原型对象的构造函数也存在原型对象,如此向上一层层查询,是一个链式结构,称为原型链.
+- 定义: 每一个对象都存在构造函数,每一个构造函数都存在原型对象,每一个原型对象也存在构造函数,每一个原型对象的构造函数也存在原型对象,如此向上一层层查询,是一个链式结构,称为原型链.
 
 ## 继承
 
@@ -201,3 +201,5 @@ subObj1.colors.push('white') // 改变subObj1的colors
 console.log(subObj1.colors) // 影响到了subObj1的colors
 console.log(subObj2.colors) // 并未影响到subObj2的colors
 ```
+
+![prototype.png](http://upload-images.jianshu.io/upload_images/4869616-de925ed1d446a5da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)

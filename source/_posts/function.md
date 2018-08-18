@@ -1,36 +1,37 @@
 ---
 title: 函数
 date: 2017-07-04
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
+
 #### 函数
 
 ##### 创建函数的三种方式:
 
- * 函数声明(提升)
+- 函数声明(提升)
 
-	function fun(){
-		//函数体
-	}
+      	function fun(){
+      		//函数体
+      	}
 
- * 函数表达式  
+- 函数表达式
 
-在使用函数表达式声明函数时,function后面可接函数名funcname 
+在使用函数表达式声明函数时,function 后面可接函数名 funcname
 
-但是在外部依旧通过name调用,funcname只限function内部访问,外部不可以
+但是在外部依旧通过 name 调用,funcname 只限 function 内部访问,外部不可以
 
 <!-- more -->
 
-代码如下: 
+代码如下:
 
-	var name = function funcname(){
-		
-	}
+    var name = function funcname(){
 
- * Function构造函数法构造函数
- 
- Function构造函数可以新建函数对象
+    }
+
+- Function 构造函数法构造函数
+
+Function 构造函数可以新建函数对象
 
     语法如下:
     Function函数所有参数都是字符串

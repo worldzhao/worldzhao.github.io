@@ -1,29 +1,31 @@
 ---
 title: 变量提升
 date: 2017-07-04
-tags: [原生js]
+tags: [js基础]
 categories: js
 ---
+
 #### 变量提升
 
-JS代码的执行分为两个阶段
+JS 代码的执行分为两个阶段
 **预解析阶段**
 
-   * 变量名和函数声明提升至当前作用域的最上方(只提升声明,不提升赋值)
+- 变量名和函数声明提升至当前作用域的最上方(只提升声明,不提升赋值)
 
 **执行阶段**
 
-   * 按照从上至下的顺序执行语句 
+- 按照从上至下的顺序执行语句
 
 注意:
 
-* 变量与函数同名时,只提升函数,不提升变量 
-* 函数同名时,都提升,后面的函数覆盖前面的函数
-* 函数表达式只会提升变量名,赋值语句在执行阶段按照顺序执行
-* 变量提升是分块的<script></script>
-* 条件是函数声明能否被提升取决于浏览器,不推荐使用if(true){function(){}}; 
+- 变量与函数同名时,只提升函数,不提升变量
+- 函数同名时,都提升,后面的函数覆盖前面的函数
+- 函数表达式只会提升变量名,赋值语句在执行阶段按照顺序执行
+- 变量提升是分块的<script></script>
+- 条件是函数声明能否被提升取决于浏览器,不推荐使用 if(true){function(){}};
 
 <!-- more -->
+
 实例:
 
     //js中没有块级作用域的说法,大括号并不会创建一个作用域
@@ -33,12 +35,11 @@ JS代码的执行分为两个阶段
     }
     console.log(i);//5 for循环外部依旧可以访问到i
 
-
 只有函数能够创建作用域
 
 变量提升是分作用域的
 
-函数与变量同名只提升函数  但是变量赋值还是要执行的
+函数与变量同名只提升函数 但是变量赋值还是要执行的
 
 代码:
 
@@ -55,7 +56,6 @@ JS代码的执行分为两个阶段
     }
     num=10;
     num();//is not a function
-
 
 函数与函数同名全部都会提升,但会以函数声明顺序进行覆盖,后面覆盖前面的
 
@@ -74,9 +74,8 @@ JS代码的执行分为两个阶段
         console.log('last')
     }
 
-
 函数表达式与变量提升方式相同,变量赋值不会被提升,但变量声明会提升
- 
+
 代码:
 
     f1()//undefined
@@ -129,9 +128,9 @@ JS代码的执行分为两个阶段
     var scope;
     function foo(){
         var scope;
-        console.log(scope); 
+        console.log(scope);
         scope = "local";
-        console.log(scope); 
+        console.log(scope);
     }
     scope = "global";
     foo();
@@ -166,7 +165,6 @@ JS代码的执行分为两个阶段
     }
     alert(a); //10
 
-
 预解析:
 
     var a;
@@ -181,7 +179,6 @@ JS代码的执行分为两个阶段
         var a = 10;
     }
     alert(a); // undefined
-
 
 预解析:
 
@@ -233,15 +230,15 @@ JS代码的执行分为两个阶段
     Foo.getName(); //2
 
     getName(); //4
-    
+
     Foo().getName(); //1
-      
+
     getName(); //1
-    
+
     new Foo.getName(); //2
-    
+
     new Foo().getName(); //3
-    
+
     new new Foo().getName(); //3
 
 预解析:
@@ -261,20 +258,20 @@ JS代码的执行分为两个阶段
 
     getName = function() { alert(4); };
 
-   
+
 
     getName(); //4
-    
+
     Foo().getName(); //1
-      
+
     getName(); //1
 
     Foo.getName(); //2
-    
+
     new Foo.getName();//2 先执行Foo.getName()  new关键字无效
 
     (new Foo).getName();//3 先执行new Foo创建对象
-    
+
     new Foo().getName(); //3 先执行new Foo()创建对象
-   
+
     new new Foo().getName(); //3 相当于 new Foo().getName() new关键字无效

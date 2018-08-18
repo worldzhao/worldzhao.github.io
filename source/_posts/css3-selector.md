@@ -1,7 +1,7 @@
 ---
 title: css3选择器
 date: 2017-03-17
-tags: [css3]
+tags: [选择器]
 categories: css
 ---
 
@@ -27,7 +27,7 @@ $:结尾 div[title$="bb"]/*带有title属性,且值为以"bb"结尾的div*/
 
 说明： 符号`:`冒号
 
-* 结构伪类：通过结构来筛选
+- 结构伪类：通过结构来筛选
 
 ```css
 li:first-child    			/* 选中第1个li:选中li父元素ul的第一个子元素!!!并且这个元素是li标签 相当于li:nth-child(1) */
@@ -51,7 +51,7 @@ n 表示 0.1.2.3.4.5.6.7.8...
 */
 ```
 
-* empty 伪类选择器
+- empty 伪类选择器
 
 说明： div:empty 选中内部为空的 div 元素
 

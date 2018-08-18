@@ -33,4 +33,6 @@ categories: 高屋建瓴
 1. 技术选型     [vue/react/angular]
 2. 数据解决方案 [redux/reflux/mobx]
 3. 整体代码风格 [目录结构/命名方式/数据存储redux|mobx|component]
+4. 封装项目公共机制
+5. 提高开发效率
 

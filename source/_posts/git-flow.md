@@ -1,3 +1,10 @@
+---
+title: 关于 git flow 工作流程的一点思考
+date: 2018-09-01
+tags: [git]
+categories: 工作技能
+---
+
 # 关于 git flow 工作流程的一点思考
 
 [Git Flow 工作流程](https://www.jianshu.com/p/9a76e9aa9534)

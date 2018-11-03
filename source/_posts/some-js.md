@@ -1,10 +1,3 @@
----
-title: 最近遇到的一些js编程题
-date: 2017-09-27
-tags: [练习题]
-categories: js
----
-
 ## 数组扁平化
 
 例：
@@ -32,11 +25,9 @@ function flatten(arr) {
 var flatten = function(array) {
   return array.reduce(function(previous, val) {
     if (Object.prototype.toString.call(val) !== '[object Array]') {
-      previous.push(val)
-      return previous
+      return previous.push(val), previous
     }
-    Array.prototype.push.apply(previous, flatten(val))
-    return previous
+    return Array.prototype.push.apply(previous, flatten(val)), previous
   }, [])
 }
 ```
@@ -186,18 +177,18 @@ function toUpperCase1(obj) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
+	<meta charset="UTF-8">
+	<title>Document</title>
 </head>
 <body>
-    <ul id="ul">
-        <li><a href="#"><span>li-a-span</span></a></li>
-        <a href="#">a</a>
-        <li><a href="#"><span>li-a-span</span></a></li>
-        <li><a href="#"><span>li-a-span</span></a></li>
-        <li><a href="#"><span>li-a-span</span></a></li>
-        <li><a href="#"><span>li-a-span</span></a></li>
-    </ul>
+	<ul id="ul">
+		<li><a href="#"><span>li-a-span</span></a></li>
+		<a href="#">a</a>
+		<li><a href="#"><span>li-a-span</span></a></li>
+		<li><a href="#"><span>li-a-span</span></a></li>
+		<li><a href="#"><span>li-a-span</span></a></li>
+		<li><a href="#"><span>li-a-span</span></a></li>
+ 	</ul>
 </html>
 ```
 
@@ -209,7 +200,7 @@ ul.addEventListener('click', function(e) {
   while (e.nodeName != 'LI') {
     e = e.parentNode
   }
-  var childrenArr = [].slice.apply(ul.children) // 伪数组转为数组 为了使用filter方法
+  var childrenArr = [].slice.apply(ul.children)
   var liArr = childrenArr.filter(function(child) {
     if (child.nodeName == 'LI') {
       return child
@@ -239,6 +230,9 @@ function rw(str) {
 ## 实现一个 add 函数
 
 执行如下：
+add(1, 2); // 3
+add(1)(2); // 3
+add(1, 2, 3)(1, 4)(2, 2)(1) // 16
 
 ```js
 function add() {
@@ -259,5 +253,187 @@ function add() {
     return sum
   }
   return temp
+}
+```
+
+## 一个考察了 this/变量提升/构造函数返回值/运算符优先级的题目
+
+```js
+function Foo() {
+  getName = function() {
+    alert(1)
+  } // 没有var
+  return this
+}
+Foo.getName = function() {
+  alert(2)
+}
+Foo.prototype.getName = function() {
+  alert(3)
+}
+var getName = function() {
+  alert(4)
+}
+function getName() {
+  alert(5)
+}
+
+/* 写出输出 */
+Foo.getName() // 2
+getName() // 4 => 变量提升
+Foo().getName() // 1 => 函数调用this指向 window.getName()
+getName() // 1
+new Foo.getName() // 2 => new (Foo.getName)() 运算符优先级
+new Foo().getName() // 3 => (new Foo()).getName() 构造函数返回值
+new new Foo().getName() // 3 => new Foo().getName()
+```
+
+## 实现一个 LazyMan
+
+```js
+// 实现一个LazyMan，可以按照以下方式调用:
+LazyMan(“Hank”)
+// 输出: Hi! This is Hank!
+
+LazyMan(“Hank”).sleep(10).eat(“dinner”)
+// 输出:
+// Hi! This is Hank!
+// 等待10秒..
+// Wake up after 10
+// Eat dinner~
+LazyMan(“Hank”).eat(“dinner”).eat(“supper”)
+// 输出:
+// Hi This is Hank!
+// Eat dinner~
+// Eat supper~
+LazyMan(“Hank”).sleepFirst(5).eat(“supper”)
+// 输出:
+// 等待5秒
+// Wake up after 5
+// Hi This is Hank!
+// Eat supper
+以此类推。
+```
+
+答案
+
+```js
+function _LazyMan(name) {
+  const self = this
+  this.taskqueue = []
+  console.log(`Hi, This is ${name}`)
+  setTimeout(() => {
+    self.next()
+  }, 0)
+}
+
+_LazyMan.prototype.next = function() {
+  const fn = this.taskqueue.shift()
+  fn && fn()
+}
+
+_LazyMan.prototype.sleep = function(time) {
+  const self = this
+  const fn = function() {
+    setTimeout(() => {
+      console.log(`Wake up after ${time}`)
+      self.next()
+    }, time * 1000)
+  }
+  this.taskqueue.push(fn)
+  return this
+}
+
+_LazyMan.prototype.eat = function(name) {
+  const self = this
+  const fn = function() {
+    console.log(`Eat ${name}`)
+    self.next()
+  }
+  this.taskqueue.push(fn)
+  return this
+}
+
+_LazyMan.prototype.sleepFirst = function(time) {
+  const self = this
+  const fn = function() {
+    setTimeout(() => {
+      console.log(`Wake up after ${time}`)
+      self.next()
+    }, time * 1000)
+  }
+  this.taskqueue.unshift(fn)
+  return this
+}
+
+function LazyMan(name) {
+  return new _LazyMan(name)
+}
+```
+
+## 实现一个 compose 方法，要求如下
+
+```js
+function fun1(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  next()
+}
+function fun2(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  setTimeout(function() {
+    next()
+  }, 1000)
+}
+function fun3(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  next()
+}
+compose([fun1, fun2, fun3])({ count: 1 }) // 2 3 4
+```
+
+答案
+
+```js
+function compose(arr) {
+  return function(ctx) {
+    const next = function() {
+      const fn = arr.shift()
+      fn && fn(ctx, next)
+    }
+    next()
+  }
+}
+```
+
+###实现一个 composite 方法，要求如下
+
+```js
+function add(a, b) {
+  return a + b
+}
+function square(a) {
+  return a * a
+}
+function plusOne(c) {
+  return c + 1
+}
+
+var addSquareAndPlusOne = composite(add, square, plusOne)
+
+console.log(addSquareAndPlusOne(1, 2)) // 10
+```
+
+答案:
+
+```js
+function composite(...fns) {
+  return function(...args) {
+    return fns.reduce((accu, curr) => {
+      return typeof accu === 'function' ? curr(accu(...args)) : curr(accu)
+    })
+  }
 }
 ```

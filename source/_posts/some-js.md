@@ -1,3 +1,10 @@
+---
+title: 一些js编程题
+date: 2017-10-22
+tags: [js]
+categories: js
+---
+
 ## 数组扁平化
 
 例：

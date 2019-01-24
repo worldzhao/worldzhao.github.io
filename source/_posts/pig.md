@@ -189,3 +189,14 @@ function go(gen) {
 ```
 
 本文到此为止，代码很粗糙，下一篇文章拿 co 源码来读读。
+
+---
+
+推荐阅读：
+
+- [来尝尝 Async 函数这块语法糖
+  ](https://juejin.im/post/5b7ccc65f265da436631a3d9?utm_source=gold_browser_extension)
+- [Promise 异步流程控制
+  ](https://zhuanlan.zhihu.com/p/29792886)
+- [从 for of 聊到 Generator
+  ](https://juejin.im/post/5c40484bf265da61171cfb4d?utm_source=gold_browser_extension)

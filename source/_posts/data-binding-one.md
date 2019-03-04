@@ -1,8 +1,8 @@
 ---
-title: 动态数据绑定（一）Object.defineProperty
+title: Object.defineProperty
 date: 2017-07-20
-tags: [原理]
-categories: vue
+tags: [js]
+categories: js
 ---
 
 > 其实这一类文章在网上已经有许多人写过了，最近在做百度前端技术学院的题目，资料很丰富，于是便总结一下前人的文章，拓展以及巩固自己的知识，如总结有所不到位的地方不正请指出！

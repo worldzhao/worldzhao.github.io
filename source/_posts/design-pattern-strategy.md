@@ -1,5 +1,5 @@
 ---
-title: 从callback到async
+title: 设计模式-策略模式
 date: 2018-11-24
 tags: [策略模式]
 categories: 设计模式

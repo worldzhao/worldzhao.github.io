@@ -1,15 +1,15 @@
 ---
-title: 动态数据绑定（二）发布订阅模式
+title: 设计模式-发布订阅模式
 date: 2017-07-24
-tags: [原理]
-categories: vue
+tags: [发布订阅模式]
+categories: 设计模式
 ---
 
 ### 前言
 
 昨天学习了通过 Object.defineProperty()对象属性绑定 getter 与 setter，从而检测对象属性的变化，但是我们并不仅仅满足于检测到变化，我们还要做出行为(回调)，即实现 vue 中的 watch 这个 api,由此，引出了发布-订阅模式，每一次属性变化发生时(发布)，都会执行对应的函数(订阅)，这两天也看了不少的相关文章，记录一二。
 
-> 以下概念部分转自[博客园:龙恩 0707 的博客](http://www.cnblogs.com/tugenhua0707/p/4687947.html)，本人略微有所改动，代码部分参考了[vue 源码学习之发布订阅实现$watch](https://segmentfault.com/a/1190000008808297),但是我感觉原博的代码好像有一点问题，自己改了些许。
+> 以下概念部分转自[博客园:龙恩 0707 的博客](http://www.cnblogs.com/tugenhua0707/p/4687947.html)，本人略微有所改动，代码部分参考了[vue 源码学习之发布订阅实现\$watch](https://segmentfault.com/a/1190000008808297),但是我感觉原博的代码好像有一点问题，自己改了些许。
 
 ## 发布订阅模式
 
@@ -119,7 +119,7 @@ console.log(obj) // 现在可以去控制台做有趣的事情啦
 1.  发布订阅模式实现一个观察者；
 2.  将观察者挂在 app 上；
 
-先加上$watch 这个 api
+先加上\$watch 这个 api
 
 ```js
 class Observer{
@@ -130,7 +130,9 @@ class Observer{
 }
 ```
 
-## 实现一个订阅器,Event.js
+## 实现一个订阅器
+
+Event.js
 
 ```js
 export default class Events {

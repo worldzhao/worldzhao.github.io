@@ -1,3 +1,10 @@
+---
+title: 从callback到async
+date: 2018-11-24
+tags: [策略模式]
+categories: 设计模式
+---
+
 # 设计模式-策略模式
 
 ## 策略模式的定义
@@ -113,33 +120,33 @@ strategies[status] && strategies[status]()
 
 ```html
 <html lang="en">
-<head>
+  <head>
     <title>使用判断语句进行表单校验</title>
-</head>
-<body>
-    <form action="http://xxx.com/register" id="registerForm" method="post"> 请输入用户名:
-        <input type="text" name="userName" /> 请输入密码:
-        <input type="text" name="password" />请输入手机号码:
-        <input type="text" name="phoneNumber" />
-        <button>提交</button>
+  </head>
+  <body>
+    <form action="http://xxx.com/register" id="registerForm" method="post">
+      请输入用户名: <input type="text" name="userName" /> 请输入密码:
+      <input type="text" name="password" />请输入手机号码:
+      <input type="text" name="phoneNumber" /> <button>提交</button>
     </form>
     <script>
-        var registerForm = document.getElementById('registerForm');
-        registerForm.onsubmit = function () {
-            if (registerForm.userName.value === '') {
-                alert('用户名不能为空');
-                return false;
-            }
-            if (registerForm.password.value.length < 6) {
-                alert('密码长度不能少于 6 位');
-                return false;
-            }
-            if (!/(^1[3|5|8][0-9]{9}$)/.test(registerForm.phoneNumber.value)) {
-                alert('手机号码格式不正确'); return false;
-            }
+      var registerForm = document.getElementById('registerForm')
+      registerForm.onsubmit = function() {
+        if (registerForm.userName.value === '') {
+          alert('用户名不能为空')
+          return false
         }
+        if (registerForm.password.value.length < 6) {
+          alert('密码长度不能少于 6 位')
+          return false
+        }
+        if (!/(^1[3|5|8][0-9]{9}$)/.test(registerForm.phoneNumber.value)) {
+          alert('手机号码格式不正确')
+          return false
+        }
+      }
     </script>
-</body>
+  </body>
 </html>
 ```
 

@@ -1,0 +1,19 @@
+menu:
+    Blog: /
+    Archive: /archives/
+    GitHub: https://github.com/worldzhao
+
+favicon: /favicon.png
+logo: /favicon.png
+
+# Comment
+# e.g disqus: seansun
+disqus:
+duoshuo:
+
+# Analytics
+# google-analytics:
+# ga: UA-xxxxxxxx-x
+
+# Copyright Infomation
+startyear: 2017

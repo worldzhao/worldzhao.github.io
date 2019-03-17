@@ -1,6 +1,6 @@
 ---
 title: 构造函数、原型与继承（三）
-date: 2017-07-05
+date: 2017-07-08
 tags: [js基础]
 categories: js
 ---

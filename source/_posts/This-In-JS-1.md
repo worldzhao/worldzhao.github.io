@@ -1,6 +1,6 @@
 ---
 title: this、箭头函数与React事件绑定（一）
-date: 2017-07-04
+date: 2017-10-13
 tags: [this]
 categories: js
 ---

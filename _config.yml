@@ -5,13 +5,12 @@
 # Site
 title: worldzhao
 subtitle: 每天学一点，总有那么多不学习的人。
-description: 
+description:
 author: worldzhao
 language: zh-Hans
 timezone: Asia/Shanghai
 # sitemap
-Plugins:
-  hexo-generator-baidu-sitemap
+Plugins: hexo-generator-baidu-sitemap
   hexo-generator-sitemap
 baidusitemap:
   path: baidusitemap.xml
@@ -69,9 +68,9 @@ per_page: 12
 pagination_dir: page
 
 archive_generator:
-  per_page: 18   # 为0时表示不分页全展示
-  yearly: true   # 按年生成归档
-  monthly: true  # 按月生成归档
+  per_page: 18 # 为0时表示不分页全展示
+  yearly: true # 按年生成归档
+  monthly: true # 按月生成归档
 
 tag_generator:
   per_page: 12
@@ -82,7 +81,7 @@ category_generator:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: even
+theme: apollo
 
 # jsonContent:
 #     meta: false
@@ -102,7 +101,7 @@ theme: even
 #       excerpt: false
 #       categories: false
 #       tags: true
-      
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:

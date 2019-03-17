@@ -1,5 +1,5 @@
 ---
-title: 构造函数
+title: 构造函数、原型与继承（一）
 date: 2017-07-04
 tags: [js基础]
 categories: js
@@ -78,7 +78,7 @@ var winter = new Person('winter', 'coding')
 
 构造函数的返回值:
 
-- 默认返回的事新创建的对象;
+- 默认返回的时新创建的对象;
 - 如果我们在构造函数中手动 return 基本类型的值或 null,则不会影响构造函数默认的返回值;
 - 若手动 return 的是对象类型,则会返回这个对象.
 

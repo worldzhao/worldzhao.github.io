@@ -1,11 +1,115 @@
 ---
-title: call与apply
+title: this、箭头函数与React事件绑定（一）
 date: 2017-07-04
-tags: [js基础]
+tags: [this]
 categories: js
 ---
 
-# call 与 apply
+# 函数调用模式
+
+函数有 4 种调用模式:
+
+1. 方法调用模式(对象)
+2. 函数调用模式(window 对象)
+3. 构造器调用模式(new)
+4. 上下文模式
+
+了解函数调用模式的不同,对于我们理解函数内部 this 指向有着重要的作用
+
+## 方法调用模式与函数调用模式
+
+demo1:
+
+```js
+var age = 38
+var obj = {
+  age: 18,
+  getAge: function() {
+    return this.age
+  }
+}
+console.log(obj.getAge()) //18  方法调用模式
+
+var getAge = obj.getAge
+console.log(getAge()) //38   函数调用模式
+```
+
+demo2:
+
+```js
+var age = 38
+var obj = {
+  age: 18,
+  getAge: function() {
+    //方法调用 this指向调用对象
+    console(this.age)
+    function foo() {
+      console.log(this.age)
+    }
+    foo() //函数调用,this指向window对象(非严格模式)
+  }
+}
+
+obj.getAge() // 18  38
+```
+
+demo3:
+
+```js
+var length = 10
+function fn() {
+  console.log(this.length)
+}
+
+var obj = {
+  length: 5,
+  method: function(fn) {
+    fn() //函数调用 10
+    arguments[0]() // 方法调用 arguments[0] => arguments.fn  this 指向 arguments length为2
+  }
+}
+obj.method(fn, 123) //10 2
+```
+
+相当于 arguments 调用了 fn 返回 arguments 的长度
+
+> arguments 是一个包含很多属性的对象,键名为索引,键值为传进来的参数值
+
+获取对象的属性值有两种方法:点方法与中括号法 obj.name === obj['name']
+
+arguments[0] === arguments.0(并不能这样写)
+
+调用 arguments.0\(\)==arguments\[0\]\(\) 实际上是方法调用
+
+理解不了看下面:
+
+```js
+var obj = { abc: fn }
+obj.abc() //方法调用
+obj['abc']() //方法调用
+```
+
+## 构造器调用模式
+
+demo4:
+
+```js
+function Person(name, age) {
+  this.name = name
+  this.age = age
+}
+var p = new Person('zzw', '18')
+```
+
+new 关键字就做了一点微小的工作
+
+```js
+var obj={};
+obj.\_\_proto\_\_=Person.prototype;
+Person.call(obj);//通过call方法强行将构造函数内部的this指向了obj
+```
+
+## 上下文模式
 
 首先来看代码:
 
@@ -28,13 +132,11 @@ getName.call(p1) //赵志文 Object //改变了getName内部的this指向,指向
 getName.apply(p1) //同上
 ```
 
-<!-- more -->
-
-相信各位读者通过上面的 demo 能够很轻易的知道 call 与 apply 的作用:改变调用函数内部的 this 指向.
+相信各位读者通过上例能够很轻易的知道 call 与 apply 的作用:改变调用函数内部的 this 指向.
 
 **使用 call 与 apply,可以修改函数调用上下文,也就是 this 的值,这两个方法都是定义在 Function.prototype 中,所有函数都可以调用**
 
-## Function.prototype.apply/call
+### Function.prototype.apply/call
 
 MDN 文档中写道:"apply()方法在指定 this 值和参数(参数以数组或类数组形式存在)的情况下调用某个函数."
 
@@ -47,30 +149,30 @@ fun.apply(thisArg [,argsArray]);
 fun.call(thisArg,para1,para2,...);
 ```
 
-来看一个小 demo:
+例子
 
 ```js
-function demo3(a, b) {
+var name = 'zzw'
+
+function test(a, b) {
   console.log(this.name + '吃了' + (a + b) + '个西瓜')
 }
 
-var name = 'zzw'
-
-demo3(1, 2) //函数调用模式 非严格模式下指向window zzw吃了3个西瓜
+test(1, 2) // 函数调用模式 非严格模式下指向window zzw吃了3个西瓜
 
 var obj = {
   name: 'zjj'
 }
 
 var obj1 = {
-  name: 'sb'
+  name: 'ruizhi'
 }
 
-demo3.call(obj, 4, 5) //改变this指向为obj同时传参  zjj吃了9个西瓜
-demo3.apply(obj1, [100, 99]) //改变this指向为obj同时传参 sb吃了199个西瓜
+test.call(obj, 4, 5) // 改变this指向为obj同时传参  zjj吃了9个西瓜
+test.apply(obj1, [100, 99]) // 改变this指向为obj同时传参 ruizhi吃了199个西瓜
 ```
 
-### 案例:
+### 举例
 
 - 求一个数组中的最大值
 

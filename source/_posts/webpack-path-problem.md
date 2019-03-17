@@ -99,7 +99,7 @@ module: {
 background-image: url(./images/bg.jpg);
 ```
 
-通过之前的配置，使用 $ webpack 命令对代码进行打包后生成如下目录:
+通过之前的配置，使用 \$ webpack 命令对代码进行打包后生成如下目录:
 
 ![images.png](http://upload-images.jianshu.io/upload_images/4869616-74d9ee7e759d3d4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 

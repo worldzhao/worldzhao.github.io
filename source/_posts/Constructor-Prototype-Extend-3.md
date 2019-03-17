@@ -1,9 +1,11 @@
 ---
-title: 原型链继承/组合继承/寄生组合继承
+title: 构造函数、原型与继承（三）
 date: 2017-07-05
 tags: [js基础]
 categories: js
 ---
+
+![prototype.png](http://upload-images.jianshu.io/upload_images/4869616-de925ed1d446a5da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ## 原型链
 
@@ -201,5 +203,3 @@ subObj1.colors.push('white') // 改变subObj1的colors
 console.log(subObj1.colors) // 影响到了subObj1的colors
 console.log(subObj2.colors) // 并未影响到subObj2的colors
 ```
-
-![prototype.png](http://upload-images.jianshu.io/upload_images/4869616-de925ed1d446a5da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)

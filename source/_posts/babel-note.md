@@ -1,7 +1,7 @@
 ---
 title: babel学习笔记
 date: 2018-10-13
-tags: [webpack,babel]
+tags: [webpack, babel]
 categories: 工程化
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: arguments对象
 date: 2017-07-04
-tags: [js]
+tags: [js基础]
 categories: js
 ---
 

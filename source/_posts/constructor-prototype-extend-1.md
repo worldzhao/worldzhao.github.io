@@ -1,0 +1,87 @@
+---
+title: 构造函数、原型与继承（一）
+date: 2017-07-06
+tags: [js基础]
+categories: js
+---
+
+## 构造函数
+
+### 什么是对象
+
+笔者的理解:具有特定的属性与方法的封装集合.
+
+面向对象的优势:
+
+1.  暴露在全局中的只有一个对象名,不会造成全局变量污染
+2.  是用对象将代码进行功能模块化的划分,有利于日后的维护
+
+### 创建对象的方法:
+
+- 对象字面量法(key:value,key:value...)
+
+```js
+var zzw = {
+  name: 'zzw',
+  age: '20',
+  major: 'tourism'
+}
+```
+
+缺点:冗余度过高,若需要创建属性一致的对象需要不断写对象字面量,不断重复
+
+#### 工厂函数法(利用对象的动态特性)
+
+```js
+function createObj(name, age, major) {
+  var obj = {}
+  obj.name = name
+  obj.age = age
+  obj.major = major
+  return obj
+}
+
+var xzq = createObj('xzq', '111', '111')
+var xzq = createObj('zjl', '222', '222')
+```
+
+缺点:通过工厂函数创建的对象之间并无关联性
+
+#### 自定义构造函数
+
+构造函数其实也是函数,只不过是用来初始化对象的,与 new 同时使用.
+
+new 是用来创建对象的.
+
+构造函数是用来初始化对象的.
+
+构造函数名首字母大写,以示区分.
+
+```js
+function Person(name, job) {
+  // 默认隐含的操作,将new创建的对象赋值给this
+  this.name = name
+  this.job = job
+  this.sayHello = function() {
+    console.log('hello')
+  }
+}
+var winter = new Person('winter', 'coding')
+```
+
+构造函数的执行过程:
+
+- 使用 new 关键字创建对象;
+- 调用构造函数,将新创建出来的对象赋值给对象函数内部的 this;
+- 在构造函数内部使用 this 为新创建的对象新增成员;
+- 默认返回新创建的对象,普通函数如果不写返回语句,会返回 undefined.
+
+构造函数的返回值:
+
+- 默认返回的时新创建的对象;
+- 如果我们在构造函数中手动 return 基本类型的值或 null,则不会影响构造函数默认的返回值;
+- 若手动 return 的是对象类型,则会返回这个对象.
+
+若像调用普通函数那样调用构造函数,而没有使用 new 关键字,则没有创建对象,构造函数中 this 指向 window.切记,这是一种错误的使用方式.
+
+如果构造函数没有参数,那么调用的时候小括号可以省略,最好不要.

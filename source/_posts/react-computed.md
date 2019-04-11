@@ -1,13 +1,19 @@
 ---
-title: React计算属性-get关键字的妙用
+title: 优雅处理表单联动
 date: 2019-03-17
-tags: [react]
+tags: [react, antd]
 categories: react
 ---
 
-> 前置阅读：[取值函数（getter）和存值函数（setter）](http://es6.ruanyifeng.com/#docs/class#%E5%8F%96%E5%80%BC%E5%87%BD%E6%95%B0%EF%BC%88getter%EF%BC%89%E5%92%8C%E5%AD%98%E5%80%BC%E5%87%BD%E6%95%B0%EF%BC%88setter%EF%BC%89)
+# 优雅处理表单联动
 
-## 计算属性
+## 引言
+
+表单之间联动一直是后台管理类项目中的高频场景，简单描述为：一个（源）表单域的变化会导致另外一个（目标）表单域的变化。
+
+本文基于 antd，结合 get 关键字，提出了一种较为优雅地解决表单联动的手段。
+
+## （伪）计算属性
 
 初次见到计算属性一词是在 Vue 官方文档-[计算属性和侦听器](https://cn.vuejs.org/v2/guide/computed.html)一节中。
 
@@ -64,11 +70,13 @@ props/state => render => get
 
 可能有同学会问为什么不直接定义一个方法调用呢？
 
-好吧，Vue 官方文档中进行了解释："我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。"
+对于 Vue 计算属性，Vue 官方文档中存在解释："我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。"
+
+假使存在两个 state 属性 A.B，计算属性只依赖 A，不依赖 B。倘若 B 变化，计算属性不会重新计算。
+
+但在 React 中，依旧会执行 render，所以 get 没有缓存，只是个语法糖。
 
 ## 使用计算属性实现最优雅的表单联动
-
-表单之间联动一直是后台管理类项目中的高频场景，简单描述为：一个（源）表单域的变化会导致另外一个（目标）表单域的变化。
 
 假设存在业务类别以及处罚内容，并且不同类别对应不同的处罚内容，点击不同的业务类别，处罚内容是动态变化的，以业务类别为网上超市为例，见下图：
 
@@ -103,7 +111,7 @@ export const businessTypeCode = {
   ENQUIRY_CODE: 1, // 在线询价
   PROTOCOL_CODE: 2, // 协议供货
   REVERSE_CODE: 4 // 反向竞价
-}
+};
 
 /* 处罚内容code */
 export const punishContentCode = {
@@ -113,12 +121,12 @@ export const punishContentCode = {
   ENQUIRY_CODE: 4, // 询价单报价
   BIDDING_CODE: 5, // 发起竞价
   SEARCH_CODE: 6 // 搜索
-}
+};
 
 /* 业务类型 code 及其对应的描述 desc 以及处罚内容 code */
 export const businessTypeMap = {
   [businessTypeCode.LUNATONE_CODE]: {
-    desc: '网上超市',
+    desc: "网上超市",
     matchedPunishContent: [
       punishContentCode.PROTOCOL_CODE,
       punishContentCode.ITEM_CODE,
@@ -127,30 +135,30 @@ export const businessTypeMap = {
     ]
   },
   [businessTypeCode.ENQUIRY_CODE]: {
-    desc: '在线询价',
+    desc: "在线询价",
     matchedPunishContent: [punishContentCode.ENQUIRY_CODE]
   },
   [businessTypeCode.PROTOCOL_CODE]: {
-    desc: '协议供货',
+    desc: "协议供货",
     matchedPunishContent: [
       punishContentCode.PROTOCOL_CODE,
       punishContentCode.ITEM_CODE
     ]
   },
   [businessTypeCode.REVERSE_CODE]: {
-    desc: '反向竞价',
+    desc: "反向竞价",
     matchedPunishContent: [punishContentCode.BIDDING_CODE]
   }
-}
+};
 /* 处罚内容 code 及其对应的描述 desc */
 export const punishContentMap = {
-  [punishContentCode.PROTOCOL_CODE]: { desc: '协议' },
-  [punishContentCode.ITEM_CODE]: { desc: '商品' },
-  [punishContentCode.SHOP_CODE]: { desc: '店铺' },
-  [punishContentCode.ENQUIRY_CODE]: { desc: '询价单报价' },
-  [punishContentCode.BIDDING_CODE]: { desc: '发起竞价' },
-  [punishContentCode.SEARCH_CODE]: { desc: '搜索' }
-}
+  [punishContentCode.PROTOCOL_CODE]: { desc: "协议" },
+  [punishContentCode.ITEM_CODE]: { desc: "商品" },
+  [punishContentCode.SHOP_CODE]: { desc: "店铺" },
+  [punishContentCode.ENQUIRY_CODE]: { desc: "询价单报价" },
+  [punishContentCode.BIDDING_CODE]: { desc: "发起竞价" },
+  [punishContentCode.SEARCH_CODE]: { desc: "搜索" }
+};
 ```
 
 ### 巧用计算属性
@@ -231,75 +239,75 @@ DatePicker 会自己乖乖禁用，而无需手动进行任何操作。
 附录：
 
 ```jsx
-import React, { Component } from 'react'
-import { Form, Radio } from 'doraemon'
+import React, { Component } from "react";
+import { Form, Radio } from "doraemon";
 import {
   businessTypeCode,
   punishContentCode,
   businessTypeMap,
   punishContentMap
-} from './config'
+} from "./config";
 
-const FormItem = Form.Item
-const RadioGroup = Radio.Group
+const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
 
 @Form.create()
 class Test extends Component {
   /* 根据 businessType 动态计算 punishContent */
   get matchedPunishContent() {
-    const businessType = this.props.form.getFieldValue('businessType')
-    return businessTypeMap[businessType].matchedPunishContent
+    const businessType = this.props.form.getFieldValue("businessType");
+    return businessTypeMap[businessType].matchedPunishContent;
   }
 
   /* 渲染业务类别 */
   renderBusinessType = () => {
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator } = this.props.form;
     const businessTypeConfig = {
-      rules: [{ required: true, message: '请选择业务类别' }],
+      rules: [{ required: true, message: "请选择业务类别" }],
       initialValue: businessTypeCode.LUNATONE_CODE
-    }
+    };
     return (
       <FormItem label="业务类别">
-        {getFieldDecorator('businessType', businessTypeConfig)(
+        {getFieldDecorator("businessType", businessTypeConfig)(
           <RadioGroup>
             {Object.keys(businessTypeMap).map(value => {
-              const { desc } = businessTypeMap[value]
+              const { desc } = businessTypeMap[value];
               return (
                 <Radio key={value} value={Number(value)}>
                   {desc}
                 </Radio>
-              )
+              );
             })}
           </RadioGroup>
         )}
       </FormItem>
-    )
-  }
+    );
+  };
 
   /* 渲染处罚内容 */
   renderPunishContent = () => {
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator } = this.props.form;
     const punishContentConfig = {
-      rules: [{ required: true, message: '请选择处罚内容' }],
+      rules: [{ required: true, message: "请选择处罚内容" }],
       initialValue: punishContentCode.PROTOCOL_CODE
-    }
+    };
     return (
       <FormItem label="处罚内容">
-        {getFieldDecorator('punishContent', punishContentConfig)(
+        {getFieldDecorator("punishContent", punishContentConfig)(
           <RadioGroup>
             {this.matchedPunishContent.map(value => {
-              const { desc } = punishContentMap[value]
+              const { desc } = punishContentMap[value];
               return (
                 <Radio key={value} value={value}>
                   {desc}
                 </Radio>
-              )
+              );
             })}
           </RadioGroup>
         )}
       </FormItem>
-    )
-  }
+    );
+  };
 
   render() {
     return (
@@ -307,7 +315,7 @@ class Test extends Component {
         {this.renderBusinessType()}
         {this.renderPunishContent()}
       </Form>
-    )
+    );
   }
 }
 ```

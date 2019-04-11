@@ -208,7 +208,7 @@ const fab = createFab();
 
 从业务开发角度来讲，Vue 提供的 API 极大地提高了开发效率。
 
-React 自身解决的问题并不多，但得益于活跃的社区，工作中遇到的解决问题都能找到解决方案，并且在摸索这些解决方案的同时，我们能够学习到诸多经典的编程思想，从而减轻对框架的依赖。
+React 自身解决的问题并不多，但得益于活跃的社区，工作中遇到的问题总能找到解决方案，并且在摸索这些解决方案的同时，我们能够学习到诸多经典的编程思想，从而减轻对框架的依赖。
 
 > I’ve always said that React will make you a better JavaScript developer. - Tyler McGinnis
 

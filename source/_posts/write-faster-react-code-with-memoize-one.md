@@ -204,7 +204,7 @@ const fab = createFab();
 
 ## 总结
 
-本文基于 React 介绍了 memoize-one 库的相关使用及其原理，在 React 中实现了类似与 Vue 计算属性（computed）的效果 —— 基于依赖缓存计算结果，达到减轻不必要 render 复杂度的效果。
+本文基于 React 介绍了 memoize-one 库的相关使用及其原理，在 React 中实现了类似 Vue 计算属性（computed）的效果 —— 基于依赖缓存计算结果，以减轻不必要 render 复杂度。
 
 从业务开发角度来讲，Vue 提供的 API 极大地提高了开发效率。
 

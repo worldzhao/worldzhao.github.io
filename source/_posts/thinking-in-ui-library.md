@@ -1,7 +1,7 @@
 ---
 title: 关于组件库的相关思考
 date: 2019-06-02
-tags: [react]
+tags: [react，前端工程化]
 categories: react
 ---
 

@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>构造函数、原型与继承（二） | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">构造函数、原型与继承（二）</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-07</span>
+          </div>
+          <div class="post-content">
+            <figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf84bzzgj30g30avt8n.jpg" alt="constructor&amp;prototype&amp;instance.png" loading="lazy"></figure>
+<h2 id="传统构造函数模式存在的问题">传统构造函数模式存在的问题</h2>
+<p>如果在构造函数中定义某个函数，那么每次创建新的对象,都会创建一遍该函数</p>
+<pre><code class="language-js">function Student(name) {
+  this.name = name;
+  this.skill = function () {
+    console.log(&quot;goodgoodstudy&quot;);
+  };
+}
+var zzw = new Student(&quot;zzw&quot;);
+var zjj = new student(&quot;zjj&quot;);
+</code></pre>
+<p>函数内部代码完全相同,而内存中存在了多个相同内容的函数,仅仅是地址不同,造成了资源浪费.</p>
+<p>为了解决这个问题,我们要让所有对象共用一个方法,在构造函数外部定义好该函数.</p>
+<p>将函数赋值给构造函数内部的方法,这样内存内只存在一个方法,对象内部的方法名全都指向该方法.</p>
+<pre><code class="language-js">function studyMethod() {
+  console.log(this.name + &quot;goodgoodstudy&quot;);
+}
+function Student(name) {
+  this.name = name;
+  this.skill = studyMethod;
+}
+var zzw = new Student(&quot;zzw&quot;);
+var zjj = new Student(&quot;zjj&quot;);
+zzw.skill();
+</code></pre>
+<p>问题又来了:如果对象公用的方法很多,那么就在构造函数外部定义好很多个函数,全局变量增多,造成污染,代码结构混乱,不易维护.</p>
+<p>由此引入原型模式.</p>
+<h2 id="原型模式">原型模式</h2>
+<ol>
+<li>原型是什么:在构造函数创建出来的时候,浏览器会默认为构造函数创建并关联一个特殊的<strong>对象</strong>,即原型.原型默认是一个空的对象,原型对象是构造函数(对象)的属性.</li>
+<li>原型可以用来做什么:原型对象的所有属性与方法都是被构造函数的实例对象所公用的.通过对象的动态特性为原型对象添加属性与方法.</li>
+<li>原型对象创建出来的时候会有个默认的属性 constructor 指向对应构造函数.</li>
+<li>原型对象创建出来的时候会有个默认的属性<code>__proto__</code>指向自身.<br>
+对象如何访问原型?<code>p.\_\_proto\_\_</code></li>
+</ol>
+<ul>
+<li>原型对象添加成员的形式：</li>
+</ul>
+<ol>
+<li>利用对象的动态特性添加成员(需要添加的成员较少时)</li>
+<li>直接重写原型对象(需要添加的成员较多时)</li>
+</ol>
+<pre><code class="language-js">function Person(name, sex, age) {
+  this.name = name;
+  this.age = age;
+  this.sex = sex;
+}
+
+Person.prototype.sayHello = function () {
+  console.log(&quot;hello&quot;);
+}; //为原型添加成员方法
+
+var p1 = new Person(&quot;zzw&quot;, &quot;male&quot;, &quot;20&quot;);
+
+Person.prototype = {
+  sayGoodBye: function () {
+    console.log(&quot;byebye&quot;);
+  },
+}; //替换原型
+
+var p2 = new Person(&quot;zjj&quot;, &quot;female&quot;, &quot;19&quot;);
+
+p1.sayHello(); //hello
+
+p2.sayHello(); //undefined
+</code></pre>
+<p>通过以上代码可以得知:</p>
+<p>实例对象可以访问的原型对象的成员以<strong>实例对象创建时</strong>构造函数所关联的原型对象为主,倘若原型对象被<strong>重写</strong>,则重写之前实例化的实例对象依旧访问的是旧原型的成员(为原型新增成员不算重写).</p>
+<ul>
+<li>
+<p>使用原型模式的注意事项:</p>
+<p>1.当访问对象内部方法或属性时,首先在对象内部搜索,如果搜索不到则前往原型对象中查找;</p>
+<p>2.使用点语法进行赋值的时候,如果对象中不存在该属性(值类型而非引用类型),则给该对象新增该属性,而不会去修改原型中的成员.</p>
+</li>
+</ul>
+<h3 id="原型模式存在的问题">原型模式存在的问题</h3>
+<ol>
+<li>
+<p>如果在原型中的属性是引用类型的属性,那么所有的实例对象共享该属性,并且一个实例对象修改了引用类型属性中的成员,其他对象也都会受影响.并不会新增该属性!!</p>
+</li>
+<li>
+<p>所以一般情况下,不会将属性放在原型对象中,原型对象中只会存放共有的方法,将实例对象各自的属性写在构造函数中,称为构造函数与原型组合模式.</p>
+</li>
+</ol>
+<h2 id="构造函数与原型组合模式">构造函数与原型组合模式</h2>
+<p><code>__proto__</code> 属性:</p>
+<ul>
+<li>实例对象<code>instance</code>如何访问原型? <code>instance. __proto__</code></li>
+<li><code>__proto__</code> 是一个非标准属性,为了保证通用性,不推荐在代码中使用,调试时使用.</li>
+</ul>
+<p><code>constructor</code> 属性:</p>
+<ul>
+<li>原型对象创建出来的时候会有个默认的属性 <code>constructor</code></li>
+<li>此属性指向对应构造函数<code>Constructor</code>.</li>
+<li>实例对象<code>instance</code>如何访问构造函数? <code>instance.constructor</code></li>
+<li>重写构造函数的原型,<code>constructor</code> 属性也被重写,不再指向关联的构造函数需要在新替换的原型中手动添加 <code>constructor</code> 的指向</li>
+</ul>
+<pre><code class="language-js">function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+console.log(Person.prototype.constructor); //function Person(...){} 通过构造函数的原型访问构造函数
+
+var p = new Person(&quot;zzw&quot;, &quot;18&quot;);
+console.log(p.name); //zzw
+
+var p1 = new p.constructor(&quot;zjj&quot;, &quot;18&quot;); // 通过已经创建好的实例对象调用构造函数
+console.log(p1.name); // zjj
+
+Person.prototype = {}; // 重写构造函数的原型,constructor属性也被重写,不再指向关联的构造函数,而是指向function Object(){...},与构造函数没有关联了
+console.log(Person.prototype.constructor); // function Object(){...}
+</code></pre>
+<p>所以,为了保证重写原型对象后依旧可以形成 构造函数-原型对象-实例对象 的闭环,需要做以下操作:</p>
+<pre><code class="language-js">Person.prototype = {
+  constructor: Person, //手动添加constructor的指向
+};
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/constructor-prototype-extend-1/">
+              <h3 class="post-title">
+                下一篇：构造函数、原型与继承（一）
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

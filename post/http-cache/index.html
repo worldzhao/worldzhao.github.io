@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>HTTP中的缓存机制 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">HTTP中的缓存机制</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-09-14</span>
+          </div>
+          <div class="post-content">
+            <figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf8bn5g5j30yg0lhdjf.jpg" alt="http缓存机制.png" loading="lazy"></figure>
+<p>图：一个缓存 GET 请求的具体流程（源于《http 权威指南》）</p>
+<p>总的来说，客户端从服务器请求数据经历如下基本步骤:</p>
+<ol>
+<li>检查是否已缓存：如果请求命中本地缓存则从本地缓存中获取一个对应资源的副本；</li>
+<li>检查这个资源是否新鲜：是则直接返回到客户端，否则继续向服务器转发请求，进行再验证。</li>
+<li>再验证阶段：服务器接收到请求，然后再验证判断资源是否相同，是则返回 304 not modified，未变更。 否则返回新内容和 200 状态码。</li>
+<li>客户端更新本地缓存。</li>
+</ol>
+<h2 id="stage1-检查缓存">Stage1: 检查缓存</h2>
+<ol>
+<li>缓存不存在，直接向服务器发出请求，状态码 200</li>
+<li>缓存存在，进入 Stage2</li>
+</ol>
+<h2 id="stage2-检查资源是否新鲜">Stage2: 检查资源是否新鲜</h2>
+<p>关键字：过期检测、Expires 策略、Cache-control 策略（重点）</p>
+<ol>
+<li>缓存资源未过期，使用缓存，状态码 200 from cache</li>
+<li>缓存资源过期，进入 Stage3</li>
+</ol>
+<h3 id="过期检测">过期检测</h3>
+<p>服务器用 HTTP1.0 中使用 Expires 首部或 HTTP1.1 中的 Cache-Control:max-age 响应首部来指定过期时间。两者同时设置时，在 HTTP1.1 服务器中，Cache-Control 的优先级高于 Expires</p>
+<h3 id="expires-策略">Expires 策略</h3>
+<p>Expires 是 Web 服务器响应消息头字段，在响应 http 请求时告诉浏览器在过期时间前浏览器可以直接从浏览器缓存取数据，而无需再次请求。</p>
+<p>不过 Expires 是 HTTP1.0 的东西，现在默认浏览器均默认使用 HTTP1.1，所以它的作用基本忽略。</p>
+<h3 id="cache-control-策略重点">Cache-control 策略（重点）</h3>
+<p>Cache-Control 与 Expires 的作用一致，都是指明当前资源的有效期，控制浏览器是否直接从浏览器缓存取数据还是重新发请求到服务器取数据。这个协定取代了以前的 Expires 指令，在 HTTP/1.1 开始支持，且如果同时设置的话，优先级高于 Expires。</p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Cache-Control">Cache-control 详解-MDN</a></p>
+<p>如果 Expires 或 Cache-Control:max-age 验证未过期，即资源是新鲜的。则直接返回 200 状态码，使用缓存。这里注意缓存命中和访问原始服务器的响应码都是 200，有些代理缓存会在 via 首部附加额外信息，或者使用 200(from cache)。 对于未明确标识的，可以使用 Date 首部的值和当前时间进行比较，如果响应中的日期比较早，客户端通常可以认为这是一条缓存的响应。</p>
+<figure data-type="image" tabindex="2"><img src="https://image.baidu.com/search/down?url=http://ww3.sinaimg.cn/large/006tNc79gy1g5sf8cq1j8j30yg0mzgyj.jpg" alt="http缓存机制2.png" loading="lazy"></figure>
+<p>金字塔最下端即缓存资源未过期，使用缓存，状态码 200 from cache。</p>
+<p>如果缓存资源过期了进入 Stage3</p>
+<h2 id="stage3-服务器再验证">Stage3: 服务器再验证</h2>
+<p>关键字：If-None-Match /Etag、If-Modified-Since／Last-Modified</p>
+<ol>
+<li>资源没有变化，直接返回响应 304 和一个空的响应体。</li>
+<li>资源发生了变化，返回新的资源 状态码 200</li>
+</ol>
+<h3 id="if-none-match-etag">If-None-Match /Etag</h3>
+<p>HTTP 协议规格引入 ETag（被请求变量的实体标记），简单点即服务器响应时给请求 URL 标记，并在 HTTP 响应头中将其传送到客户端，类似服务器端返回的格式：</p>
+<ul>
+<li>
+<p>Etag：web 服务器响应请求时，告诉浏览器当前资源在服务器的唯一标识（生成规则由服务器觉得）。Apache 中，ETag 的值，默认是对文件的索引节（INode），大小（Size）和最后修改时间（MTime）进行 Hash 后得到的。</p>
+</li>
+<li>
+<p>If-None-Match：当资源过期时（使用 Cache-Control 标识的 max-age），发现资源具有 Etag 声明，则再次向 web 服务器请求时带上头 If-None-Match（Etag 的值）。web 服务器收到请求后发现有头 If-None-Match 则与被请求资源的相应校验串进行比对，决定返回 200 或 304。<br>
+在客户端第一次发出请求后，HttpReponse Header 中包含 Etag</p>
+</li>
+</ul>
+<pre><code>Etag:“5d8c72a5edda8d6a:3239″
+</code></pre>
+<p>等于告诉 Client 端，你拿到的这个的资源有表示 ID：5d8c72a5edda8d6a:3239</p>
+<p>当客户端下一次请求资源过期时，发现资源具有 Etag 声明，浏览器同时发出一个 If-None-Match 报头(Http RequestHeader)此时包头中信息包含上次访问得到的 Etag:“5d8c72a5edda8d6a:3239″标识。</p>
+<pre><code>If-None-Match:“5d8c72a5edda8d6a:3239“
+</code></pre>
+<p>这样，服务器端就会比对 2 者的 Etag。如果匹配，则返回 304(Not Modified) Response。如果不在匹配，则请求一个新的对象。</p>
+<h3 id="if-modified-sincelast-modified">If-Modified-Since／Last-Modified</h3>
+<p>在浏览器第一次请求某一个 URL 时，服务器端的返回状态会是 200 ，内容是你请求的资源，同时有一个 Last-Modified 的属性标记(HttpReponse Header)此文件在服务期端最后被修改的时间，<br>
+格式类似这样：</p>
+<pre><code>Last-Modified:Tue, 24 Feb 2009 08:01:04 GMT
+</code></pre>
+<p>客户端第二次请求此 URL 时，首先会判断是否有缓存以及缓存是否过期，如果缓存过期，浏览器会向服务器传送条件 GET 请求，包含 If-Modified-Since 报头(HttpRequest Header)，询问该时间之后文件是否有被修改过：</p>
+<pre><code>If-Modified-Since:Tue, 24 Feb 2009 08:01:04 GMT
+</code></pre>
+<p>web 服务器收到请求后发现有头 If-Modified-Since 则与被请求资源在客户端的最后修改时间 Last-Modified 进行比对。若最后修改时间较新，说明资源又被改动过，则响应整片资源内容（写在响应消息包体内），响应状态码为 HTTP 200；若最后修改时间 Last-Modified 较旧，说明资源无新修改，则 响应 HTTP 304 (这里只需要发送一个 head 头，包体内容为空，这样就节省了传输数据量)，告知浏览器继续使用所保存的 cache。</p>
+<figure data-type="image" tabindex="3"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf8du2zbj30vs0u048w.jpg" alt="if-modify.png" loading="lazy"></figure>
+<h2 id="其他">其他</h2>
+<h3 id="etag-和-last-modified">Etag 和 Last-Modified</h3>
+<p>你可能会觉得使用 Last-Modified 已经足以让浏览器知道本地的缓存副本是否足够新，为什么还需要 Etag（实体标识）呢？HTTP1.1 中 Etag 的出现主要是为了解决几个 Last-Modified 比较难解决的问题：</p>
+<ol>
+<li>Last-Modified 标注的最后修改只能精确到秒级，如果某些文件在 1 秒钟以内，被修改多次的话，它将不能准确标注文件的修改时间</li>
+<li>如果某些文件会被定期生成，但内容并没有任何变化，但 Last-Modified 却改变了，导致文件没法使用缓存</li>
+<li>有些文档可能被修改了，但所做修改并不重要。（比如对注释或拼写的修改）</li>
+<li>有可能存在服务器没有准确获取文件修改时间，或者与代理服务器时间不一致等情形</li>
+</ol>
+<p>Etag 是服务器自动生成或者由开发者生成的对应资源在服务器端的唯一标识符，能够更加准确的控制缓存。Last-Modified 与 ETag 是可以一起使用的，<strong>服务器会优先验证 ETag，一致的情况下，才会继续比对 Last-Modified，最后才决定是否返回 304。</strong></p>
+<p>但是 Etag 也存在一些问题，比如：分布式系统尽量关闭掉 Etag(每台机器生成的 etag 都会不一样)。Etag 的服务器生成规则和强弱 Etag 的相关内容可以参考，《互动百科-Etag》,这里不再深入。</p>
+<p>Last-Modified 和 ETags 请求的 http 报头一起使用，服务器首先产生 Last-Modified/Etag 标记，服务器可在稍后使用它来判断页面是否已经被修改，来决定文件是否继续缓存，</p>
+<ol>
+<li>客户端请求一个页面（A）。</li>
+<li>服务器返回页面 A，并在给 A 加上一个 Last-Modified/ETag。</li>
+<li>客户端展现该页面，并将页面连同 Last-Modified/ETag 一起缓存。</li>
+<li>客户再次请求页面 A，并将上次请求时服务器返回的 Last-Modified/ETag 一起传递给服务器。</li>
+<li>服务器检查该 Last-Modified 或 ETag，并判断出该页面自上次客户端请求之后还未被修改，直接返回响应 304 和一个空的响应体。</li>
+</ol>
+<h3 id="last-modifiedetag-与-cache-controlexpires">Last-Modified/ETag 与 Cache-Control/Expires</h3>
+<p>如果检测到本地的缓存还是有效的时间范围内，浏览器直接使用本地副本，不会发送任何请求。两者一起使用时，Cache-Control/Expires 的优先级要高于 Last-Modified/ETag。即当本地副本根据 Cache-Control/Expires 发现还在有效期内时，则不会再次发送请求去服务器询问修改时间（Last-Modified）或实体标识（Etag）了。</p>
+<p>一般情况下，使用 Cache-Control/Expires 会配合 Last-Modified/ETag 一起使用，因为即使服务器设置缓存时间, 当用户点击“刷新”按钮时，浏览器会忽略缓存继续向服务器发送请求，这时 Last-Modified/ETag 将能够很好利用 304，从而减少响应开销。</p>
+<h2 id="总结">总结</h2>
+<figure data-type="image" tabindex="4"><img src="https://image.baidu.com/search/down?url=http://ww2.sinaimg.cn/large/006tNc79gy1g5sf8ei5cxj30bf0a9q3d.jpg" alt="last1.png" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="http://upload-images.jianshu.io/upload_images/4869616-0b7a10398d925b86.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="last2.png" loading="lazy"></figure>
+<blockquote>
+<p>本文整理自<a href="http://www.zyy1217.com/2017/05/14/HTTP%E7%BC%93%E5%AD%98%E8%AF%A6%E8%A7%A3/">《HTTP 权威指南》之缓存详解</a></p>
+</blockquote>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/shallow-clone-and-deep-clone/">
+              <h3 class="post-title">
+                下一篇：浅克隆与深克隆
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,539 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>一些js编程题 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">一些js编程题</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-10-22</span>
+          </div>
+          <div class="post-content">
+            <h2 id="数组扁平化">数组扁平化</h2>
+<p>例：<br>
+输入：[[1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14]]]], 10]<br>
+输出：[ 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 11, 12, 12, 13, 14, 10 ]</p>
+<h3 id="方法一">方法一</h3>
+<pre><code class="language-js">var newArr = []
+function flatten(arr) {
+  for (var i = 0; i &lt; arr.length; i++) {
+    if (Object.prototype.toString.call(arr[i]) === '[object Array]') {
+      flatten(arr[i])
+    } else {
+      newArr.push(arr[i])
+    }
+  }
+}
+</code></pre>
+<h3 id="方法二">方法二</h3>
+<pre><code class="language-js">var flatten = function(array) {
+  return array.reduce(function(previous, val) {
+    if (Object.prototype.toString.call(val) !== '[object Array]') {
+      return previous.push(val), previous
+    }
+    return Array.prototype.push.apply(previous, flatten(val)), previous
+  }, [])
+}
+</code></pre>
+<h3 id="方法三">方法三</h3>
+<pre><code class="language-js">function flatten(arr) {
+  while (arr.some(item =&gt; Array.isArray(item))) {
+    arr = [].concat(...arr)
+  }
+  return arr
+}
+</code></pre>
+<h2 id="实现-map">实现 map</h2>
+<pre><code class="language-js">Array.prototype.myMap = function(callback) {
+  var arr = []
+  for (var i = 0; i &lt; this.length; i++) {
+    var item = callback(this[i], i)
+    arr.push(item)
+  }
+  return arr
+}
+</code></pre>
+<h2 id="实现-bind">实现 bind</h2>
+<pre><code class="language-js">Function.prototype.myBind = function(context) {
+  var self = this
+  var args = [].slice.call(arguments, 1)
+  return function() {
+    return self.apply(context, args.concat(arguments))
+  }
+}
+</code></pre>
+<h2 id="实现一个简单的字符串模版引擎">实现一个简单的字符串模版引擎</h2>
+<p>效果如下：</p>
+<pre><code class="language-js">var str = 'hello, i am &lt;%=user%&gt;, from &lt;%=location%&gt;'
+var compiled = template(str)
+compiled({ user: 'zzw', location: 'ez' }) // 'hello, i am zzw, from ez'
+</code></pre>
+<p>代码：</p>
+<pre><code class="language-js">function template(temp) {
+  var temp = temp
+  return function(obj) {
+    var reg = /&lt;%=(\w+)%&gt;/
+    var result
+    console.log(temp)
+    while ((result = reg.exec(temp))) {
+      var key = result[1]
+      var value = obj[key]
+      temp = temp.replace(result[0], value)
+    }
+    return temp
+  }
+}
+</code></pre>
+<h2 id="实现深克隆">实现深克隆</h2>
+<pre><code class="language-js">function deepClone(obj) {
+  var result,
+    oClass = isClass(obj)
+  //确定result的类型
+  if (oClass === 'Object') {
+    result = {}
+  } else if (oClass === 'Array') {
+    result = []
+  } else {
+    return obj
+  }
+  for (key in obj) {
+    var copy = obj[key]
+    if (isClass(copy) == 'Object' || isClass(copy) == 'Array') {
+      result[key] = arguments.callee(copy) //递归调用
+    } else {
+      //如果为基本数据类型
+      result[key] = obj[key]
+    }
+  }
+  return result
+}
+//返回传递给他的任意对象的类
+function isClass(o) {
+  if (o === null) return 'Null'
+  if (o === undefined) return 'Undefined'
+  return Object.prototype.toString.call(o).slice(8, -1)
+}
+</code></pre>
+<h2 id="深克隆变形题目将-json-字符串所有键名第一个首字母转为大写考虑嵌套对象">深克隆变形题目：将 json 字符串所有键名第一个首字母转为大写(考虑嵌套对象)</h2>
+<p>例：输入</p>
+<pre><code class="language-js">{&quot;hyKey&quot;:&quot;myValue&quot;,&quot;q23&quot;:&quot;123&quot;,&quot;arr&quot;:[1,2,3],&quot;obj&quot;:{&quot;name&quot;:&quot;zzw&quot;},&quot;null&quot;:null}
+</code></pre>
+<p>输出:</p>
+<pre><code class="language-js">{&quot;HyKey&quot;:&quot;myValue&quot;,&quot;Q23&quot;:&quot;123&quot;,&quot;Arr&quot;:[1,2,3],&quot;Obj&quot;:{&quot;Name&quot;:&quot;zzw&quot;},&quot;Null&quot;:null}
+</code></pre>
+<pre><code class="language-js">function toUpperCase1(obj) {
+  var result,
+    oClass = isClass(obj)
+  if (oClass === 'Object') {
+    result = {}
+  } else if (oClass === 'Array') {
+    result = []
+  } else {
+    return obj
+  }
+  for (var key in obj) {
+    var copy = obj[key]
+    if (isClass(copy) == 'Object' || isClass(copy) == 'Array') {
+      result[key.slice(0, 1).toUpperCase() + key.slice(1)] = arguments.callee(
+        copy
+      )
+    } else {
+      result[key.slice(0, 1).toUpperCase() + key.slice(1)] = obj[key]
+    }
+  }
+  return result
+}
+</code></pre>
+<h2 id="事件委托">事件委托</h2>
+<p>实现：给定一个 ul 列表，里面有若干个 li 标签，li 里面也嵌套了若干标签，要求点击标签，弹出当前 li 在 ul 中的位置.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+	&lt;meta charset=&quot;UTF-8&quot;&gt;
+	&lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;ul id=&quot;ul&quot;&gt;
+		&lt;li&gt;&lt;a href=&quot;#&quot;&gt;&lt;span&gt;li-a-span&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+		&lt;a href=&quot;#&quot;&gt;a&lt;/a&gt;
+		&lt;li&gt;&lt;a href=&quot;#&quot;&gt;&lt;span&gt;li-a-span&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href=&quot;#&quot;&gt;&lt;span&gt;li-a-span&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href=&quot;#&quot;&gt;&lt;span&gt;li-a-span&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href=&quot;#&quot;&gt;&lt;span&gt;li-a-span&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+ 	&lt;/ul&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-js">var ul = document.getElementById('ul')
+ul.addEventListener('click', function(e) {
+  // 事件委托
+  var e = e.target
+  while (e.nodeName != 'LI') {
+    e = e.parentNode
+  }
+  var childrenArr = [].slice.apply(ul.children)
+  var liArr = childrenArr.filter(function(child) {
+    if (child.nodeName == 'LI') {
+      return child
+    }
+  })
+  console.log(liArr.indexOf(e))
+})
+</code></pre>
+<h2 id="输出字符串中所有的叠词">输出字符串中所有的叠词</h2>
+<p>输入： '晴川历历汉阳树，芳草萋萋鹦鹉洲'<br>
+输出： [ '历历', '萋萋' ]</p>
+<pre><code class="language-js">function rw(str) {
+  var result = []
+  for (var i = 1; i &lt; str.length; i++) {
+    if (str[i] == str[i - 1]) {
+      result.push(str.slice(i - 1, i + 1))
+    }
+  }
+  return result
+}
+</code></pre>
+<h2 id="实现一个-add-函数">实现一个 add 函数</h2>
+<p>执行如下：<br>
+add(1, 2); // 3<br>
+add(1)(2); // 3<br>
+add(1, 2, 3)(1, 4)(2, 2)(1) // 16</p>
+<pre><code class="language-js">function add() {
+  var sum = 0
+  var arr = [].slice.call(arguments)
+  for (var i = 0; i &lt; arr.length; i++) {
+    sum += arr[i]
+  }
+  var temp = function() {
+    var arr = [].slice.call(arguments)
+    for (var i = 0; i &lt; arr.length; i++) {
+      sum += arr[i]
+    }
+    return temp
+  }
+
+  temp.toString = function() {
+    return sum
+  }
+  return temp
+}
+</code></pre>
+<h2 id="一个考察了-this变量提升构造函数返回值运算符优先级的题目">一个考察了 this/变量提升/构造函数返回值/运算符优先级的题目</h2>
+<pre><code class="language-js">function Foo() {
+  getName = function() {
+    alert(1)
+  } // 没有var
+  return this
+}
+Foo.getName = function() {
+  alert(2)
+}
+Foo.prototype.getName = function() {
+  alert(3)
+}
+var getName = function() {
+  alert(4)
+}
+function getName() {
+  alert(5)
+}
+
+/* 写出输出 */
+Foo.getName() // 2
+getName() // 4 =&gt; 变量提升
+Foo().getName() // 1 =&gt; 函数调用this指向 window.getName()
+getName() // 1
+new Foo.getName() // 2 =&gt; new (Foo.getName)() 运算符优先级
+new Foo().getName() // 3 =&gt; (new Foo()).getName() 构造函数返回值
+new new Foo().getName() // 3 =&gt; new Foo().getName()
+</code></pre>
+<h2 id="实现一个-lazyman">实现一个 LazyMan</h2>
+<pre><code class="language-js">// 实现一个LazyMan，可以按照以下方式调用:
+LazyMan(“Hank”)
+// 输出: Hi! This is Hank!
+
+LazyMan(“Hank”).sleep(10).eat(“dinner”)
+// 输出:
+// Hi! This is Hank!
+// 等待10秒..
+// Wake up after 10
+// Eat dinner~
+LazyMan(“Hank”).eat(“dinner”).eat(“supper”)
+// 输出:
+// Hi This is Hank!
+// Eat dinner~
+// Eat supper~
+LazyMan(“Hank”).sleepFirst(5).eat(“supper”)
+// 输出:
+// 等待5秒
+// Wake up after 5
+// Hi This is Hank!
+// Eat supper
+以此类推。
+</code></pre>
+<p>答案</p>
+<pre><code class="language-js">function _LazyMan(name) {
+  const self = this
+  this.taskqueue = []
+  console.log(`Hi, This is ${name}`)
+  setTimeout(() =&gt; {
+    self.next()
+  }, 0)
+}
+
+_LazyMan.prototype.next = function() {
+  const fn = this.taskqueue.shift()
+  fn &amp;&amp; fn()
+}
+
+_LazyMan.prototype.sleep = function(time) {
+  const self = this
+  const fn = function() {
+    setTimeout(() =&gt; {
+      console.log(`Wake up after ${time}`)
+      self.next()
+    }, time * 1000)
+  }
+  this.taskqueue.push(fn)
+  return this
+}
+
+_LazyMan.prototype.eat = function(name) {
+  const self = this
+  const fn = function() {
+    console.log(`Eat ${name}`)
+    self.next()
+  }
+  this.taskqueue.push(fn)
+  return this
+}
+
+_LazyMan.prototype.sleepFirst = function(time) {
+  const self = this
+  const fn = function() {
+    setTimeout(() =&gt; {
+      console.log(`Wake up after ${time}`)
+      self.next()
+    }, time * 1000)
+  }
+  this.taskqueue.unshift(fn)
+  return this
+}
+
+function LazyMan(name) {
+  return new _LazyMan(name)
+}
+</code></pre>
+<h2 id="实现一个-compose-方法要求如下">实现一个 compose 方法，要求如下</h2>
+<pre><code class="language-js">function fun1(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  next()
+}
+function fun2(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  setTimeout(function() {
+    next()
+  }, 1000)
+}
+function fun3(ctx, next) {
+  ctx.count++
+  console.log(ctx.count)
+  next()
+}
+compose([fun1, fun2, fun3])({ count: 1 }) // 2 3 4
+</code></pre>
+<p>答案</p>
+<pre><code class="language-js">function compose(arr) {
+  return function(ctx) {
+    const next = function() {
+      const fn = arr.shift()
+      fn &amp;&amp; fn(ctx, next)
+    }
+    next()
+  }
+}
+</code></pre>
+<p>###实现一个 composite 方法，要求如下</p>
+<pre><code class="language-js">function add(a, b) {
+  return a + b
+}
+function square(a) {
+  return a * a
+}
+function plusOne(c) {
+  return c + 1
+}
+
+var addSquareAndPlusOne = composite(add, square, plusOne)
+
+console.log(addSquareAndPlusOne(1, 2)) // 10
+</code></pre>
+<p>答案:</p>
+<pre><code class="language-js">function composite(...fns) {
+  return function(...args) {
+    return fns.reduce((accu, curr) =&gt; {
+      return typeof accu === 'function' ? curr(accu(...args)) : curr(accu)
+    })
+  }
+}
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/This-In-JS-2/">
+              <h3 class="post-title">
+                下一篇：this、箭头函数与React事件绑定（二）
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

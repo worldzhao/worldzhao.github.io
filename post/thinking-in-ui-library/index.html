@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>组件（库）开发相关总结 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">组件（库）开发相关总结</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-10-14</span>
+          </div>
+          <div class="post-content">
+            <blockquote>
+<p>本文首发于 2019-06-02<br><br>
+更新于 2019-10-14</p>
+</blockquote>
+<h1 id="组件库开发相关总结">组件（库）开发相关总结</h1>
+<h2 id="现状">现状</h2>
+<p>没有统一组件库，具体问题表现在以下几点：</p>
+<ol>
+<li>数量：可复用组件少，经常需要造轮子，并且造完没有抽出来以供其他项目复用；</li>
+<li>文档：文档缺失，更换开发者大概率需要摸瞎看源码，而且很可能 A 项目已经存在了解决方案，B 项目的开发者并不知道（或者知道了却根本无从下手拷贝），重复造轮子；</li>
+<li>维护：1 中的轮子复用依靠复制粘贴，可维护性差，出现问题多方同步修改。</li>
+</ol>
+<h2 id="可复用组件类型">可复用组件类型</h2>
+<ol start="4">
+<li>UI 组件：譬如弹层（Mask,SlideUp）、轻提示(Toast)以及输入框（Input）等组件（往往还存在一些兼容性问题）；</li>
+<li>业务组件：相同业务类型可复用的组件，譬如抽奖转盘组件；</li>
+<li>逻辑组件：譬如传送门（Portal）、切换器（Toggler）以及校验器（Validator）等可以用来优化代码结构并减少重复代码等无形态组件。</li>
+</ol>
+<h2 id="个人思考">个人思考</h2>
+<p>TO C 业务固然千奇百怪，但总有相似之处，如何与业务结合，分离可变与不可变，提高开发效率，正是工程师存在的意义（当然也需要产品【业务抽象】以及设计【ui 规范】同学的共同参与）。</p>
+<p>如果不同项目设计风格实在差异较大，也能够通过改改样式复用，而非重写一遍逻辑以及兼容性处理。</p>
+<p>既要有造轮子的能力（个人），也要有不造轮子的觉悟（团队）。</p>
+<h2 id="开发相关">开发相关</h2>
+<h3 id="模块处理">模块处理</h3>
+<p>通常我们一般会提供三种形式的模块：</p>
+<ul>
+<li>commonjs，简称 cjs。</li>
+<li>es module，简称 esm。便于应用打包时进行 tree-shaking。</li>
+<li>umd。供使用方外链使用，兼容 cjs 以及 amd。</li>
+</ul>
+<p>想要深入可以看<a href="https://github.com/ShowJoy-com/showjoy-blog/issues/39" title="import、require、export、module.exports 混合详解">import、require、export、module.exports 混合详解</a>这篇文章，此处只需要知道提供何种形式的模块以及何提供它们即可。</p>
+<h3 id="语法转译">语法转译</h3>
+<p>应用开发者通常会在 babel-loader 中 exclude 掉 node_modules，所以我们发出的包需要转成 es5 语法，避免在低版本浏览器上不兼容，可以使用 babel 以及 tsc 进行处理，现在 babel 也支持 typescript，建议直接使用 babel，还可以进行相关插件配置。</p>
+<p>在转译时，会存在一些辅助函数（helpers），这些函数式会在每一个文件生成，建议使用<a href="https://www.babeljs.cn/docs/babel-plugin-transform-runtime" title="`@babel/plugin-transform-runtime`"><code>@babel/plugin-transform-runtime</code></a>以及<code>@babel/runtime</code>将辅助函数抽离，可以减小打包体积的大小且可以复用宿主项目的<code>@babel/runtime</code>。</p>
+<h3 id="polyfill">Polyfill</h3>
+<ol>
+<li>不准使用<code>@babel/polyfill</code>污染宿主环境；</li>
+<li>可以使用<code>@babel/plugin-transform-runtime</code>结合<code>@babel/runtime-corejs3</code>，避免污染全局。<s>存在&quot;foobar&quot;.includes(&quot;foo&quot;) 的代码的话也是无能为力</s>(NOTE: Instance methods such as &quot;foobar&quot;.includes(&quot;foo&quot;) will only work when using corejs: 3.)；</li>
+<li>建议告知使用方依赖了哪些需要 polyfill 的 API，交由使用方自行配置 polyfill，否则可能会导致重复依赖或不同版本之间的冲突。</li>
+</ol>
+<p>如果宿主应用直接一个<code>import '@babel/polyfill'</code>，我们基本躺着就好。</p>
+<blockquote>
+<p>其实关于语法转译还有 polyfill 有一种名为<code>后编译</code>的操作。后编译：指的是应用依赖的 NPM 包并不需要在发布前编译，而是随着应用编译打包的时候一块编译。是一种性能优化手段，更多可参见<a href="https://juejin.im/post/59dc57f2f265da431d3ba2ef" title="webpack 应用编译优化之路">webpack 应用编译优化之路</a>。</p>
+</blockquote>
+<h3 id="样式处理">样式处理</h3>
+<p>先谈谈单组件开发，类似<code>react-slick</code>这种包含样式的典型组件。</p>
+<p>单组件样式处理和平时开发的应用样式处理较为类似，直接打包出一份 css 样式文件，交由使用方引入即可。</p>
+<p>当然也可以直接将 css 打入 js 文件，使用方无需引入。</p>
+<p>组件库（如 antd）则较为麻烦，因为要达到样式<strong>按需引入</strong>的效果。</p>
+<p>首先我们组件库的模块处理方式有以下 3 种：</p>
+<ul>
+<li>cjs 与 esm：只编译不打包（为了按需引入）、依赖外置</li>
+<li>umd：既编译也打包、部分依赖外置，部分依赖需要一同打包</li>
+</ul>
+<p>如果是 umd 形式，很明显和按需引入无缘，只需要通过<code>rollup</code>直接打包抽离 css 文件，交由使用方外链引入。</p>
+<p>而 cjs 以及 esm 的形式，要实现样式的按需引入，则有以下 4 种方式：</p>
+<ol>
+<li>
+<p>使用 sass/less/stylus 等预处理器开发，相应组件内部直接 import 相应(.scss/.less/.styl)文件。</p>
+<ul>
+<li>优点：1. 使用预处理器，开发体验佳；2. 使用方无需手动引入样式文件。</li>
+<li>缺点：1. 使用方需要关注预处理器适配问题。</li>
+</ul>
+</li>
+<li>
+<p>使用 css 开发，相应组件内部直接 import 样式文件。</p>
+<ul>
+<li>优点：1. 使用方不需要关注预处理器适配问题（css-loader 还是要的）；2. 使用方无需单独引入样式文件。</li>
+<li>缺点：1. 开发体验较差。</li>
+</ul>
+</li>
+<li>
+<p>antd 处理方案。使用 sass/less/stylus 等预处理器开发，相应组件不 import 样式文件，编写 style/index.js 管理组件间的样式依赖（sass/less/stylus），生成 style/css.js 管理组件间样式依赖（css），使用方根据宿主项目预处理器选择引入 style/index.js 或 style/css.js。</p>
+<ul>
+<li>优点：1. 使用预处理器开发体验佳；2. 使用方可以选择引入 css.js 样式，不用关心预处理器适配问题。</li>
+<li>缺点：1. 使用方需要单独引入 style/index.js 或 style/css.js（这一点可用 babel 插件解决）；2. 开发时需要编写一份 style/index.js 用于维护组件间的样式依赖；3. 打包时需要使用比较 tricky 的方式生成一份 style/css.js。</li>
+</ul>
+</li>
+<li>
+<p>css in js 方案。使用 styled-components，<a href="https://zhuanlan.zhihu.com/p/26878157" title="相关文章：精读《请停止 css-in-js 的行为》">相关文章：精读《请停止 css-in-js 的行为》</a>。</p>
+<ul>
+<li>优点：1. 开发体验较好；2. 使用方无需单独引入样式文件；3. 使用方无需关注预处理器适配问题。</li>
+<li>缺点：未成体系使用过，不了解。</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结">总结</h2>
+<ol>
+<li>不论是组件还是组件库，最好提供 cjs/esm/umd 等三种形式的模块供不同使用情景使用；</li>
+<li>组件库 esm/cjs 的形式需要达到按需引入， 推荐使用 gulp 结合 typescript 或 babel，只编译不打包，单独使用 tsc 或 babel 也可以，但考虑到需要处理样式，最好结合一个工具将流程串起来。umd 形式则直接使用 rollup 打包；</li>
+<li>组件库样式按需引入有上文四种方案，根据业务形式进行选择，需要进行权衡取舍；</li>
+<li>单组件不存在按需引入，直接使用 rollup 打包出 esm/cjs/umd 三种形式模块即可。</li>
+</ol>
+<h3 id="附录">附录：</h3>
+<pre><code>- [dora-ui](https://github.com/worldzhao/dora-ui &quot;dora-ui&quot;)
+- [react-component-template](https://github.com/worldzhao/react-componet-template &quot;react-component-template&quot;)
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/authorization-with-react-NSConflict-海秋-mac10.15.3/">
+              <h3 class="post-title">
+                下一篇：基于React的权限系统设计
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

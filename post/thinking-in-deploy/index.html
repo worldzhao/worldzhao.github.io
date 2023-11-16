@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>关于前端项目部署发布的相关思考 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">关于前端项目部署发布的相关思考</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-07-21</span>
+          </div>
+          <div class="post-content">
+            <p>习惯了前后端完全分离的开发模式，一时难以接受前端 html 托管在后端这种操作。</p>
+<!-- more -->
+<h2 id="公司前端项目部署现状">公司前端项目部署现状</h2>
+<p>将 html 托管给后端，前端只发静态资源（<code>index.js</code>/<code>index.css</code>），然后通过某种方式去刷 html 的静态资源版本号（?version=时间戳或递增数字）。</p>
+<p>原因：HTML 文件不能放在 CDN 上，会被缓存。</p>
+<h2 id="比较好的实践">比较好的实践</h2>
+<p>我们先来看看前端项目部署的比较好实践是什么？</p>
+<p>出处：<a href="https://www.zhihu.com/question/20790576/answer/32602154">大公司里怎样开发和部署前端代码？</a></p>
+<p>可以总结出以下四点：</p>
+<blockquote>
+<ol>
+<li>配置超长时间的本地缓存 —— 节省带宽，提高性能</li>
+<li>采用内容摘要作为缓存更新依据 —— 精确的缓存控制</li>
+<li>静态资源 CDN 部署 —— 优化网络请求</li>
+<li>变更资源发布路径实现非覆盖式发布 —— 平滑升级</li>
+</ol>
+</blockquote>
+<p>上面文章可是本文的基石，虽然已经过去了 5 年。</p>
+<h2 id="公司部署方案优缺点">公司部署方案优缺点</h2>
+<p>前端只发布静态资源，只要 html 引用的资源不刷版本号，请求的都是 CDN 上缓存的资源（如果 CDN 有缓存的话）。</p>
+<p><strong>（强行）优点</strong></p>
+<ol>
+<li>覆盖发布。服务器不会有大量静态资源文件积累；</li>
+<li>后端可以向 HTML 内注入一些内容，比如用户信息。</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>粗粒度的版本号刷新策略，导致根据文件内容变化选择性更新缓存（对应实践 2）无法实施；</li>
+<li>html 托管在后端，导致一定程度的前后端未分离（譬如打包策略变更需要后端配合更改 html）。</li>
+</ol>
+<h2 id="照猫画虎">照猫画虎</h2>
+<p>那么按照上面的实践，如何处理比较好呢？</p>
+<ol>
+<li>前端每次基于 content hash（依赖内容摘要算法） 打包生成静态资源文件名(例如 <code>aaa.[contenthash].js</code> 与 <code>bbb.[contenthash].css</code>)，文件名是否变化取决于文件内容是否变化；</li>
+<li>使用前端的 html，前端可在打包过程中自动注入静态资源文件地址；</li>
+<li>静态资源先发布，html 后发布。</li>
+</ol>
+<p>再来看看上面的缺点是否被解决了？</p>
+<p><em><code>1. 粗粒度的版本号刷新策略，导致根据文件内容变化选择性更新缓存（对应实践 2）无法实施</code></em></p>
+<p><strong>文件名是基于 content hash（依赖内容摘要算法）生成，在发布新的 html 后，若文件内容未发生变化，文件名不会发生改变，依旧使用本地强缓存，若文件内容变化，文件名会发生改变，会请求新的静态资源，达到了选择性更新缓存的效果。</strong></p>
+<p><em><code>2. 覆盖发布。在 html 刷新版本号前，新用户和老用户可能看到的页面版本（功能）不同</code></em></p>
+<p><strong>非覆盖式发布，文件名[contenthash]不同不会覆盖，旧的静态资源文件依旧存在。</strong></p>
+<p><strong>新的静态资源发布后，新的 html 未发布前这个时间段内，老用户请求到旧的 html，请求的是旧的静态资源，文件名(或者说文件路径)未变化，依旧使用本地强缓存，新用户请求到旧的 html，没有本地缓存，但旧的静态资源未被覆盖，依旧可以请求到，此时看到的都是旧版本内容。</strong></p>
+<p><strong>新的 html 发布后，老用户浏览器会选择性更新本地缓存，新用户直接请求新的静态资源，看到的都是新版本内容。</strong></p>
+<p><em><code>3. html 托管在后端，导致一定程度的前后端未分离（譬如打包策略变更需要后端配合更改 html）</code></em></p>
+<p><strong>html 完全由前端控制，后端只需要提供 API 即可，前后端真正意义上的完全分离。</strong></p>
+<p>缺点：</p>
+<ul>
+<li>发生变化的文件 hash 值不同，非覆盖发布，可能造成服务器上无用的静态资源越来越多，但这是可以解决的</li>
+<li>后端不能往 html 注入一些内容</li>
+</ul>
+<h2 id="结语">结语</h2>
+<p>项目上线需要配置 Nginx ，流程上还有可以优化的地方。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/probation-period-in-xmly/">
+              <h3 class="post-title">
+                下一篇：双月谈-试用期思考
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

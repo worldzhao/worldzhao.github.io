@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>实现通用的事件注册方法 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">实现通用的事件注册方法</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-15</span>
+          </div>
+          <div class="post-content">
+            <blockquote>
+<p>初稿：2017-07-15 <br><br>
+更新: 2018-07-29</p>
+</blockquote>
+<h1 id="实现通用的事件注册方法">实现通用的事件注册方法</h1>
+<h2 id="为什么要讨论事件注册的兼容性">为什么要讨论事件注册的兼容性？</h2>
+<p>由于历史原因，不同的浏览器对事件注册的实现方式有些许差异。</p>
+<h2 id="事件注册有哪些方法">事件注册有哪些方法？</h2>
+<h3 id="onevent">on+&quot;event&quot;</h3>
+<p>例如:onclick/onmouseover/onmouseenter/...支持最广，笔者用的最多，倘若要在一个元素上添加多次同一事件，此时就显得无能为力了，以最后一次绑定的事件为准。</p>
+<h3 id="addeventlistener">addEventListener</h3>
+<p>W3C 标准方法，功能也最强大，支持添加多个事件</p>
+<pre><code class="language-js">//element.addEventListener(type,listener,useCapture);
+obj.addEventListener(&quot;click&quot;, method1, false);
+obj.addEventListener(&quot;click&quot;, method2, false);
+obj.addEventListener(&quot;click&quot;, method3, false);
+</code></pre>
+<p>执行顺序为 method1-&gt;method2-&gt;method3，第三个参数是指以“冒泡”还是“捕获”的标准绑定事件，一般为 false(冒泡).</p>
+<p>并且可以使用 removeEventListener() 方法移除由  addEventListener()方法添加的事件句柄。</p>
+<p><strong>注意：</strong>  如果要移除事件句柄，addEventListener() 的执行函数必须使用外部函数，如上实例所示 (method1/2/3)。<br>
+匿名函数，类似 &quot;window.removeEventListener(&quot;<em>event</em>&quot;, function(){ <em>myScript</em> });&quot; 该事件是无法移除的。</p>
+<p>如果浏览器不支持 removeEventListener() 方法，你可以使用 detachEvent() 方法实现。</p>
+<pre><code class="language-js">var x = window.getElementById(&quot;myDIV&quot;);
+if (x.removeEventListener) {
+  // // 所有浏览器，除了 IE 8 及更早IE版本
+  x.removeEventListener(&quot;mousemove&quot;, myFunction);
+} else if (x.detachEvent) {
+  // IE 8 及更早IE版本
+  x.detachEvent(&quot;onmousemove&quot;, myFunction);
+}
+</code></pre>
+<h3 id="attachevent">attachEvent</h3>
+<p>IE 家的方法，火狐与其他家浏览器都不支持,attachEvent——兼容：IE7、IE8；不兼容 firefox、chrome、IE9、IE10、IE11、safari、opera.尽量不要用，支持绑定多个事件，与 addEventListener()执行顺序相反，即 method3-&gt;method2-&gt;method1</p>
+<h2 id="进行兼容性处理">进行兼容性处理</h2>
+<h3 id="1简单通过-if-判断">1.简单通过 if 判断</h3>
+<pre><code class="language-js">if (window.addEventListener) {
+  //功能最强大
+  div.addEventListener(&quot;click&quot;, function() {
+    alert(&quot;hello,world&quot;);
+  });
+} else if (window.attachEvent) {
+  //非标准特性 尽量不要使用
+  div.attachEvent(&quot;click&quot;, function() {
+    alert(&quot;hello,world&quot;);
+  });
+} else {
+  //支持最好
+  div[&quot;onclick&quot;] = function() {
+    alert(&quot;hello,world&quot;);
+  };
+}
+</code></pre>
+<h3 id="2封装成函数">2.封装成函数</h3>
+<pre><code class="language-js">function registeEvent(elem, type, handler, useCapture) {
+  if (window.addEventListener) {
+    //功能最强大
+    elem.addEventListener(type, handler, useCapture);
+  } else if (window.attachEvent) {
+    //非标准特性 尽量不要使用
+    elem.attachEvent(type, handler);
+  } else {
+    //支持最好
+    elem[&quot;on&quot; + type] = handler;
+  }
+}
+</code></pre>
+<p>到这里，我们每次注册事件时都通过 registeEvent 注册，很明显，每次注册都要判断浏览器的能力是否支持，每一次都要检测，这不是我们想要的。</p>
+<h3 id="3-使用立即执行函数进行优化">3. 使用立即执行函数进行优化</h3>
+<pre><code class="language-js">var registeEvent = (function createEventRegister() {
+  if (window.addEventListener) {
+    return function(elem, type, handler, useCapture) {
+      elem.addEventListener(type, handler, useCapture);
+    };
+  } else if (window.attachEvent) {
+    return function(elem, type, handler) {
+      elem.attachEvent(type, function() {
+        handler.call(elem, window.event); //注:attachEvent内部this指向window而不是触发对象,使用call方法修改this
+      });
+    };
+  } else {
+    return function(elem, type, handler) {
+      elem[&quot;on&quot; + type] = handler;
+    };
+  }
+})();
+</code></pre>
+<p>此后只用通过 registeEvent 方法注册事件即可，且只在最开始的时候进行一次能力检测.</p>
+<pre><code class="language-js">registeEvent(div, &quot;click&quot;, function() {
+  alert(&quot;hello,world&quot;);
+});
+</code></pre>
+<p>但是此时依旧存在一个缺点，如果我们从头到尾没有绑定过事件，即使用 registeEvent 函数，那么立即执行函数白白执行了一次完全是多余的(或许有些吹毛求疵)，我们可以使用惰性载入函数来进行优化。</p>
+<h3 id="4-惰性载入函数方案">4. 惰性载入函数方案</h3>
+<p>此时 registerEvent 依然被声明为一个普通函数，在函数里依然有一些分支判断。但是在第一次进入条件分支之后，在函数内部会重写这个函数，重写之后的函数就是我们期望的 registerEvent 函数，在下一次进入 registerEvent registerEvent 函数里不再存在条件分支语句:</p>
+<pre><code class="language-js">var registeEvent = function createEventRegister() {
+  if (window.addEventListener) {
+    registeEvent = function(elem, type, handler, useCapture) {
+      elem.addEventListener(type, handler, useCapture);
+    };
+  } else if (window.attachEvent) {
+    registeEvent = function(elem, type, handler) {
+      elem.attachEvent(type, function() {
+        handler.call(elem, window.event); //注:attachEvent内部this指向window而不是触发对象,使用call方法修改this
+      });
+    };
+  } else {
+    registeEvent = function(elem, type, handler) {
+      elem[&quot;on&quot; + type] = handler;
+    };
+  }
+};
+</code></pre>
+<hr>
+<p>附上一些兼容性解决方案 EventUtil：</p>
+<pre><code class="language-js">var EventUtil = {
+  addEvent: function(element, type, handler) {
+    // 添加绑定
+    if (element.addEventListener) {
+      // 使用DOM2级方法添加事件
+      element.addEventListener(type, handler, false);
+    } else if (element.attachEvent) {
+      // 使用IE方法添加事件
+      element.attachEvent(&quot;on&quot; + type, handler);
+    } else {
+      // 使用DOM0级方法添加事件
+      element[&quot;on&quot; + type] = handler;
+    }
+  },
+  // 移除事件
+  removeEvent: function(element, type, handler) {
+    if (element.removeEventListener) {
+      element.removeEventListener(type, handler, false);
+    } else if (element.datachEvent) {
+      element.detachEvent(&quot;on&quot; + type, handler);
+    } else {
+      element[&quot;on&quot; + type] = null;
+    }
+  },
+  getEvent: function(event) {
+    // 返回事件对象引用
+    return event ? event : window.event;
+  },
+  // 获取mouseover和mouseout相关元素
+  getRelatedTarget: function(event) {
+    if (event.relatedTarget) {
+      return event.relatedTarget;
+    } else if (event.toElement) {
+      // 兼容IE8-
+      return event.toElement;
+    } else if (event.formElement) {
+      return event.formElement;
+    } else {
+      return null;
+    }
+  },
+  getTarget: function(event) {
+    //返回事件源目标
+    return event.target || event.srcElement;
+  },
+  preventDefault: function(event) {
+    //取消默认事件
+    if (event.preventDefault) {
+      event.preventDefault();
+    } else {
+      event.returnValue = false;
+    }
+  },
+  stoppropagation: function(event) {
+    //阻止事件流
+    if (event.stoppropagation) {
+      event.stoppropagation();
+    } else {
+      event.canceBubble = false;
+    }
+  },
+  // 获取mousedown或mouseup按下或释放的按钮是鼠标中的哪一个
+  getButton: function(event) {
+    if (document.implementation.hasFeature(&quot;MouseEvents&quot;, &quot;2.0&quot;)) {
+      return event.button;
+    } else {
+      //将IE模型下的button属性映射为DOM模型下的button属性
+      switch (event.button) {
+        case 0:
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+          //按下的是鼠标主按钮（一般是左键）
+          return 0;
+        case 2:
+        case 6:
+          //按下的是中间的鼠标按钮
+          return 2;
+        case 4:
+          //鼠标次按钮（一般是右键）
+          return 1;
+      }
+    }
+  },
+  //获取表示鼠标滚轮滚动方向的数值
+  getWheelDelta: function(event) {
+    if (event.wheelDelta) {
+      return event.wheelDelta;
+    } else {
+      return -event.detail * 40;
+    }
+  },
+  // 以跨浏览器取得相同的字符编码，需在keypress事件中使用
+  getCharCode: function(event) {
+    if (typeof event.charCode == &quot;number&quot;) {
+      return event.charCode;
+    } else {
+      return event.keyCode;
+    }
+  }
+};
+</code></pre>
+<p>参考书籍：《JavaScript 高级程序设计第三版》《JavaScript 设计模式与开发实践》<br>
+参考文章：<a href="https://juejin.im/post/5b592635e51d4533d2043e15?utm_source=gold_browser_extension">手把手教你用原生 JavaScript 造轮子（1）——分页器</a></p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/constructor-prototype-extend-3/">
+              <h3 class="post-title">
+                下一篇：构造函数、原型与继承（三）
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

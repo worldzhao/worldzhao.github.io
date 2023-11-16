@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>babel学习笔记 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">babel学习笔记</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-10-13</span>
+          </div>
+          <div class="post-content">
+            <h2 id="babel"><a href="https://babeljs.io/">babel</a></h2>
+<pre><code>原始代码 --&gt; [Babel Plugin] --&gt; 转换后的代码
+</code></pre>
+<h3 id="转译">转译</h3>
+<p>安装以下依赖:</p>
+<ol>
+<li><code>@babel/core</code>调用 Babel 的 API 进行转码</li>
+<li><code>babel-loader</code>[webpack 的 loader]（https://github.com/babel/babel-loader)</li>
+<li><code>@babel/preset-env</code> 在没有任何配置选项的情况下, babel-preset-env 与 babel-preset-latest（或者 babel-preset-es2015, babel-preset-es2016 和 babel-preset-es2017 一起）的行为完全相同.</li>
+<li>~~<code>@babel/preset-stage-0</code>稻草人提案(babel7 已移除)~~拆散为升级为各种插件</li>
+<li><code>@babel/preset-react</code>react 语法转译<br>
+preset 即 plugin 的套餐, 无需针对一个个语法规则去安装 plugin</li>
+</ol>
+<p>注:<a href="https://babel.docschina.org/docs/en/6.26.3/plugins#es2015">plugin 分为转译 plugin/语法 plugin/混合 plugin</a></p>
+<pre><code>env = es2015 + es2016 + es2017
+stage-0 = stage-1 + stage-2 + stage-3
+</code></pre>
+<p>preset 具体包含了哪些插件可去官网查询.</p>
+<h3 id="polyfill">polyfill</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+<th>推荐使用环境</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@babel/runtime + @babel/plugin-transform-runtime</td>
+<td>按需引入, 打包体积小, 移除冗余工具函数(helper function)</td>
+<td>不模拟实例方法</td>
+<td>开发库、工具中使用</td>
+</tr>
+<tr>
+<td>@babel/polyfill</td>
+<td>完整模拟 ES2015+环境</td>
+<td>体积过大, 污染全局对象和内置的对象原型</td>
+<td>应用中使用</td>
+</tr>
+<tr>
+<td>@babel/preset-env[useBuiltIns:&quot;entry&quot;] + babel-polyfill</td>
+<td>按<s>需</s>浏览器引入, 以 target 最低要求为准</td>
+<td>可配置性高</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>注:方案 1 中的@babel/runtime + @babel/plugin-transform-runtime 在 babel7 下只包含 helper function(即 Babel 进行处理时需要的帮助函数), 如果想实现 polyfill , 需要使用@babel/runtime-corejs2, <a href="https://babel.docschina.org/docs/en/v7-migration#babel-runtime-babel-plugin-transform-runtime">升级详情</a></p>
+<pre><code>[&quot;@babel/plugin-transform-runtime&quot;,  {
+    &quot;corejs&quot;: 2
+}],
+</code></pre>
+<p>要实现真正的按需引入,即使所使用的特性以及结合目标浏览器范围进行打包，可以使用实验性的 useBuildIns:&quot;usage&quot;.</p>
+<h3 id="babel-正在向每个文件中注入-helper-并使代码膨胀"><a href="https://github.com/babel/babel-loader">Babel 正在向每个文件中注入 helper 并使代码膨胀</a></h3>
+<p>解决方案:<a href="https://babeljs.io/docs/en/babel-plugin-transform-runtime">@babel/runtime + @babel/plugin-transform-runtime</a></p>
+<pre><code>{
+  &quot;plugins&quot;:[&quot;@babel/plugin-transform-runtime&quot;, {
+            &quot;corejs&quot;: false,
+            &quot;helpers&quot;: true,
+            &quot;regenerator&quot;: false,
+            &quot;useESModules&quot;: false
+        }],
+}
+</code></pre>
+<h3 id="在-webpack-中正确使用-babel">在 webpack 中正确使用 Babel</h3>
+<ol>
+<li>
+<p>利用环境变量合理使用 babel 对不同环境的代码进行处理,例如在开发环境不要引入 polyfill,在开发环境利用 plugin 将动态 import 转为 require 加快打包速度</p>
+</li>
+<li>
+<p>开启 babel-loader 的缓存加快打包速度</p>
+</li>
+</ol>
+<h3 id="总结">总结</h3>
+<p>最好的学习方式:起一个 webpack 环境,配置不同的.babelrc 观察每次打包后的情况.<br>
+这比任何文章都来得实在,多看官方文档,中文总结只是一个参考,具体表现如何还是看实践+文档.</p>
+<ol>
+<li>转译方案: @babel/preset-env + @babel/preset-react + 通过命令行升级的 stage-0</li>
+<li>polyfill 方案: @babel/polyfill + @babel/preset-env[useBuiltIns:&quot;entry&quot;]</li>
+<li>helpers 重复注入解决: @babel/runtime + @babel/plugin-transform-runtime</li>
+</ol>
+<p>参考文章及推荐阅读:</p>
+<ul>
+<li><a href="https://babeljs.io/">babel</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/44174870">大前端的自动化工厂— babel</a></li>
+<li><a href="https://blog.zfanw.com/babel-js/">babel 7 教程</a></li>
+<li><a href="https://babel.docschina.org/docs/en/v7-migration">升级至 babel 7</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/29506685">再见, babel-preset-2015</a></li>
+<li><a href="https://github.com/sunyongjian/blog/issues/30">你真的会用 babel 吗？ </a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/27777995">21 分钟精通前端 Polyfill 方案</a></li>
+<li><a href="https://juejin.im/post/5aefe0a6f265da0b9e64fa54">babel-polyfill VS babel-runtime VS babel-preset-env</a></li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/git-flow/">
+              <h3 class="post-title">
+                下一篇：关于 git flow 工作流程的一点思考
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

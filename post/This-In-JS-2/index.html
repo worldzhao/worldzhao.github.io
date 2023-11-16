@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>this、箭头函数与React事件绑定（二） | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">this、箭头函数与React事件绑定（二）</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-10-14</span>
+          </div>
+          <div class="post-content">
+            <p>【转】什么时候你不能使用箭头函数？</p>
+<h1 id="什么时候你不能使用箭头函数">什么时候你不能使用箭头函数？</h1>
+<p>译者：王仕军</p>
+<blockquote>
+<p>共 2670 字，读完需 5 分钟。编译自 Dmitri Pavlutin 的文章，对原文内容做了精简和代码风格优化。ES6 中引入的箭头函数可以让我们写出更简洁的代码，但是部分场景下使用箭头函数会带来严重的问题，有哪些场景？会导致什么问题？该怎么解决，容我慢慢道来。</p>
+</blockquote>
+<p>能见证每天在用的编程语言不断演化是一件让人非常兴奋的事情，从错误中学习、探索更好的语言实现、创造新的语言特性是推动编程语言版本迭代的动力。JS 近几年的变化就是最好的例子， 以 ES6 引入的箭头函数（arrow functions）、class 等特性为代表，把 JS 的易用性推到了新的高度。</p>
+<p>关于 ES6 中的箭头函数，网上有很多文章解释其作用和语法，如果你刚开始接触 ES6，可以从这里开始。任何事物都具有两面性，语言的新特性常常被误解、滥用，比如箭头函数的使用就存在很多误区。接下来，笔者会通过实例介绍该避免使用箭头函数的场景，以及在这些场景下该如何使用函数表达式（function expressions）、函数声明或者方法简写（shorthand method）来保障代码正确性和可读性。</p>
+<h2 id="1-定义对象方法">1. 定义对象方法</h2>
+<p>JS 中对象方法的定义方式是在对象上定义一个指向函数的属性，当方法被调用的时候，方法内的 this 就会指向方法所属的对象。</p>
+<h3 id="11-定义字面量方法">1.1 定义字面量方法</h3>
+<p>因为箭头函数的语法很简洁，可能不少同学会忍不住用它来定义字面量方法，比如下面的例子：</p>
+<pre><code class="language-js">const calculator = {
+  array: [1, 2, 3],
+  sum: () =&gt; {
+    console.log(this === window) // =&gt; true
+    return this.array.reduce((result, item) =&gt; result + item)
+  }
+}
+
+console.log(this === window) // =&gt; true
+
+// Throws &quot;TypeError: Cannot read property 'reduce' of undefined&quot;
+calculator.sum()
+</code></pre>
+<p>calculator.sum 使用箭头函数来定义，但是调用的时候会抛出 TypeError，因为运行时 this.array 是未定义的，调用 calculator.sum 的时候，执行上下文里面的 this 仍然指向的是 window，原因是箭头函数把函数上下文绑定到了 window 上，this.array 等价于 window.array，显然后者是未定义的。</p>
+<p>解决的办法是，使用函数表达式或者方法简写（ES6 中已经支持）来定义方法，这样能确保 this 是在运行时是由包含它的上下文决定的，修正后的代码如下：</p>
+<pre><code class="language-js">const calculator = {
+  array: [1, 2, 3],
+  sum() {
+    console.log(this === calculator) // =&gt; true
+    return this.array.reduce((result, item) =&gt; result + item)
+  }
+}
+calculator.sum() // =&gt; 6
+</code></pre>
+<p>这样 calculator.sum 就变成了普通函数，执行时 this 就指向 calculator 对象，自然能得到正确的计算结果。</p>
+<p>--------------------------------海秋的分割线开始-----------------------------</p>
+<p>补充一个在 sg 看到的提问：</p>
+<pre><code class="language-js">var name = 'window'
+var obj = {
+  name: 'netease',
+  print1: () =&gt; {
+    console.log(this.name)
+  }
+}
+obj.print1() //window
+</code></pre>
+<p>题主描述：es6 中的 this 是定义时绑定，跟运行时无关，我很纳闷就是这个例子中，定义时 print1 方法里面的 this 不是应该最先查找到的就是 obj 里面的 name 吗，为什么输出是 window，还是绑定到全局变量上去了?不是明明 print1 里面没有 this，再查找外围 this，先找到的应该是 obj 中的 this 吗？</p>
+<p>最佳回答：</p>
+<blockquote>
+<p>箭头函数没有 this/super/arguments/new.target 的绑定，这些值是由外围最近一层非箭头函数决定。</p>
+</blockquote>
+<p>箭头函数的 this 和普通函数的 this 可以看成完全两个概念的东西，不用传统的 this 去理解。</p>
+<p>我对外围的理解是，这个外围指的是()=&gt;{}整体的外围，比如你的代码中：name 属性的外围是什么？print1 的外围是什么？。所以 ()=&gt;{console.log(this.name);}的外围已经出了 obj，从而进入 window<br>
+可以借助我下面的代码来理解：</p>
+<pre><code class="language-js">var name = 'window'
+var obj = {
+  name: 'netease',
+  print1: () =&gt; {
+    console.log(this.name)
+  },
+  print3: function() {
+    return () =&gt; {
+      console.log(this.name)
+    }
+  }
+}
+obj.print1() // window
+obj.print3()() // netease 注意是返回闭包函数
+</code></pre>
+<p>--------------------------------海秋的分割线结束-----------------------------</p>
+<h3 id="12-定义原型方法">1.2 定义原型方法</h3>
+<p>同样的规则适用于原型方法（prototype method）的定义，使用箭头函数会导致运行时的执行上下文错误，比如下面的例子：</p>
+<pre><code class="language-js">function Cat(name) {
+  this.name = name
+}
+
+Cat.prototype.sayCatName = () =&gt; {
+  console.log(this === window) // =&gt; true
+  return this.name
+}
+
+const cat = new Cat('Mew')
+cat.sayCatName() // =&gt; undefined
+</code></pre>
+<p>使用传统的函数表达式就能解决问题：</p>
+<pre><code class="language-js">function Cat(name) {
+  this.name = name
+}
+
+Cat.prototype.sayCatName = function() {
+  console.log(this === cat) // =&gt; true
+  return this.name
+}
+
+const cat = new Cat('Mew')
+cat.sayCatName() // =&gt; 'Mew'
+</code></pre>
+<p>sayCatName 变成普通函数之后，被调用时的执行上下文就会指向新创建的 cat 实例。</p>
+<p>--------------------------------海秋的分割线开始-----------------------------</p>
+<p>来看看 ES6 中的 class 定义方法（传统写法、箭头函数写法）</p>
+<pre><code class="language-js">class Person {
+  Run() {
+    //传统形式的函数写法
+    this
+  }
+
+  eat = () =&gt; {
+    //es6中的箭头函数写法
+    this
+  }
+}
+</code></pre>
+<p>在 ES5 中</p>
+<pre><code class="language-js">var Person = (function() {
+  function Person() {
+    var _this = this
+    this.eat = function() {
+      //箭头写法直接挂到Person的this下
+      _this
+    }
+  }
+  Person.prototype.Run = function() {
+    //传统写法则挂到prototype中定义
+    this
+  }
+
+  return Person
+})()
+</code></pre>
+<p>所以在 ES6 的 class 中定义的传统形式的函数写法是挂在到 prototype 上的，但是箭头函数并不是直接将挂载在原型上的函数写为箭头形式，而是在构造函数内定义。</p>
+<p>直接在 ES6 的 class 中定义箭头函数方法，this 是可以指向实例的(外层是构造函数，this 指向实例，思考 React 事件绑定)。</p>
+<p>但是在 ES5 的原型上挂载箭头函数方法 this 就无法指向实例了（参考上文）。</p>
+<p>--------------------------------海秋的分割线结束-----------------------------</p>
+<h2 id="2-定义事件回调函数">2. 定义事件回调函数</h2>
+<p>this 是 JS 中很强大的特性，可以通过多种方式改变函数执行上下文，JS 内部也有几种不同的默认上下文指向，但普适的规则是在谁上面调用函数 this 就指向谁，这样代码理解起来也很自然，读起来就像在说，某个对象上正在发生某件事情。</p>
+<p>但是，箭头函数在声明的时候就绑定了执行上下文，要动态改变上下文是不可能的，在需要动态上下文的时候它的弊端就凸显出来。比如在客户端编程中常见的 DOM 事件回调函数（event listenner）绑定，触发回调函数时 this 指向当前发生事件的 DOM 节点，而动态上下文这个时候就非常有用，比如下面这段代码试图使用箭头函数来作事件回调函数：</p>
+<pre><code class="language-js">const button = document.getElementById('myButton')
+button.addEventListener('click', () =&gt; {
+  console.log(this === window) // =&gt; true
+  this.innerHTML = 'Clicked button'
+})
+</code></pre>
+<p>在全局上下文下定义的箭头函数执行时 this 会指向 window，当单击事件发生时，浏览器会尝试用 button 作为上下文来执行事件回调函数，但是箭头函数预定义的上下文是不能被修改的，这样 this.innerHTML 就等价于 window.innerHTML，而后者是没有任何意义的。</p>
+<p>使用函数表达式就可以在运行时动态的改变 this，修正后的代码：</p>
+<pre><code class="language-js">const button = document.getElementById('myButton')
+button.addEventListener('click', function() {
+  console.log(this === button) // =&gt; true
+  this.innerHTML = 'Clicked button'
+})
+</code></pre>
+<p>当用户单击按钮时，事件回调函数中的 this 实际指向 button，这样的 this.innerHTML = 'Clicked button' 就能按照预期修改按钮中的文字。</p>
+<h2 id="3-定义构造函数">3. 定义构造函数</h2>
+<p>构造函数中的 this 指向新创建的对象，当执行 new Car() 的时候，构造函数 Car 的上下文就是新创建的对象，也就是说 this instanceof Car === true。显然，箭头函数是不能用来做构造函数， 实际上 JS 会禁止你这么做，如果你这么做了，它就会抛出异常。</p>
+<p>换句话说，箭头构造函数的执行并没有任何意义，并且是有歧义的。比如，当我们运行下面的代码：</p>
+<pre><code class="language-js">const Message = text =&gt; {
+  this.text = text
+}
+// Throws &quot;TypeError: Message is not a constructor&quot;
+const helloMessage = new Message('Hello World!')
+</code></pre>
+<p>构造新的 Message 实例时，JS 引擎抛了错误，因为 Message 不是构造函数。在笔者看来，相比旧的 JS 引擎在出错时悄悄失败的设计，ES6 在出错时给出具体错误消息是非常不错的实践。可以通过使用函数表达式或者函数声明 来声明构造函数修复上面的例子：</p>
+<pre><code class="language-js">const Message = function(text) {
+  this.text = text
+}
+const helloMessage = new Message('Hello World!')
+console.log(helloMessage.text) // =&gt; 'Hello World!'
+</code></pre>
+<h2 id="4-追求过短的代码">4. 追求过短的代码</h2>
+<p>箭头函数允许你省略参数两边的括号、函数体的花括号、甚至 return 关键词，这对编写更简短的代码非常有帮助。这让我想起大学计算机老师给学生留过的有趣作业：看谁能使用 C 语言编写出最短的函数来计算字符串的长度，这对学习和探索新语言特性是个不错的法子。但是，在实际的软件工程中，代码写完之后会被很多工程师阅读，真正的 write once, read many times，在代码可读性方面，最短的代码可能并不总是最好的。一定程度上，压缩了太多逻辑的简短代码，阅读起来就没有那么直观，比如下面的例子：</p>
+<pre><code class="language-js">const multiply = (a, b) =&gt; (b === undefined ? b =&gt; a * b : a * b)
+const double = multiply(2)
+double(3) // =&gt; 6
+multiply(2, 3) // =&gt; 6
+</code></pre>
+<p>multiply 函数会返回两个数字的乘积或者返回一个可以继续调用的固定了一个参数的函数。代码看起来很简短，但大多数人第一眼看上去可能无法立即搞清楚它干了什么，怎么让这段代码可读性更高呢？有很多办法，可以在箭头函数中加上括号、条件判断、返回语句，或者使用普通的函数：</p>
+<pre><code class="language-js">function multiply(a, b) {
+  if (b === undefined) {
+    return function(b) {
+      return a * b
+    }
+  }
+  return a * b
+}
+
+const double = multiply(2)
+double(3) // =&gt; 6
+multiply(2, 3) // =&gt; 6
+</code></pre>
+<p>为了让代码可读性更高，在简短和啰嗦之间把握好平衡是非常有必要的。</p>
+<h2 id="5-总结">5. 总结</h2>
+<p>箭头函数无疑是 ES6 带来的重大改进，在正确的场合使用箭头函数能让代码变的简洁、短小，但某些方面的优势在另外一些方面可能就变成了劣势，在需要动态上下文的场景中使用箭头函数你要格外的小心，这些场景包括：定义对象方法、定义原型方法、定义构造函数、定义事件回调函数。</p>
+<p>One More Thing</p>
+<p>本文作者王仕军，商业转载请联系作者获得授权，非商业转载请注明出处。如果你觉得本文对你有帮助，请点赞！如果对文中的内容有任何疑问，欢迎留言讨论。想知道我接下来会写些什么？欢迎订阅我的知乎专栏：《前端周刊：让你在前端领域跟上时代的脚步》。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/This-In-JS-1/">
+              <h3 class="post-title">
+                下一篇：this、箭头函数与React事件绑定（一）
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

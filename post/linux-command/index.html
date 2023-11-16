@@ -1,0 +1,473 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>Linux学习笔记-常用命令 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">Linux学习笔记-常用命令</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-07-08</span>
+          </div>
+          <div class="post-content">
+            <h1 id="linux-常用命令">Linux 常用命令</h1>
+<ul>
+<li>软件操作命令</li>
+<li>服务器硬件资源信息</li>
+<li>文件和文件夹操作命令</li>
+<li>系统用户操作命令</li>
+<li>防火墙相关设置</li>
+<li>提权操作 sudo 和文件传输操作</li>
+</ul>
+<h2 id="软件操作命令">软件操作命令</h2>
+<ul>
+<li>软件包管理器：yum</li>
+<li>安装软件命令：yum install xxx</li>
+<li>卸载软件命令：yum remove xxx</li>
+<li>搜索软件命令：yum search xxx</li>
+<li>清理缓存命令：yum clean packages</li>
+<li>列出已安装： yum list</li>
+<li>软件包信息： yum info xxx</li>
+</ul>
+<h2 id="服务器硬件资源信息">服务器硬件资源信息</h2>
+<ul>
+<li>内存：free -m</li>
+<li>磁盘：df -h</li>
+<li>负载：w/top</li>
+<li>cpu 信息：cat /proc/cpuinfo</li>
+</ul>
+<h2 id="文件操作命令">文件操作命令</h2>
+<ul>
+<li>Linux 文件的目录结构</li>
+<li>文件基本操作</li>
+<li>文本编辑器 vim</li>
+<li>文件权限 4-2-1</li>
+<li>文件的搜索/查找/读取</li>
+<li>文件的压缩或解压</li>
+</ul>
+<h3 id="linux-文件的目录结构">Linux 文件的目录结构</h3>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf94v85aj30yg0fpaco.jpg" alt="linux目录结构.png" loading="lazy"></figure>
+<ul>
+<li>根目录 /</li>
+<li>家目录 /home</li>
+<li>临时目录 /tmp</li>
+<li>配置目录 /etc</li>
+<li>用户程序目录 /usr</li>
+</ul>
+<h3 id="文件基本操作">文件基本操作</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ls</td>
+<td>查看目录下的文件[-a -l]</td>
+</tr>
+<tr>
+<td>touch</td>
+<td>新建文件</td>
+</tr>
+<tr>
+<td>mkdir</td>
+<td>新建文件夹[-p]</td>
+</tr>
+<tr>
+<td>cd</td>
+<td>进入目录</td>
+</tr>
+<tr>
+<td>rm</td>
+<td>删除文件和目录[-r -f]</td>
+</tr>
+<tr>
+<td>cp</td>
+<td>复制</td>
+</tr>
+<tr>
+<td>mv</td>
+<td>移动(剪切)</td>
+</tr>
+<tr>
+<td>pwd</td>
+<td>显示当前路径</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件编辑器-vim">文件编辑器 vim</h3>
+<table>
+<thead>
+<tr>
+<th>vim</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>i</td>
+<td>插入模式</td>
+</tr>
+<tr>
+<td>esc</td>
+<td>退出当前模式</td>
+</tr>
+<tr>
+<td>yy</td>
+<td>复制当前行</td>
+</tr>
+<tr>
+<td>p</td>
+<td>粘贴</td>
+</tr>
+<tr>
+<td>dd</td>
+<td>删除</td>
+</tr>
+<tr>
+<td>u</td>
+<td>恢复</td>
+</tr>
+<tr>
+<td>gg</td>
+<td>到行首</td>
+</tr>
+<tr>
+<td>G</td>
+<td>到行尾</td>
+</tr>
+<tr>
+<td>:wq</td>
+<td>写入并退出</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件权限-4-2-1">文件权限 4-2-1</h3>
+<table>
+<thead>
+<tr>
+<th>数字</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>r 读</td>
+</tr>
+<tr>
+<td>2</td>
+<td>w 写</td>
+</tr>
+<tr>
+<td>1</td>
+<td>x 执行</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-math">2^2 + 2^1 + 2^0 = 4 + 2 + 1 = 7
+</code></pre>
+<h3 id="文件的搜索查找读取">文件的搜索/查找/读取</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tail</td>
+<td>从文件尾部开始读取</td>
+</tr>
+<tr>
+<td>head</td>
+<td>从文件头部部开始读取</td>
+</tr>
+<tr>
+<td>cat</td>
+<td>读取整个文件</td>
+</tr>
+<tr>
+<td>more,less</td>
+<td>分页读取</td>
+</tr>
+<tr>
+<td>grep</td>
+<td>查找文件内容 grep [-n] 'hello' test.js</td>
+</tr>
+<tr>
+<td>find</td>
+<td>查找文件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件解压缩">文件解压缩</h3>
+<ul>
+<li>tar 命令</li>
+</ul>
+<pre><code>tar -cf archive.tar foo bar
+      # 压缩         Create archive.tar from files foo and bar.
+
+tar -tvf archive.tar
+      # 查看压缩文件 List all files in archive.tar verbosely.
+
+tar -xf archive.tar
+      # 解压缩       Extract all files from archive.tar.
+</code></pre>
+<h3 id="系统用户操作命令">系统用户操作命令</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>useradd username</td>
+<td>添加用户</td>
+</tr>
+<tr>
+<td>adduser username</td>
+<td>添加用户</td>
+</tr>
+<tr>
+<td>userdel username</td>
+<td>删除用户</td>
+</tr>
+<tr>
+<td>passwd username</td>
+<td>设置密码</td>
+</tr>
+</tbody>
+</table>
+<h3 id="防火墙设置">防火墙设置</h3>
+<ul>
+<li>作用：保护服务器安全</li>
+<li>设置防火墙规则：开放 80/22 端口</li>
+<li>关闭防火墙</li>
+<li>安装：yum install firewalld</li>
+<li>启动：service firewalld start</li>
+<li>检查状态：service firewalld status</li>
+<li>关闭或禁用防火墙：service firewalld stop/disbale</li>
+</ul>
+<p>查看是否已经安装了防火墙</p>
+<pre><code>yum list | grep firewall
+</code></pre>
+<p>查看是否启动了防火墙</p>
+<pre><code>ps -ef | grep firewall
+</code></pre>
+<p>查看防火墙运行状态</p>
+<pre><code>firewall-cmd --state
+</code></pre>
+<p>查询[ssh]服务</p>
+<pre><code>firewall-cmd --query-service=ssh
+</code></pre>
+<p>添加[ssh]服务</p>
+<pre><code>firewall-cmd --add-service=ssh
+</code></pre>
+<p>移除[ssh]服务，无法访问云主机了</p>
+<pre><code>firewall-cmd --remove-service=ssh
+</code></pre>
+<p>查询[22]端口</p>
+<pre><code>firewall-cmd --query-port=22/tcp
+</code></pre>
+<p>添加[22]端口</p>
+<pre><code>firewall-cmd --add-port=22/tcp
+</code></pre>
+<p>移除[22]端口</p>
+<pre><code>firewall-cmd --remove-port=22/tcp
+</code></pre>
+<h3 id="提权和文件上传下载操作">提权和文件上传下载操作</h3>
+<ul>
+<li>提权：sudo
+<ul>
+<li>visudo（给其他用户配置权限方可提权）</li>
+</ul>
+</li>
+<li>server 文件下载
+<ul>
+<li>wget curl</li>
+</ul>
+</li>
+<li>client 文件上传
+<ul>
+<li>scp</li>
+</ul>
+</li>
+</ul>
+<pre><code>scp testUpload.txt username@your-server-ip:/tmp/
+</code></pre>
+<ul>
+<li>client 文件下载</li>
+</ul>
+<pre><code>scp username@your-server-ip:/tmp/testUpload.txt ./
+</code></pre>
+<h2 id="查看-ip">查看 ip</h2>
+<ul>
+<li>ifconfig</li>
+<li>ip addr</li>
+<li>vi /etc/sysconfig/network-scripts/ifcfg-xx</li>
+<li>yum install net-tools</li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/nginx-start/">
+              <h3 class="post-title">
+                下一篇：Nginx学习笔记-基本操作
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

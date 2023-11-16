@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>Nginx学习笔记-项目部署 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">Nginx学习笔记-项目部署</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-08-18</span>
+          </div>
+          <div class="post-content">
+            <h1 id="nginx-学习笔记-项目部署">nginx 学习笔记-项目部署</h1>
+<p>当项目在本地开发完毕后，我们需要将项目部署到服务器上</p>
+<pre><code class="language-zsh"># nginx目录
+/data/www
+
+# nginx配置文件位置
+/etc/nginx/nginx.conf
+</code></pre>
+<h2 id="通过-ssh-登录-centos-服务器">通过 ssh 登录 centos 服务器</h2>
+<p>关键：ssh 相关知识</p>
+<h2 id="在本地通过-scp-将压缩后的打包文件上传至服务器">在本地通过 scp 将压缩后的打包文件上传至服务器</h2>
+<p>关键：scp/压缩/解压缩等命令</p>
+<h2 id="进行配置-nginx">进行配置 nginx</h2>
+<p>现在我们已经将压缩文件解压，并将里面的内容移至了<code>/data/www</code>根目录，直接访问服务器地址[默认为 80 端口]应当是直接可以访问到 html 文件的，这已经很好了，我们的前端项目已经可以被别人访问，但是还有一些问题：</p>
+<ol>
+<li>单页面应用刷新报 404 错误</li>
+<li>如何将接口代理至其他服务</li>
+</ol>
+<h3 id="解决刷新-404-问题">解决刷新 404 问题</h3>
+<p><code>react-router</code>和<code>vue-router</code>是我们常用的前端路由库，监听 url 的变化刷新视图，注意这一过程和传统的多页应用不一样，是没有经过服务端的，也就是说如果进行刷新，浏览器请求服务端的相应路径，但是我们知道服务端根本没有对这个路径进行任何处理，即服务端该路径不存在任何文件也没有代理到别处，所以就产生了 404 问题。</p>
+<p>解决方法：代理到<code>index.html</code>，重新通过前端路由进行渲染</p>
+<p>实际配置如下：</p>
+<pre><code>location / {
+    try_files $uri /index.html;
+    index index.html;
+}
+</code></pre>
+<p>如此一来，我们所有的请求都会直接定位到<code>index.html</code>，由 js 接手页面的渲染。</p>
+<h3 id="api-接口转发">api 接口转发</h3>
+<p>目前通过 nginx 监听 80 端口，并部署了前端项目。</p>
+<p>在服务器 3000 端口上启动了 api 服务，在前端项目中通过<code>/api/personalized</code>的形式进行请求，我们知道这种方式默认是请求<code>http//your-server/api/personalized</code>的，很明显，80 端口上并没有该服务，我们需要监听来自 80 端口以<code>/api/</code>开头的请求，将其转到服务器本机的 3000 端口，即<code>/api/personalized</code>实际请求的地址为<code>http:your-server:3000/personalized</code>，注意，我们通过添加了<code>/api/</code>前缀来区分接口，所以转发时还需要移除该前缀。</p>
+<p>实际配置如下：</p>
+<pre><code>location /api/ {
+    rewrite ^/api/(.*)$ /$1 break;
+    proxy_pass   http://localhost:3000;
+}
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/linux-ssh/">
+              <h3 class="post-title">
+                下一篇：Linux学习笔记-SSH
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>前端路由总结 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">前端路由总结</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-10-22</span>
+          </div>
+          <div class="post-content">
+            <blockquote>
+<p>本文总结自：</p>
+</blockquote>
+<ul>
+<li><a href="http://blog.csdn.net/xllily_11/article/details/51820909">Web 开发中 前端路由 实现的几种方式和适用场景</a></li>
+<li><a href="http://blog.jobbole.com/78876/">HTML 5 History API 的”前生今世”</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/28769080">从零学习 React 技术栈系列教程</a></li>
+</ul>
+<p>最初接触前端路由是 vue-router，当时仅仅觉得可以通过 router-link 改变页面，觉得很神奇呀，用多了就习惯了。</p>
+<p>后面接触了 node，通过 express 知晓了后端路由，这是我就开始疑问了：<br>
+为什么使用那些前端框架的时候，前端 url 改变了视图，但是却没有向后台发送请求？</p>
+<p>首先我们需要一些前置知识。</p>
+<h2 id="路由前端路由后端路由">路由/前端路由/后端路由？</h2>
+<p>路由：通过不同的 url 地址展示不同的内容或者页面。</p>
+<p>前面提到过，我最初接触到路由是通过 express 框架，我们先看一段代码：</p>
+<pre><code class="language-js">app.post(&quot;/category/add&quot;, function(req, res, next) {
+  // do something
+});
+</code></pre>
+<p>如果你没有接触过 node 也没关系，因为真的不难理解。</p>
+<p>定义了一个 path('/categoty/add')，当有人通过(即域名+path)，例如：</p>
+<p>http://www.example.com/category/add</p>
+<p>发起 post 请求时，就会进入后台定义好的回调函数，进行逻辑处理，譬如取得 post 传递过来的实体数据，对数据库进行增删查改，然后返回一个渲染好的 html 页面或者是 json 数据等等。</p>
+<p>后端路由（不考虑提供 API 服务返回数据），这一过程由服务器控制完成的，直接喷射一个 html 给前端，浏览器页面刷新。</p>
+<p>那前端路由是什么呢？还是通过不同的 url 地址展示不同的内容或者页面，但是这一过程都是由前端完成的，我们的页面或视图（模块）是在前端编写好，通过 url 变化去切换而已。</p>
+<p>为什么需要前端路由：</p>
+<p>因为后台每次返回一个新页面都会进行全局刷新，而在单页面应用中，大部分页面结构不变，只改变部分内容的使用，我们可以通过前端路由改变页面内容，后台只需要通过 ajax 提供数据即可。</p>
+<p>现在，我们来看看前端路由到底是如何实现的。</p>
+<h2 id="实现简易前端路由">实现简易前端路由</h2>
+<h3 id="方式一html5-history">方式一：html5 history</h3>
+<p>首先我们需要了解 HTML5 为我们提供的 history API，准确的说是这里面的两个方法:<br>
+history.pushState 和 history.replaceState</p>
+<h4 id="historypushstate">history.pushState</h4>
+<blockquote>
+<p>带有三个参数：一个状态对象，一个标题（现在被忽略了），以及一个可选的 URL 地址。下面将对这三个参数进行细致的检查：</p>
+</blockquote>
+<p>实例代码（来自<a href="http://blog.csdn.net/xllily_11/article/details/51820909">Web 开发中 前端路由 实现的几种方式和适用场景</a>）</p>
+<pre><code class="language-js">//假设当前网页URL为：http://tonylee.pw
+window.history.pushState(null, null, &quot;http://tonylee.pw?name=tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw?name=tonylee
+
+window.history.pushState(null, null, &quot;http://tonylee.pw/name/tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw/name/tonylee
+
+window.history.pushState(null, null, &quot;?name=tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw?name=tonylee
+
+window.history.pushState(null, null, &quot;name=tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw/name=tonylee
+
+window.history.pushState(null, null, &quot;/name/tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw/name/tonylee
+
+window.history.pushState(null, null, &quot;name/tonylee&quot;);
+//url变化：http://tonylee.pw -&gt; http://tonylee.pw/name/tonylee
+
+//错误的用法：
+window.history.pushState(null, null, &quot;http://www.tonylee.pw?name=tonylee&quot;);
+//error: 由于跨域将产生错误
+</code></pre>
+<h4 id="historyreplacestate">history.replaceState</h4>
+<p>pushState()和 replaceState()参数一样。<br>
+两个方法的主要区别就是：pushState()是在 history 栈中添加一个新的条目，replaceState()是替换当前的记录值。关于 API 的详细解释可以<a href="http://blog.jobbole.com/78876/">戳这里</a></p>
+<p>我们需要知道的是，就是两个方法可以改变浏览器的 url，但是不会重新加载页面，没错！！！这些 URL 不会直接传给服务器，而是会被浏览器消化处理掉.</p>
+<p>这个就是我们需要的。</p>
+<p>这样我们就可以通过这两个方法改变 url 了。</p>
+<p>改变之后呢？切换视图呀！</p>
+<p>那我们就需要在这两个方法被调用的时候，触发一个方法去切换视图，好在 HTML5 也给我们提供了一个事件。</p>
+<h4 id="windowonpopstate">window.onpopstate</h4>
+<p>浏览器本身会自带一个 popstate 事件，但是只有在我们点击返回或前进按钮时才会正常触发。</p>
+<p>很显然，在我们单页应用中是需要你去大部分情况下都是需要去点击某个 Link 调用 pushState，而这样是无法触发 popstate 事件的，需要重写一下 pushState，并且给他也定义一个事件，这里就叫他 onpushstate 吧，比如下面这样。</p>
+<pre><code class="language-js">(function(history) {
+  var pushState = history.pushState;
+  history.pushState = function(state) {
+    if (typeof history.onpushstate == &quot;function&quot;) {
+      history.onpushstate({ state: state });
+    }
+    return pushState.apply(history, arguments);
+  };
+})(window.history);
+
+window.onpopstate = history.onpushstate = function(event) {
+  // change view
+};
+</code></pre>
+<p>如此一来，进行 pushState 操作会触发 onpushstate 事件，我们可以在 onpushstate 事件的回调中进行视图切换了，而前进后退我们可以通过 popstate 来操作。</p>
+<p>别忘了给 a 标签做一些必要操作，阻止默认跳转，而是通过 pushState 改变 url，然后由于 pushState 被调用，又会触发 onpushstate 事件，其内的逻辑代码就会被执行，比如，更改视图。</p>
+<pre><code class="language-js">var elements = document.getElementsByTagName(&quot;a&quot;);
+for (var i = 0, len = elements.length; i &lt; len; i++) {
+  elements[i].onclick = function(event) {
+    event.preventDefault();
+    var route = event.target.getAttribute(&quot;href&quot;);
+    history.pushState({ page: route }, route, route);
+  };
+}
+</code></pre>
+<p>这只是一个思路，当然，当初学习 vue-router 的时候还有个 hash 模式以及 html5 history 模式，后者无疑就是我们刚才实现的方式，前者则兼容性更好，也更为容易理解。</p>
+<h3 id="使用-hash-完成前端路由">使用 hash 完成前端路由</h3>
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#/&quot;&gt;turn white&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#/blue&quot;&gt;turn blue&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#/green&quot;&gt;turn green&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<pre><code class="language-js">function Router() {
+  this.routes = {};
+  this.currentUrl = &quot;&quot;;
+}
+// 注册路由
+Router.prototype.route = function(path, callback) {
+  this.routes[path] = callback || function() {};
+};
+Router.prototype.refresh = function() {
+  console.log(&quot;触发一次 hashchange，hash 值为&quot;, location.hash);
+  this.currentUrl = location.hash.slice(1) || &quot;/&quot;;
+  // 触发回调
+  this.routes[this.currentUrl]();
+};
+Router.prototype.init = function() {
+  // 监听load以及hashchange事件
+  window.addEventListener(&quot;load&quot;, this.refresh.bind(this), false);
+  window.addEventListener(&quot;hashchange&quot;, this.refresh.bind(this), false);
+};
+window.Router = new Router();
+window.Router.init();
+var content = document.querySelector(&quot;body&quot;);
+// change Page anything
+function changeBgColor(color) {
+  content.style.backgroundColor = color;
+}
+Router.route(&quot;/&quot;, function() {
+  changeBgColor(&quot;white&quot;);
+});
+Router.route(&quot;/blue&quot;, function() {
+  changeBgColor(&quot;blue&quot;);
+});
+Router.route(&quot;/green&quot;, function() {
+  changeBgColor(&quot;green&quot;);
+});
+</code></pre>
+<h3 id="小知识-pjax">小知识-pjax</h3>
+<p>pjax 是一种基于 ajax+history.pushState 的新技术，该技术可以无刷新改变页面的内容，并且可以改变页面的 URL。pjax 是 ajax+pushState 的封装，同时支持本地存储、动画等多种功能。目前支持 jquery、qwrap、kissy 等多种版本。</p>
+<p>众所周知，Ajax 可以实现页面的无刷新操作——优点；但是，也会造成另外的问题，无法前进与后退！曾几何时，Gmail 似乎借助 iframe 搞定，如今，HTML5 让事情变得如同过家家般简单。</p>
+<p>当执行 Ajax 操作的时候，往浏览器 history 中塞入一个地址（使用 pushState）（这是无刷新的）；于是，返回的时候，通过 URL 或其他传参，我们就可以还原到 Ajax 之前的模样。</p>
+<p><a href="http://www.zhangxinxu.com/wordpress/2013/06/html5-history-api-pushstate-replacestate-ajax/">ajax 与 HTML5 history pushState/replaceState 实例-张鑫旭</a></p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/some-css/">
+              <h3 class="post-title">
+                下一篇：最近遇到的一些css题目
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

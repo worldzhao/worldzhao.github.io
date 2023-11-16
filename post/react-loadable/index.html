@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>react-loadable原理浅析 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">react-loadable原理浅析</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-02-06</span>
+          </div>
+          <div class="post-content">
+            <h1 id="react-loadable">react-loadable</h1>
+<p>最近在学习 react，之前做的一个项目首屏加载速度很慢，便搜集了一些优化方法，<code>react-loadable</code>这个库是我在研究路由组件按需加载的过程中发现的，其实<code>react-router v4</code>官方也有<code>code splitting</code>的相关实践，但是在现在的 webpack 3.0 版本下已经不行了，因为需要使用以下相关语法</p>
+<pre><code class="language-bash">import loadSomething from 'bundle-loader?lazy!./Something'
+</code></pre>
+<p>有兴趣的同学可以自行研究（2018.06.14:现 react-router[code-splitting] 部分已更新为基于 react-loadable 实现，即本文实现方式）。</p>
+<p><a href="https://reacttraining.com/react-router/web/guides/code-splitting">react-router-v4:code-splitting</a></p>
+<p>后面就发现了 react-loadable 这个库可以帮助我们按需加载，其实和 react-router-v4 官方实现的原理差不太多，基本使用方法如下：</p>
+<p>第一步：先准备一个 Loding 组件,这个是官方的，你自己写一个更好：</p>
+<pre><code class="language-js">const MyLoadingComponent = ({ isLoading, error }) =&gt; {
+  // Handle the loading state
+  if (isLoading) {
+    return &lt;div&gt;Loading...&lt;/div&gt;;
+  }
+  // Handle the error state
+  else if (error) {
+    return &lt;div&gt;Sorry, there was a problem loading the page.&lt;/div&gt;;
+  } else {
+    return null;
+  }
+};
+</code></pre>
+<p>第二步：引入 react-loadable</p>
+<pre><code class="language-js">import Loadable from &quot;react-loadable&quot;;
+
+const AsyncHome = Loadable({
+  loader: () =&gt; import(&quot;../containers/Home&quot;),
+  loading: MyLoadingComponent,
+});
+</code></pre>
+<p>第三步：替换我们原本的组件</p>
+<pre><code class="language-js">&lt;Route path=&quot;/&quot; exact component={AsyncHome} /&gt;
+</code></pre>
+<p>这样，你就会发现只有路由匹配的时候，组件才被 import 进来，达到了<code>code splitting</code>的效果，也就是我们常说的按需加载， 代码分块，而不是一开始就将全部组件加载。</p>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww1.sinaimg.cn/large/006tNc79gy1g5sf93xgk1j30yg0j741z.jpg" alt="chunk" loading="lazy"></figure>
+<p>可以观察到，点击不同的路由都会加载一个 chunk.js，这就是我们所分的块。</p>
+<h2 id="核心import">核心：import()</h2>
+<p>不要把 <code>import</code>关键字和<code>import()</code>方法弄混了，该方法是为了进行动态加载才被引入的。</p>
+<p><code>import</code>关键字的引入是静态编译且存在提升的，这就对我们按需加载产生了阻力（画外音：require 是可以动态加载的），所以才有了<code>import()</code>，而<code>react-loadable</code>便是利用了<code>import()</code>来进行动态加载。</p>
+<p><a href="http://es6.ruanyifeng.com/#docs/module-loader">阮一峰：Module 的加载实现</a></p>
+<p><a href="https://github.com/tc39/proposal-dynamic-import">tc39/proposal-dynamic-import</a></p>
+<p>而且这个方法不能传变量，只能使用字符串和字符串模板，原本想将那一堆生成组件的代码进行抽象，结果死活不行，才发现坑在这里。</p>
+<h2 id="loadable">Loadable</h2>
+<p><code>react-loadable</code>有 5k star,内部机制已经十分完善了，看现在的源码我肯定看不懂，于是误打误撞地看了其<code>initial commit</code>的源码。</p>
+<p>我们上面对<code>Loadable</code>函数的用法是这样的:</p>
+<pre><code class="language-js">const AsyncHome = Loadable({
+  loader: () =&gt; import(&quot;../containers/Home&quot;),
+  loading: MyLoadingComponent,
+});
+</code></pre>
+<p>接收一个配置对象为参数,第一个属性名为<code>loader</code>，是一个方法，用于动态加载我们所需要的模块，第二个参数  就是我们的<code>Loading</code>组件咯，在动态加载还未完成的过程中会有该组件占位。</p>
+<pre><code class="language-js">{
+  loader: () =&gt; import('../containers/Home'),
+  loading: MyLoadingComponent
+}
+</code></pre>
+<p>这个方法的返回值是一个 react component,我们<code>Route</code>组件和 url 相匹配时，加载的就是这个 component，该 component 通过 loader 方法进行异步加载组件以及错误处理。其实就这么多，也有点高阶组件的意思。</p>
+<p>然后来看看源码吧(源码参数部分使用了 ts 进行类型检查)。</p>
+<pre><code class="language-js">import React from &quot;react&quot;;
+
+export default function Loadable(
+  loader: () =&gt; Promise&lt;React.Component&gt;,
+  LoadingComponent: React.Component,
+  ErrorComponent?: React.Component | null,
+  delay?: number = 200
+) {
+  // 有时组件加载很快（&lt;200ms），loading 屏只在屏幕上一闪而过。
+
+  // 一些用户研究已证实这会导致用户花更长的时间接受内容。如果不展示任何 loading 内容，用户会接受得更快, 所以有了delay参数。
+
+  let prevLoadedComponent = null;
+
+  return class Loadable extends React.Component {
+    state = {
+      isLoading: false,
+      error: null,
+      Component: prevLoadedComponent,
+    };
+
+    componentWillMount() {
+      if (!this.state.Component) {
+        this.loadComponent();
+      }
+    }
+
+    loadComponent() {
+      // Loading占位
+      this._timeoutId = setTimeout(() =&gt; {
+        this._timeoutId = null;
+        this.setState({ isLoading: true });
+      }, this.props.delay);
+
+      // 进行加载
+      loader()
+        .then((Component) =&gt; {
+          this.clearTimeout();
+          prevLoadedComponent = Component;
+          this.setState({
+            isLoading: false,
+            Component,
+          });
+        })
+        .catch((error) =&gt; {
+          this.clearTimeout();
+          this.setState({
+            isLoading: false,
+            error,
+          });
+        });
+    }
+
+    clearTimeout() {
+      if (this._timeoutId) {
+        clearTimeout(this._timeoutId);
+      }
+    }
+
+    render() {
+      let { error, isLoading, Component } = this.state;
+
+      // 根据情况渲染Loading 所需组件 以及 错误组件
+      if (error &amp;&amp; ErrorComponent) {
+        return &lt;ErrorComponent error={error} /&gt;;
+      } else if (isLoading) {
+        return &lt;LoadingComponent /&gt;;
+      } else if (Component) {
+        return &lt;Component {...this.props} /&gt;;
+      }
+      return null;
+    }
+  };
+}
+</code></pre>
+<p>参考资料：</p>
+<p><a href="http://web.jobbole.com/91704/">React Loadable 介绍</a></p>
+<p><a href="https://github.com/CodeLittlePrince/blog/issues/3">webpack v3 结合 react-router v4 做 dynamic import — 按需加载（懒加载)</a></p>
+<p><a href="http://es6.ruanyifeng.com/#docs/module-loader">阮一峰：Module 的加载实现</a></p>
+<p><a href="https://github.com/tc39/proposal-dynamic-import">tc39/proposal-dynamic-import</a></p>
+<p><a href="https://www.jianshu.com/p/547aa7b92d8c">在 react-router4 中进行代码拆分（基于 webpack）</a></p>
+<p><a href="https://reacttraining.com/react-router/web/guides/code-splitting">react-router-v4:code-splitting</a></p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/build-your-own-rrv4/">
+              <h3 class="post-title">
+                下一篇：【转】Build your own React Router v4
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

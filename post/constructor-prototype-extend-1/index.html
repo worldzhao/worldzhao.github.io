@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>构造函数、原型与继承（一） | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">构造函数、原型与继承（一）</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-06</span>
+          </div>
+          <div class="post-content">
+            <h2 id="构造函数">构造函数</h2>
+<h3 id="什么是对象">什么是对象</h3>
+<p>笔者的理解:具有特定的属性与方法的封装集合.</p>
+<p>面向对象的优势:</p>
+<ol>
+<li>暴露在全局中的只有一个对象名,不会造成全局变量污染</li>
+<li>是用对象将代码进行功能模块化的划分,有利于日后的维护</li>
+</ol>
+<h3 id="创建对象的方法">创建对象的方法:</h3>
+<ul>
+<li>对象字面量法(key:value,key:value...)</li>
+</ul>
+<pre><code class="language-js">var zzw = {
+  name: &quot;zzw&quot;,
+  age: &quot;20&quot;,
+  major: &quot;tourism&quot;
+};
+</code></pre>
+<p>缺点:冗余度过高,若需要创建属性一致的对象需要不断写对象字面量,不断重复</p>
+<h4 id="工厂函数法利用对象的动态特性">工厂函数法(利用对象的动态特性)</h4>
+<pre><code class="language-js">function createObj(name, age, major) {
+  var obj = {};
+  obj.name = name;
+  obj.age = age;
+  obj.major = major;
+  return obj;
+}
+
+var xzq = createObj(&quot;xzq&quot;, &quot;111&quot;, &quot;111&quot;);
+var xzq = createObj(&quot;zjl&quot;, &quot;222&quot;, &quot;222&quot;);
+</code></pre>
+<p>缺点:通过工厂函数创建的对象之间并无关联性</p>
+<h4 id="自定义构造函数">自定义构造函数</h4>
+<p>构造函数其实也是函数,只不过是用来初始化对象的,与 new 同时使用.</p>
+<p>new 是用来创建对象的.</p>
+<p>构造函数是用来初始化对象的.</p>
+<p>构造函数名首字母大写,以示区分.</p>
+<pre><code class="language-js">function Person(name, job) {
+  // 默认隐含的操作,将new创建的对象赋值给this
+  this.name = name;
+  this.job = job;
+  this.sayHello = function() {
+    console.log(&quot;hello&quot;);
+  };
+}
+var winter = new Person(&quot;winter&quot;, &quot;coding&quot;);
+</code></pre>
+<p>构造函数的执行过程:</p>
+<ul>
+<li>使用 new 关键字创建对象;</li>
+<li>调用构造函数,将新创建出来的对象赋值给对象函数内部的 this;</li>
+<li>在构造函数内部使用 this 为新创建的对象新增成员;</li>
+<li>默认返回新创建的对象,普通函数如果不写返回语句,会返回 undefined.</li>
+</ul>
+<p>构造函数的返回值:</p>
+<ul>
+<li>默认返回的时新创建的对象;</li>
+<li>如果我们在构造函数中手动 return 基本类型的值或 null,则不会影响构造函数默认的返回值;</li>
+<li>若手动 return 的是对象类型,则会返回这个对象.</li>
+</ul>
+<p>若像调用普通函数那样调用构造函数,而没有使用 new 关键字,则没有创建对象,构造函数中 this 指向 window.切记,这是一种错误的使用方式.</p>
+<p>如果构造函数没有参数,那么调用的时候小括号可以省略,最好不要.</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/unique-array/">
+              <h3 class="post-title">
+                下一篇：数组去重
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

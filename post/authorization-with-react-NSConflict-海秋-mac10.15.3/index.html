@@ -1,0 +1,455 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>基于React的权限系统设计 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">基于React的权限系统设计</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-09-25</span>
+          </div>
+          <div class="post-content">
+            <p>前端进行权限控制只是为了用户体验，对应的角色渲染对应的视图，真正的安全保障在后端。</p>
+<!-- more -->
+<h2 id="前言">前言</h2>
+<p>毕业之初，工作的主要内容便是开发一个后台管理系统，当时存在的一个现象是：</p>
+<p><strong>用户若记住了某个 url，直接浏览器输入，不论该用户是否拥有访问该页面的权限，均能进入页面。</strong></p>
+<p>若页面初始化时（<code>componentDidMount</code>）进行接口请求，后端会返回 403 的 HTTP 状态码，同时前端封装的<code>request.js</code>会对非业务异常进行相关处理，遇见 403，就重定向到无权限页面。</p>
+<p>若是页面初始化时不存在前后端交互，那就要等用户触发某些操作（比如表单提交）后才会触发上述流程。</p>
+<p>可以看到，安全保障是后端兜底的，那前端能做些什么呢？</p>
+<ol>
+<li>明确告知用户没有权限，避免用户误以为自己拥有该权限而进行操作（即使无法操作成功），直接跳转至无权限页面；</li>
+<li>拦截明确无权的请求，比如某些需要权限才能进行的操作入口（按钮 or 导航等）不对无权用户展示，其实本点包含上一点。</li>
+</ol>
+<p>最近也在看<code>Ant Design Pro</code>的权限相关处理，有必要进行一次总结。</p>
+<p>需要注意的是，本文虽然基于<code>Ant Design Pro</code>的权限设计思路，但并不是完全对其源码的解读（可能更偏向于 v1 的涉及思路，不涉及 umi）。</p>
+<p>如果有错误以及理解偏差请轻捶并指正，谢谢。</p>
+<h2 id="模块级别的权限处理">模块级别的权限处理</h2>
+<p>假设存在以下关系：</p>
+<table>
+<thead>
+<tr>
+<th>角色 role</th>
+<th>权限枚举值 authority</th>
+<th>逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通用户</td>
+<td>user</td>
+<td>不展示</td>
+</tr>
+<tr>
+<td>管理员</td>
+<td>admin</td>
+<td>展示“进入管理后台”按钮</td>
+</tr>
+</tbody>
+</table>
+<p>某页面上存在一个文案为“进入管理后台”的按钮，只对管理员展示，让我们实现一下。</p>
+<h3 id="简单实现">简单实现</h3>
+<pre><code class="language-jsx">// currentAuthority 为当前用户权限枚举值
+
+const AdminBtn = ({ currentAuthority }) =&gt; {
+  if (&quot;admin&quot; === currentAuthority) {
+    return &lt;button&gt;进入管理后台&lt;/button&gt;;
+  }
+  return null;
+};
+</code></pre>
+<p>好吧，简单至极。</p>
+<p>权限控制就是<code>if else</code>，实现功能并不复杂，大不了每个页面|模块|按钮涉及到的处理都写一遍判断就是了，总能实现需求的。</p>
+<p>不过，现在只是一个页面中的一个按钮而已，我们还会碰到许多“某（几）个页面存在某个 xxx，只对 xxx（或/以及 xxx） 展示”的场景。</p>
+<p>所以，还能做的更好一些。</p>
+<p>下面来封装一个最基本的权限管理组件<code>Authorized</code>。</p>
+<h3 id="组件封装-authorized">组件封装-Authorized</h3>
+<p>期望调用形式如下：</p>
+<pre><code class="language-jsx">&lt;Authorized
+  currentAuthority={currentAuthority}
+  authority={&quot;admin&quot;}
+  noMatch={null}
+&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>api 如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>类型</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>children</td>
+<td>正常渲染的元素，权限判断通过时展示</td>
+<td></td>
+<td>ReactNode</td>
+</tr>
+<tr>
+<td>currentAuthority</td>
+<td>当前权限</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>authority</td>
+<td>准入权限</td>
+<td>string/string[]</td>
+<td></td>
+</tr>
+<tr>
+<td>noMatch</td>
+<td>未通过权限判断时展示</td>
+<td>ReactNode</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>currentAuthority</code>这个属性没有必要每次调用都手动传递一遍，此处假设用户信息是通过 <code>redux</code> 获取并存放在全局 <code>store</code> 中。</p>
+<p><em>注意：我们当然也可以将用户信息挂在 <code>window</code> 下或者 <code>localStorage</code> 中，但很重要的一点是，绝大部分场景我们都是通过接口异步获取的数据，这点至关重要。如果是 <code>html</code> 托管在后端或是 <code>ssr</code>的情况下，服务端直接注入了用户信息，那真是再好不过了。</em></p>
+<p>新建<code>src/components/Authorized/Authorized.jsx</code>实现如下：</p>
+<pre><code class="language-jsx">import { connect } from &quot;react-redux&quot;;
+
+function Authorized(props) {
+  const { children, userInfo, authority, noMatch } = props;
+  const { currentAuthority } = userInfo || {};
+  if (!authority) return children;
+  const _authority = Array.isArray(authority) ? authority : [authority];
+  if (_authority.includes(currentAuthority)) return children;
+  return noMatch;
+}
+
+export default connect(store =&gt; ({ userInfo: store.common.userInfo }))(
+  Authorized
+);
+</code></pre>
+<p>现在我们无需手动传递<code>currentAuthority</code>：</p>
+<pre><code class="language-jsx">&lt;Authorized authority={&quot;admin&quot;} noMatch={null}&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>✨ 很好，我们现在迈出了第一步。</p>
+<blockquote>
+<p>在<code>Ant Design Pro</code>中，对于<code>currentAuthority</code>（当前权限）与<code>authority</code>（准入权限）的匹配功能，定义了一个<code>checkPermissions</code>方法，提供了各种形式的匹配，本文只讨论<code>authority</code>为数组（多个准入权限）或字符串（单个准入权限），<code>currentAuthority</code>为字符串（当前角色只有一种权限）的情况。</p>
+</blockquote>
+<h2 id="页面级别的权限处理">页面级别的权限处理</h2>
+<p><strong>页面就是放在<code>Route</code>组件下的模块。</strong></p>
+<p>知道这一点后，我们很轻松的可以写出如下代码：</p>
+<p>新建<code>src/router/index.jsx</code>，当用户角色与路由不匹配时，渲染<code>Redirect</code>组件用于重定向。</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { BrowserRouter, Route, Switch } from &quot;react-router-dom&quot;;
+import NormalPage from &quot;@/views/NormalPage&quot;; /* 公开页面 */
+import UserPage from &quot;@/views/UserPage&quot;; /* 普通用户和管理员均可访问的页面*/
+import AdminPage from &quot;@/views/AdminPage&quot;; /* 管理员才可访问的页面*/
+import Authorized from &quot;@/components/Authorized&quot;;
+
+// Layout就是一个布局组件，写一些公用头部底部啥的
+
+function Router() {
+  &lt;BrowserRouter&gt;
+    &lt;Layout&gt;
+      &lt;Switch&gt;
+        &lt;Route exact path=&quot;/&quot; component={NormalPage} /&gt;
+
+        &lt;Authorized
+          authority={[&quot;admin&quot;, &quot;user&quot;]}
+          noMatch={
+            &lt;Route
+              path=&quot;/user-page&quot;
+              render={() =&gt; &lt;Redirect to={{ pathname: &quot;/login&quot; }} /&gt;}
+            /&gt;
+          }
+        &gt;
+          &lt;Route path=&quot;/user-page&quot; component={UserPage} /&gt;
+        &lt;/Authorized&gt;
+
+        &lt;Authorized
+          authority={&quot;admin&quot;}
+          noMatch={
+            &lt;Route
+              path=&quot;/admin-page&quot;
+              render={() =&gt; &lt;Redirect to={{ pathname: &quot;/403&quot; }} /&gt;}
+            /&gt;
+          }
+        &gt;
+          &lt;Route path=&quot;/admin-page&quot; component={AdminPage} /&gt;
+        &lt;/Authorized&gt;
+      &lt;/Switch&gt;
+    &lt;/Layout&gt;
+  &lt;/BrowserRouter&gt;;
+}
+
+export default Router;
+</code></pre>
+<p>这段代码是不 work 的，因为当前权限信息是通过接口异步获取的，此时<code>Authorized</code>组件获取不到当前权限（<code>currentAuthority</code>），倘若直接通过 url 访问<code>/user-page</code>或<code>/admin-page</code>，不论用户身份是否符合，请求结果未回来，都会被重定向到<code>/login</code>或<code>/403</code>，这个问题后面再谈。</p>
+<p>先优化一下我们的代码。</p>
+<h3 id="抽离路由配置">抽离路由配置</h3>
+<p>路由配置相关 jsx 内容太多了，页面数量过多就不好维护了，可读性也大大降低，我们可以将路由配置抽离出来。</p>
+<p>新建<code>src/router/router.config.js</code>，专门用于存放路由相关配置信息。</p>
+<pre><code class="language-jsx">import NormalPage from &quot;@/views/NormalPage&quot;;
+import UserPage from &quot;@/views/UserPage&quot;;
+import AdminPage from &quot;@/views/AdminPage&quot;;
+
+export default [
+  {
+    exact: true,
+    path: &quot;/&quot;,
+    component: NormalPage
+  },
+  {
+    path: &quot;/user-page&quot;,
+    component: UserPage,
+    authority: [&quot;user&quot;, &quot;admin&quot;],
+    redirectPath: &quot;/login&quot;
+  },
+  {
+    path: &quot;/admin-page&quot;,
+    component: AdminPage,
+    authority: [&quot;admin&quot;],
+    redirectPath: &quot;/403&quot;
+  }
+];
+</code></pre>
+<h3 id="组件封装-authorizedroute">组件封装-AuthorizedRoute</h3>
+<p>接下来基于<code>Authorized</code>组件对<code>Route</code>组件进行二次封装。</p>
+<p>新建<code>src/components/Authorized/AuthorizedRoute.jsx</code>。</p>
+<p>实现如下：</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { Route } from &quot;react-router-dom&quot;;
+import Authorized from &quot;./Authorized&quot;;
+
+function AuthorizedRoute({
+  component: Component,
+  render,
+  authority,
+  redirectPath,
+  ...rest
+}) {
+  return (
+    &lt;Authorized
+      authority={authority}
+      noMatch={
+        &lt;Route
+          {...rest}
+          render={() =&gt; &lt;Redirect to={{ pathname: redirectPath }} /&gt;}
+        /&gt;
+      }
+    &gt;
+      &lt;Route
+        {...rest}
+        render={props =&gt; (Component ? &lt;Component {...props} /&gt; : render(props))}
+      /&gt;
+    &lt;/Authorized&gt;
+  );
+}
+
+export default AuthorizedRoute;
+</code></pre>
+<h3 id="优化后">优化后</h3>
+<p>现在重写我们的 Router 组件。</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { BrowserRouter, Route, Switch } from &quot;react-router-dom&quot;;
+import AuthorizedRoute from &quot;@/components/AuthorizedRoute&quot;;
+import routeConfig from &quot;./router.config.js&quot;;
+
+function Router() {
+  &lt;BrowserRouter&gt;
+    &lt;Layout&gt;
+      &lt;Switch&gt;
+        {routeConfig.map(rc =&gt; {
+          const { path, component, authority, redirectPath, ...rest } = rc;
+          return (
+            &lt;AuthorizedRoute
+              key={path}
+              path={path}
+              component={component}
+              authority={authority}
+              redirectPath={redirectPath}
+              {...rest}
+            /&gt;
+          );
+        })}
+      &lt;/Switch&gt;
+    &lt;/Layout&gt;
+  &lt;/BrowserRouter&gt;;
+}
+
+export default Router;
+</code></pre>
+<p>心情舒畅了许多。</p>
+<p>可是还留着一个问题呢——由于用户权限信息是异步获取的，在权限信息数据返回之前，<code>AuthorizedRoute</code>组件就将用户推到了<code>redirectPath</code>。</p>
+<blockquote>
+<p>其实<code>Ant Design Pro</code> v4 版本就有存在这个问题，相较于 v2 的<code>@/pages/Authorized</code>组件从<code>localStorage</code>中获取权限信息，v4 改为从 redux 中获取（redux 中的数据则是通过接口获取），和本文比较类似。具体可见<a href="https://github.com/ant-design/ant-design-pro/pull/5088">此次 PR</a>。</p>
+</blockquote>
+<h3 id="异步获取权限">异步获取权限</h3>
+<p>解决思路很简单：保证相关权限组件挂载时，redux 中已经存在用户权限信息。换句话说，接口数据返回后，再进行相关渲染。</p>
+<p>我们可以在 Layout 中进行用户信息的获取，数据获取完毕后渲染<code>children</code>。</p>
+<h2 id="结语">结语</h2>
+<p><code>Ant Design Pro</code>从 v2 开始底层基于 <code>umi</code>实现，通过路由配置的 <code>Routes</code> 属性，结合<code>@/pages/Authorized</code>组件（该组件基于<code>@/utils/Authorized</code>组件——<code>@/components/Authorized</code>的二次封装，注入<code>currentAuthority</code>（当前权限））实现主要流程。 同时，权限信息存放于<code>localStorage</code>，通过<code>@/utils/authority.js</code>提供的工具方法进行权限 <code>get</code> 以及 <code>set</code>。</p>
+<p>仔细看了下<code>@/components/Authorized</code>文件下的内容，发现还提供了<code>AuthorizedRoute</code>组件，但是并未在代码中使用（取而代之的是<code>@/pages/Authorized</code>组件），翻了 issue 才了解到，v1 没有基于<code>umi</code>的时候，是基于<code>AuthorizedRoute</code>进行路由权限管理的，升级了之后，<code>AuthorizedRoute</code>则并没有用于路由权限管理。</p>
+<p>涉及到的相关文件比较多（components/pages/utils），v4 的文档又有些缺失，看源码的话，若没有理清版本之间差异，着实会有些费力。</p>
+<p>本文在权限信息获取上，通过接口异步获取，存放至 redux（和 v4 版本有些类似，见<code>@/pages/Authorized</code>以及<code>@/layouts/SecurityLayout</code>）。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/authorization-with-react/">
+              <h3 class="post-title">
+                下一篇：基于React的权限系统设计
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

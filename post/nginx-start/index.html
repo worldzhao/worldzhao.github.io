@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>Nginx学习笔记-基本操作 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">Nginx学习笔记-基本操作</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-07-08</span>
+          </div>
+          <div class="post-content">
+            <p><strong>转自腾讯云实验室</strong></p>
+<p>搭建 Http 静态服务器环境<br>
+搭建静态网站，首先需要部署环境。</p>
+<p>下面的步骤，将告诉大家如何在服务器上通过 Nginx 部署 HTTP 静态服务。</p>
+<h2 id="安装-nginx">安装 Nginx</h2>
+<p>在 CentOS 上，可直接使用 yum 来安装 Nginx<br>
+yum install nginx -y<br>
+安装完成后，使用 nginx 命令启动 Nginx：</p>
+<pre><code>nginx
+</code></pre>
+<p>此时，访问 http://119.29.241.71 可以看到 Nginx 的测试页面</p>
+<h2 id="配置静态服务器访问路径">配置静态服务器访问路径</h2>
+<p>外网用户访问服务器的 Web 服务由 Nginx 提供，Nginx 需要配置静态资源的路径信息才能通过 url 正确访问到服务器上的静态资源。</p>
+<p>打开 Nginx 的默认配置文件 <code>/etc/nginx/nginx.conf</code> ，修改 Nginx 配置，将默认的 <code>root /usr/share/nginx/html</code> 修改为: <code>root /data/www</code></p>
+<p>配置文件将 <code>/data/www/static</code> 作为所有静态资源请求的根路径，如访问: <code>http://119.29.241.71/static/index.js</code>，将会去 <code>/data/www/static/</code> 目录下去查找 index.js。现在我们需要重启 Nginx 让新的配置生效，如：</p>
+<pre><code>nginx -s reload
+</code></pre>
+<p>重启后，现在我们应该已经可以使用我们的静态服务器了，现在让我们新建一个静态文件，查看服务是否运行正常。<br>
+首先让我们在 <code>/data</code> 目录 下创建 www 目录，如：</p>
+<pre><code>mkdir -p /data/www
+</code></pre>
+<h2 id="创建第一个静态文件">创建第一个静态文件</h2>
+<p>在 <code>/data/www</code> 目录下创建我们的第一个静态文件 index.html<br>
+现在访问 http://119.29.241.71/index.html 应该可以看到页面输出 index.html 中的内容</p>
+<p>到此，一个基于 Nginx 的静态服务器就搭建完成了，现在所有放在 /data/www 目录下的的静态资源都可以直接通过域名访问。</p>
+<h3 id="nginx-s-reload报错"><code>nginx -s reload</code>报错</h3>
+<p>如下报错信息</p>
+<pre><code>nginx: [error] open() &quot;/var/run/nginx.pid&quot; failed (2: No such file or directory)
+</code></pre>
+<p>执行</p>
+<pre><code># sudo nginx -c /etc/nginx/nginx.conf
+</code></pre>
+<p>然后再执行</p>
+<pre><code>nginx -s reload
+</code></pre>
+<h2 id="总结">总结</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nginx</td>
+<td>启动 nginx 服务</td>
+</tr>
+<tr>
+<td>nginx -s reload</td>
+<td>重载 nginx 服务</td>
+</tr>
+<tr>
+<td>nginx -c /etc/nginx/nginx.conf</td>
+<td>设置配置文件 (默认: /etc/nginx/nginx.conf)</td>
+</tr>
+</tbody>
+</table>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/react-loadable/">
+              <h3 class="post-title">
+                下一篇：react-loadable原理浅析
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

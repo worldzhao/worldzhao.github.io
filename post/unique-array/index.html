@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>数组去重 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">数组去重</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-05</span>
+          </div>
+          <div class="post-content">
+            <h3 id="前言">前言：</h3>
+<p>在做音乐播放器项目时，有一个功能是添加歌曲，很明显，歌曲是不能重复添加的。这时候我想到了 es6 的 Array.from(new Set(arr))去重方法，很明显是不行的，歌曲都是对象，大部分去重方法只能解决基本数据类型的去重，犹记得学 java 时的 equal 方法，比较两个对象是否相等着实折腾了以下当初的我，这篇博文主要是总结一下 js 去重。</p>
+<ul>
+<li>
+<p>方法一：利用 ES6 的 Array.from()/扩展运算符 以及 Set</p>
+<blockquote>
+<p>Array.from(): The Array.from() method creates a new Array instance from an array-like or iterable object.</p>
+</blockquote>
+<p>该方法接收两个参数要转换的非数组对象,对每个元素进行处理的方法（可选）.在 js 中，有很多类数组对象（array-like object）和可遍历（iterable）对象（包括 ES6 新增的数据结构 Set 和 Map），常见的类数组对象包括 document.querySelectorAll()取到的 NodeList，以及函数内部的 arguments 对象。它们都可以通过 Array.from()转换为真正的数组，从而使用数组的方法。事实上只要对象具有 length 属性，就可以通过 Array.from()转换为真正的数组。</p>
+<blockquote>
+<p>Set:A collection of unique values that may be of any type.</p>
+</blockquote>
+<p>Set:一个可以是任何类型的独一无二的值的集合.</p>
+</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  return Array.from(new Set(arr));
+}
+</code></pre>
+<pre><code>你也可以这样写:
+</code></pre>
+<pre><code class="language-js">function unique(arr) {
+  return [...new Set(arr)];
+}
+</code></pre>
+<ul>
+<li>
+<p>方法二：遍历数组，建立新数组，利用 indexOf 判断是否存在于新数组中，不存在则 push 到新数组，最后返回新数组</p>
+<blockquote>
+<p>Determines the index of the specific IThing in the list.</p>
+</blockquote>
+<p>indexOf() :方法可返回某个指定的字符串值在字符串中首次出现的位置。如果没有则返回-1</p>
+</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  var newArr = [];
+  for (var i in arr) {
+    if (newArr.indexOf(arr[i]) == -1) {
+      newArr.push(arr[i]);
+    }
+  }
+  return newArr;
+}
+</code></pre>
+<ul>
+<li>方法三：遍历数组，利用 object 对象的 key 值保存数组值，判断数组值是否已经保存在 object 中，未保存则 push 到新数组并用 object[arrayItem]=true 的方式记录保存.</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  let hashTable = {};
+  let newArr = [];
+  for (let i = 0, l = arr.length; i &lt; l; i++) {
+    if (!hashTable[arr[i]]) {
+      hashTable[arr[i]] = true;
+      newArr.push(arr[i]);
+    }
+  }
+  return newArr;
+}
+</code></pre>
+<ul>
+<li>方法四：先排序，新数组最后一项为旧数组第一项，每次插入判断新数组最后一项是否与插入项相等</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  var newArr = [];
+  var end; //end其实就是一道卡
+  arr.sort();
+  end = arr[0];
+  newArr.push(arr[0]);
+  for (var i = 1; i &lt; arr.length; i++) {
+    if (arr[i] != end) {
+      newArr.push(arr[i]);
+      end = arr[i]; //更新end
+    }
+  }
+  return newArr;
+}
+</code></pre>
+<ul>
+<li>方法五：使用 indexOf 找到的是第一个出现的 index 的特点</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  var res = arr.filter(function (item, index, array) {
+    return array.indexOf(item) === index;
+  });
+  return res;
+}
+</code></pre>
+<p>以上五种方法都是对于基本数据类型而言，如果换做对象数组就无能为力了，下面是对象数组的去重方法</p>
+<ul>
+<li>方法一：利用对象的键名不能重复的特点</li>
+</ul>
+<pre><code class="language-js">function unique(arr) {
+  let unique = {};
+  arr.forEach(function (item) {
+    unique[JSON.stringify(item)] = item; //键名不会重复
+  });
+  arr = Object.keys(unique).map(function (u) {
+    //Object.keys()返回对象的所有键值组成的数组，map方法是一个遍历方法，返回遍历结果组成的数组.将unique对象的键名还原成对象数组
+    return JSON.parse(u);
+  });
+  return arr;
+}
+</code></pre>
+<pre><code class="language-js">/*map方法使用示例:*/
+var map = Array.prototype.map;
+var a = map.call(&quot;Hello World&quot;, function (x) {
+  return x.charCodeAt(0);
+});
+// a的值为[72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100]
+</code></pre>
+<p>存在的问题:<br>
+{x:1,y:2}与{y:2,x:1}通过 JSON.stringify 字符串化值不同，但显然他们是重复的对象.</p>
+<ul>
+<li>方法二：还是利用对象的键名无法重复的特点,必须知道至少一个对象数组中的对象的属性名</li>
+</ul>
+<pre><code class="language-js">var songs = [
+  { name: &quot;羽根&quot;, artist: &quot;air&quot; },
+  { name: &quot;羽根&quot;, artist: &quot;air&quot; },
+  { name: &quot;晴天&quot;, artist: &quot;周杰伦&quot; },
+  { name: &quot;晴天&quot;, artist: &quot;周杰伦&quot; },
+  { artist: &quot;周杰伦&quot;, name: &quot;晴天&quot; },
+];
+
+function unique(songs) {
+  let result = {};
+  let finalResult = [];
+  for (let i = 0; i &lt; songs.length; i++) {
+    result[songs[i].name] = songs[i];
+    //因为songs[i].name不能重复,达到去重效果,且这里必须知晓&quot;name&quot;或是其他键名
+  }
+  //console.log(result);{&quot;羽根&quot;:{name:&quot;羽根&quot;,artist:&quot;air&quot;},&quot;晴天&quot;:{name:&quot;晴天&quot;,artist:&quot;周杰伦&quot;}}
+  //现在result内部都是不重复的对象了，只需要将其键值取出来转为数组即可
+  for (item in result) {
+    finalResult.push(result[item]);
+  }
+  //console.log(finalResult);[{name:&quot;羽根&quot;,artist:&quot;air&quot;},{name:&quot;晴天&quot;,artist:&quot;周杰伦&quot;}]
+  return finalResult;
+}
+
+console.log(unique(songs));
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww2.sinaimg.cn/large/006tNc79gy1g5sf97lfnvj307w06ga9u.jpg" alt="原数组（重复）.png" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="http://upload-images.jianshu.io/upload_images/4869616-0981489f9d3cf515.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="result.png" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="http://upload-images.jianshu.io/upload_images/4869616-a1daf130aac7ddeb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="finalResult.png" loading="lazy"></figure>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/first-to-extend/">
+              <h3 class="post-title">
+                下一篇：简单继承
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

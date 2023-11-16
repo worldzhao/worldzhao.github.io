@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>优雅处理表单联动 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">优雅处理表单联动</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-03-17</span>
+          </div>
+          <div class="post-content">
+            <h1 id="优雅处理表单联动">优雅处理表单联动</h1>
+<h2 id="引言">引言</h2>
+<p>表单之间联动一直是后台管理类项目中的高频场景，简单描述为：一个（源）表单域的变化会导致另外一个（目标）表单域的变化。</p>
+<p>本文基于 antd，结合 get 关键字，提出了一种较为优雅地解决表单联动的手段。</p>
+<h2 id="伪计算属性">（伪）计算属性</h2>
+<p>初次见到计算属性一词是在 Vue 官方文档-<a href="https://cn.vuejs.org/v2/guide/computed.html">计算属性和侦听器</a>一节中。</p>
+<blockquote>
+<p>模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。</p>
+</blockquote>
+<p>回想我们编写的 React 代码，是否也在 jsx（render 函数）中放入了太多的逻辑导致 jsx（render 函数）过于沉重？</p>
+<p>通过<code>get</code>关键字，我们可以一样效果。</p>
+<p>本例来源：<a href="https://github.com/shimohq/react-cookbook#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7">react-cookbook</a>-石墨文档</p>
+<pre><code class="language-jsx">// 使用 getters 封装 render 所需要的状态或条件的组合
+// 对于返回 boolean 的 getter 使用 is- 前缀命名
+
+// bad
+render () {
+    return (
+        &lt;div&gt;
+        {
+            this.state.age &gt; 18
+            &amp;&amp; (this.props.school === 'A'
+                || this.props.school === 'B')
+            ? &lt;VipComponent /&gt;
+            : &lt;NormalComponent /&gt;
+        }
+        &lt;/div&gt;
+    )
+}
+
+// good
+get isVIP() {
+    return
+        this.state.age &gt; 18
+        &amp;&amp; (this.props.school === 'A'
+            || this.props.school === 'B')
+    }
+render() {
+    return (
+        &lt;div&gt;
+        {this.isVIP ? &lt;VipComponent /&gt; : &lt;NormalComponent /&gt;}
+        &lt;/div&gt;
+    )
+}
+</code></pre>
+<p>可以简单理解为：通过<code>get</code>关键字，抽离计算逻辑，根据 state 与 props 计算出衍生值。</p>
+<p>props 以及 state 的变化会导致 render 函数调用，进而重新计算衍生值。与 Vue 中的定义基本一致。</p>
+<pre><code>props/state =&gt; render =&gt; get
+</code></pre>
+<p>可能有同学会问为什么不直接定义一个方法调用呢？</p>
+<p>对于 Vue 计算属性，Vue 官方文档中存在解释：&quot;我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。&quot;</p>
+<p>假使存在两个 state 属性 A.B，计算属性只依赖 A，不依赖 B。倘若 B 变化，计算属性不会重新计算。</p>
+<p>但在 React 中，依旧会执行 render，所以 get 没有缓存，只是个语法糖。</p>
+<h2 id="使用计算属性实现最优雅的表单联动">使用计算属性实现最优雅的表单联动</h2>
+<p>假设存在业务类别以及处罚内容，并且不同类别对应不同的处罚内容，点击不同的业务类别，处罚内容是动态变化的，以业务类别为网上超市为例，见下图：</p>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww2.sinaimg.cn/large/006tNc79gy1g5sf8jsdv5j30sa05iwfu.jpg" alt="交互.png" loading="lazy"></figure>
+<p>完整对应关系如下（数字为对应 code）：</p>
+<pre><code>业务类别：网上超市-0
+处罚内容：协议-0 商品-1 店铺-2 搜索-6
+
+业务类别：在线询价-1
+处罚内容：询价单报价-4
+
+业务类别：协议供货-2
+处罚内容：协议-0 商品-1
+
+业务类别：反项竞价-4
+处罚内容：发起竞价-5
+</code></pre>
+<p>现在我们来完成这个小需求 😃</p>
+<h3 id="准备工作-抽象对应数据结构">准备工作-抽象对应数据结构</h3>
+<p><em>为了避免在代码中出现无意义的神仙数字</em>以及<em>大量的 if-else</em>，我们给每一个 code 命名，同时将其文案以及对应内容进行抽象，如下（看个大概结构就好，我也觉得太长了）。</p>
+<pre><code class="language-js">/* 业务类型code */
+export const businessTypeCode = {
+  LUNATONE_CODE: 0, // 网超
+  ENQUIRY_CODE: 1, // 在线询价
+  PROTOCOL_CODE: 2, // 协议供货
+  REVERSE_CODE: 4, // 反向竞价
+};
+
+/* 处罚内容code */
+export const punishContentCode = {
+  PROTOCOL_CODE: 0, // 协议
+  ITEM_CODE: 1, // 商品
+  SHOP_CODE: 2, // 店铺
+  ENQUIRY_CODE: 4, // 询价单报价
+  BIDDING_CODE: 5, // 发起竞价
+  SEARCH_CODE: 6, // 搜索
+};
+
+/* 业务类型 code 及其对应的描述 desc 以及处罚内容 code */
+export const businessTypeMap = {
+  [businessTypeCode.LUNATONE_CODE]: {
+    desc: &quot;网上超市&quot;,
+    matchedPunishContent: [
+      punishContentCode.PROTOCOL_CODE,
+      punishContentCode.ITEM_CODE,
+      punishContentCode.SHOP_CODE,
+      punishContentCode.SEARCH_CODE,
+    ],
+  },
+  [businessTypeCode.ENQUIRY_CODE]: {
+    desc: &quot;在线询价&quot;,
+    matchedPunishContent: [punishContentCode.ENQUIRY_CODE],
+  },
+  [businessTypeCode.PROTOCOL_CODE]: {
+    desc: &quot;协议供货&quot;,
+    matchedPunishContent: [
+      punishContentCode.PROTOCOL_CODE,
+      punishContentCode.ITEM_CODE,
+    ],
+  },
+  [businessTypeCode.REVERSE_CODE]: {
+    desc: &quot;反向竞价&quot;,
+    matchedPunishContent: [punishContentCode.BIDDING_CODE],
+  },
+};
+/* 处罚内容 code 及其对应的描述 desc */
+export const punishContentMap = {
+  [punishContentCode.PROTOCOL_CODE]: { desc: &quot;协议&quot; },
+  [punishContentCode.ITEM_CODE]: { desc: &quot;商品&quot; },
+  [punishContentCode.SHOP_CODE]: { desc: &quot;店铺&quot; },
+  [punishContentCode.ENQUIRY_CODE]: { desc: &quot;询价单报价&quot; },
+  [punishContentCode.BIDDING_CODE]: { desc: &quot;发起竞价&quot; },
+  [punishContentCode.SEARCH_CODE]: { desc: &quot;搜索&quot; },
+};
+</code></pre>
+<h3 id="巧用计算属性">巧用计算属性</h3>
+<p>通常，我们是通过监听源表单域<code>onChange</code>事件，改变一个 state 属性，目标表单域则根据该 state 进行动态渲染。</p>
+<p>譬如在此例中，我们可以在 state 中维护一个<code>matchedPunishContent</code>的字段，每次改变业务类别时，根据其 code 找到匹配的处罚内容，然后 setState 保存，取出 state 渲染处罚内容。</p>
+<p>大体流程如下：</p>
+<pre><code>粗粒度：ui change =&gt; state change =&gt; ui change
+
+细粒度：Radio=&gt; onChange =&gt; 取得code找到对应处罚内容 =&gt; setState =&gt; 重新渲染处罚内容
+</code></pre>
+<p>如果表单联动关系较多，就会维护很多个 state 以及 onChange 函数，增加维护成本。</p>
+<p>我们可以换一种思路，既然 Radio 的 value 值改变了，那么 getFieldValue 取得对应表单域的值也改变了。</p>
+<p>通过如下方式，我们可以动态计算出处罚内容，而不需要去维护一个中间 state 以及一个 onChange 方法，大大减少了代码量。</p>
+<pre><code class="language-jsx"> /* 根据 businessType 获取 punishContent */
+  get matchedPunishContent() {
+    const businessType = this.props.form.getFieldValue('businessType')
+    return businessTypeMap[businessType].matchedPunishContent
+  }
+</code></pre>
+<p>完整代码见附录。</p>
+<h2 id="回填表单从未如此简单">回填表单，从未如此简单</h2>
+<p>使用计算属性，你甚至可以享受到回填表单的美妙之处。</p>
+<p>每一次回填表单数据，最难熬的莫过于不但要把数据填上去，并且需要还原表单状态，譬如某个表单域是选中的话，会导致一个表单域 disable，另一个表单域 hide 等等，之前是需要去维护 一个一个的 state，而有了计算属性，这一切操作，你只需要进行一次<code>setFieldsValue</code>（以及编写一些计算属性逻辑）。</p>
+<p>以上文为例，回填数据时，对业务类型（bussiness）进行<code>setFieldsValue</code>操作（会导致<code>getFieldValue('businessType')</code>的改变），可以自动计算出处罚内容，而无需手动去还原。</p>
+<h3 id="实战">实战</h3>
+<p>如图，如果勾选了<code>永久</code>(permanent)，该时间选择器禁用。</p>
+<p>同时，回填时如果 permanent 字段为 PERMANENT_CODE，则要将时间选择器还原为禁用状态。</p>
+<figure data-type="image" tabindex="2"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf8kkxrhj30s402y3yu.jpg" alt="disableDatePicker.png" loading="lazy"></figure>
+<p>解决如下：</p>
+<pre><code class="language-jsx">  get isDatePickerDisabled() {
+    const { getFieldValue } = this.props.form;
+    const permanent = getFieldValue('permanent') || [];
+    return permanent.includes(PERMANENT_CODE);
+  }
+</code></pre>
+<p>你只需要这般使用：</p>
+<pre><code class="language-jsx">&lt;DatePicker disabled={this.isDatePickerDisabled} /&gt;
+</code></pre>
+<p>不论是用户手动点击亦或是开发者回填表单<code>setFieldsValue({permanent:[PERMANENT_CODE]})</code></p>
+<p>DatePicker 会自己乖乖禁用，而无需手动进行任何操作。</p>
+<p>感谢阅读，欢迎探讨。</p>
+<p>参考文章：</p>
+<ol>
+<li><a href="https://cn.vuejs.org/v2/guide/computed.html">Vue.js-计算属性和侦听器</a></li>
+<li><a href="https://github.com/shimohq/react-cookbook#%E8%AE%A1%E7%AE%97%E5%B1%9E%E6%80%A7">react-cookbook</a></li>
+</ol>
+<hr>
+<p>附录：</p>
+<pre><code class="language-jsx">import React, { Component } from &quot;react&quot;;
+import { Form, Radio } from &quot;doraemon&quot;;
+import {
+  businessTypeCode,
+  punishContentCode,
+  businessTypeMap,
+  punishContentMap,
+} from &quot;./config&quot;;
+
+const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
+
+@Form.create()
+class Test extends Component {
+  /* 根据 businessType 动态计算 punishContent */
+  get matchedPunishContent() {
+    const businessType = this.props.form.getFieldValue(&quot;businessType&quot;);
+    return businessTypeMap[businessType].matchedPunishContent;
+  }
+
+  /* 渲染业务类别 */
+  renderBusinessType = () =&gt; {
+    const { getFieldDecorator } = this.props.form;
+    const businessTypeConfig = {
+      rules: [{ required: true, message: &quot;请选择业务类别&quot; }],
+      initialValue: businessTypeCode.LUNATONE_CODE,
+    };
+    return (
+      &lt;FormItem label=&quot;业务类别&quot;&gt;
+        {getFieldDecorator(
+          &quot;businessType&quot;,
+          businessTypeConfig
+        )(
+          &lt;RadioGroup&gt;
+            {Object.keys(businessTypeMap).map((value) =&gt; {
+              const { desc } = businessTypeMap[value];
+              return (
+                &lt;Radio key={value} value={Number(value)}&gt;
+                  {desc}
+                &lt;/Radio&gt;
+              );
+            })}
+          &lt;/RadioGroup&gt;
+        )}
+      &lt;/FormItem&gt;
+    );
+  };
+
+  /* 渲染处罚内容 */
+  renderPunishContent = () =&gt; {
+    const { getFieldDecorator } = this.props.form;
+    const punishContentConfig = {
+      rules: [{ required: true, message: &quot;请选择处罚内容&quot; }],
+      initialValue: punishContentCode.PROTOCOL_CODE,
+    };
+    return (
+      &lt;FormItem label=&quot;处罚内容&quot;&gt;
+        {getFieldDecorator(
+          &quot;punishContent&quot;,
+          punishContentConfig
+        )(
+          &lt;RadioGroup&gt;
+            {this.matchedPunishContent.map((value) =&gt; {
+              const { desc } = punishContentMap[value];
+              return (
+                &lt;Radio key={value} value={value}&gt;
+                  {desc}
+                &lt;/Radio&gt;
+              );
+            })}
+          &lt;/RadioGroup&gt;
+        )}
+      &lt;/FormItem&gt;
+    );
+  };
+
+  render() {
+    return (
+      &lt;Form&gt;
+        {this.renderBusinessType()}
+        {this.renderPunishContent()}
+      &lt;/Form&gt;
+    );
+  }
+}
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/pig/">
+              <h3 class="post-title">
+                下一篇：从callback到async
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

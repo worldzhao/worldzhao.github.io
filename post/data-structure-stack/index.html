@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>数据结构-栈 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">数据结构-栈</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-08-02</span>
+          </div>
+          <div class="post-content">
+            <p>初稿于 2017-08-02<br><br>
+更新于 2019-03-04</p>
+<hr>
+<h2 id="栈结构">栈结构</h2>
+<p>栈结构是动态数组的子集，我们基于 JavaScript 提供（动态）数组，通过定义相关接口 API 来实现栈这种数据结构，并且通过一些例子来加深印象。</p>
+<h3 id="定义">定义</h3>
+<ol>
+<li>
+<p>特殊的列表，栈内的元素只能通过列表的一端访问，即栈顶</p>
+</li>
+<li>
+<p>后入先出(LIFO,last-in-first-out)的数据结构</p>
+</li>
+</ol>
+<h3 id="需要实现的接口方法">需要实现的接口方法</h3>
+<ol>
+<li>
+<p>入栈 push</p>
+</li>
+<li>
+<p>出栈 pop</p>
+</li>
+<li>
+<p>查找 pick</p>
+</li>
+<li>
+<p>栈内元素总量查找 getLength</p>
+</li>
+</ol>
+<h3 id="实现">实现</h3>
+<pre><code class="language-js">function Stack() {
+  this.dataStore = [];
+}
+
+// 入栈
+Stack.prototype.push = function(x) {
+  this.dataStore[this.dataStore.length] = x;
+};
+
+// 出栈
+Stack.prototype.pop = function() {
+  return this.dataStore.pop();
+};
+
+// 查找
+Stack.prototype.pick = function() {
+  return this.dataStore[this.dataStore.length - 1];
+};
+
+Stack.prototype.getLength = function() {
+  return this.dataStore.length;
+};
+
+// s 就是我们的栈 我们操作对象是 s 不是 s 的 dataStore,切记
+
+var s = new Stack();
+
+s.push(&quot;Tencent&quot;);
+s.push(&quot;Ali&quot;);
+s.push(&quot;Baidu&quot;);
+
+console.log(s.pick()); // Baidu
+console.log(s.pop()); // Baidu
+console.log(s.pick()); // Ali
+</code></pre>
+<h3 id="应用">应用</h3>
+<h4 id="回文数的判断">回文数的判断</h4>
+<p>回文就是指一个单词，数组，短语，从前往后从后往前都是一样的 12321.abcba</p>
+<p>回文最简单的思路就是:把元素反转后如果与原始的元素相等，那么就意味着这就是一个回文了</p>
+<p>这里可以用到这个栈类来操作</p>
+<pre><code class="language-js">// 定义栈
+var Stack = require(&quot;./stack.js&quot;);
+
+function isPalindrome(str) {
+  var s = new Stack();
+
+  for (var i = 0; i &lt; str.length; i++) {
+    s.push(str[i]);
+  }
+
+  var newStr = &quot;&quot;;
+
+  for (var j = 0; j &lt; str.length; j++) {
+    newStr += s.pop();
+  }
+
+  if (str === newStr) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+console.log(isPalindrome(&quot;112211&quot;));
+</code></pre>
+<p>看看这个 isPalindrome 函数，其实就是通过调用 Stack 类，然后把传递进来的 str 这个元素给分解后的每一个组成单元给压入到栈了</p>
+<p>根据栈的原理，后入先出的原则，通过 pop 的方法在反组装这个元素，最后比较下之前与组装后的，如果相等就是回文了</p>
+<p>你要是用 reverse 也可以...</p>
+<h4 id="将数字转换为二进制和八进制">将数字转换为二进制和八进制</h4>
+<pre><code class="language-js">var Stack = require(&quot;./stack.js&quot;);
+
+var numConvert = function(num, base) {
+  var stack = new Stack();
+  let converted = &quot;&quot;;
+
+  while (num &gt; 0) {
+    stack.push(num % base);
+    num = Math.floor(num / base);
+  }
+
+  while (stack.getLength() &gt; 0) {
+    converted += stack.pop();
+  }
+
+  return converted;
+};
+
+console.log(numConvert(10, 2)); // 1010
+</code></pre>
+<h4 id="括号匹配">括号匹配</h4>
+<pre><code class="language-js">/*
+ * @lc app=leetcode.cn id=20 lang=javascript
+ *
+ * [20] 有效的括号
+ *
+ * https://leetcode-cn.com/problems/valid-parentheses/description/
+ * 给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串，判断字符串是否有效。
+ *
+ * 有效字符串需满足：
+ *
+ *
+ * 左括号必须用相同类型的右括号闭合。
+ * 左括号必须以正确的顺序闭合。
+ *
+ *
+ * 注意空字符串可被认为是有效字符串。
+ *
+ * 示例 1:
+ *
+ * 输入: &quot;()&quot;
+ * 输出: true
+ *
+ *
+ * 示例 2:
+ *
+ * 输入: &quot;()[]{}&quot;
+ * 输出: true
+ *
+ *
+ * 示例 3:
+ *
+ * 输入: &quot;(]&quot;
+ * 输出: false
+ *
+ *
+ * 示例 4:
+ *
+ * 输入: &quot;([)]&quot;
+ * 输出: false
+ *
+ *
+ * 示例 5:
+ *
+ * 输入: &quot;{[]}&quot;
+ * 输出: true
+ *
+ */
+/**
+ * @param {string} s
+ * @return {boolean}
+ */
+// const isValid = s =&gt; {
+//   if (s === '') return true
+//   const map = {
+//     ')': '(',
+//     ']': '[',
+//     '}': '{'
+//   }
+//   const stack = []
+//   for (let i = 0; i &lt; s.length; i++) {
+//     if (!stack.length) {
+//       stack.push(s[i])
+//     } else if (map[s[i]] === stack[stack.length - 1]) {
+//       stack.pop()
+//     } else {
+//       stack.push(s[i])
+//     }
+//   }
+//   return !stack.length
+// }
+const isValid = s =&gt; {
+  if (s === &quot;&quot;) return true;
+  const leftP = [&quot;(&quot;, &quot;[&quot;, &quot;{&quot;];
+  const map = {
+    &quot;)&quot;: &quot;(&quot;,
+    &quot;]&quot;: &quot;[&quot;,
+    &quot;}&quot;: &quot;{&quot;
+  };
+  const stack = [];
+  for (let i = 0; i &lt; s.length; i++) {
+    if (leftP.includes(s[i])) {
+      stack.push(s[i]);
+    } else {
+      const top = stack.pop();
+      if (top !== map[s[i]]) {
+        return false;
+      }
+    }
+  }
+  return !stack.length;
+};
+</code></pre>
+<h4 id="用栈实现队列">用栈实现队列</h4>
+<pre><code class="language-js">/*
+ * @lc app=leetcode.cn id=232 lang=javascript
+ *
+ * [232] 用栈实现队列
+ *
+ * https://leetcode-cn.com/problems/implement-queue-using-stacks/description/
+ *
+ * 使用栈实现队列的下列操作：
+ *
+ *
+ * push(x) -- 将一个元素放入队列的尾部。
+ * pop() -- 从队列首部移除元素。
+ * peek() -- 返回队列首部的元素。
+ * empty() -- 返回队列是否为空。
+ *
+ *
+ * 示例:
+ *
+ * MyQueue queue = new MyQueue();
+ *
+ * queue.push(1);
+ * queue.push(2);
+ * queue.peek();  // 返回 1
+ * queue.pop();   // 返回 1
+ * queue.empty(); // 返回 false
+ *
+ * 说明:
+ *
+ *
+ * 你只能使用标准的栈操作 -- 也就是只有 push to top, peek/pop from top, size, 和 is empty
+ * 操作是合法的。
+ * 你所使用的语言也许不支持栈。你可以使用 list 或者 deque（双端队列）来模拟一个栈，只要是标准的栈操作即可。
+ * 假设所有操作都是有效的 （例如，一个空的队列不会调用 pop 或者 peek 操作）。
+ *
+ *
+ */
+/**
+ * Initialize your data structure here.
+ */
+var MyQueue = function() {
+  this.stackIn = [];
+  this.stackOut = [];
+};
+
+/**
+ * Push element x to the back of queue.
+ * @param {number} x
+ * @return {void}
+ */
+MyQueue.prototype.push = function(x) {
+  this.stackIn.push(x);
+  return x;
+};
+
+/**
+ * Removes the element from in front of queue and returns that element.
+ * @return {number}
+ */
+MyQueue.prototype.pop = function() {
+  if (!this.stackOut.length) {
+    while (this.stackIn.length) {
+      const top = this.stackIn.pop();
+      this.stackOut.push(top);
+    }
+  }
+  return this.stackOut.pop();
+};
+
+/**
+ * Get the front element.
+ * @return {number}
+ */
+MyQueue.prototype.peek = function() {
+  if (!this.stackOut.length) {
+    while (this.stackIn.length) {
+      const top = this.stackIn.pop();
+      this.stackOut.push(top);
+    }
+  }
+  return this.stackOut[this.stackOut.length - 1]; // 相当于栈的peek
+};
+
+/**
+ * Returns whether the queue is empty.
+ * @return {boolean}
+ */
+MyQueue.prototype.empty = function() {
+  if (this.stackIn.length === 0 &amp;&amp; this.stackOut.length === 0) {
+    return true;
+  }
+  return false;
+};
+
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * var obj = Object.create(MyQueue).createNew()
+ * obj.push(x)
+ * var param_2 = obj.pop()
+ * var param_3 = obj.peek()
+ * var param_4 = obj.empty()
+ */
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/data-structure-binary-tree/">
+              <h3 class="post-title">
+                下一篇：数据结构-二叉树
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

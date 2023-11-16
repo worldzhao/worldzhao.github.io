@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>关于 git flow 工作流程的一点思考 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">关于 git flow 工作流程的一点思考</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-09-01</span>
+          </div>
+          <div class="post-content">
+            <h1 id="关于-git-flow-工作流程的一点思考">关于 git flow 工作流程的一点思考</h1>
+<p><a href="https://www.jianshu.com/p/9a76e9aa9534">Git Flow 工作流程</a></p>
+<p><a href="http://www.ruanyifeng.com/blog/2012/07/git.html">Git 分支管理策略</a></p>
+<p>具体流程暂不细表，参考文章中已经极为详细。</p>
+<h2 id="git-flow-工作流程">Git Flow 工作流程</h2>
+<ol>
+<li>开发阶段：从 develop 分支拉出 feature 分支进行开发</li>
+<li>联调阶段：直接使用 feature 分支进行联调</li>
+<li>提测阶段：将 feature 分支合并入 develop 分支，并基于 develop 分支拉出 release 分支进行提测</li>
+<li>发布阶段：将 release 分支分别合入 master 分支以及 develop 分支，并打上版本号</li>
+</ol>
+<h3 id="碰到的问题">碰到的问题</h3>
+<p>倘若存在 2 个 feature 分支[feature1.0/feature.2.0]</p>
+<p>feature1.0 已经合并入 develop 分支并拉出 release 分支进行提测 bug 修复</p>
+<p>过了不久，feature2.0 开发完毕，合并入 develop 分支并拉出 release 分支进行提测</p>
+<p>如果第二个分支先于第一个分支发布，master 就合并进了还没修复完的 feature1.0 的代码</p>
+<h3 id="解惑">解惑</h3>
+<p>通过第一文章作者留下的联系方式加了他的微信，这是他回复给我的:</p>
+<pre><code>这种工作方式：一般情况要遵循feature1.0分支先于feature2.0发布。
+
+也就是：只要先合并到develop就说明已经具备先发的条件。
+</code></pre>
+<p>同时在第二篇文章阮老师留言下面发现了同样类似的回答：</p>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww3.sinaimg.cn/large/006tNc79gy1g5sf8hdvmhj30wr0c0aen.jpg" alt="git-flow-1.png" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://image.baidu.com/search/down?url=http://ww3.sinaimg.cn/large/006tNc79gy1g5sf8hdvmhj30wr0c0aen.jpg" alt="git-flow-1.png" loading="lazy"></figure>
+<p>[第二个回答也是我们小团队目前正在使用的方式]</p>
+<p>感谢前人。</p>
+<h2 id="公司目前使用的流程">公司目前使用的流程</h2>
+<ol>
+<li>开发阶段：从 master 分支拉出 feature 分支进行开发</li>
+<li>联调阶段：直接使用 feature 分支进行联调</li>
+<li>提测阶段：从 master 分支拉出一个 release 分支，使用该 release 合并 feature 分支，然后进行提测</li>
+<li>发布阶段：提测结束后，将 release 分支合并入 master 分支，进行发布，也可直接发布 release 分支再合并入 master 分支，并打上版本号</li>
+</ol>
+<h3 id="好处">好处</h3>
+<p>需求发布无需严格遵循需求先后发布时间，不存在标准 git flow 工作流程碰到的问题</p>
+<h3 id="缺陷">缺陷</h3>
+<p>在标准工作流中</p>
+<p>master 分支用来记录官方发布轨迹；develop 分支是一个集成分支，用来记录开发新功能的轨迹。</p>
+<p>而在实际开发过程中由于没有使用 develop 分支，master 分支 commit 较为混乱，使用标准工作流又会碰到发布冲突的问题</p>
+<ul>
+<li>总结</li>
+</ul>
+<p>来自第一篇文章作者(再次表达感谢)：</p>
+<p>不管用什么方式，能保证工作顺利进行就行。</p>
+<p>每个项目工程的复杂度都不一样，要从实践中找到适合团队协作的方式。</p>
+<p>还就是，有些约定，是必须遵循的。</p>
+<h3 id="后话">后话</h3>
+<p>最近写博客越发觉得自己只是知识的复述者，复述得还没有别人好，开始怀疑自己花时间投入写博客是否值得。</p>
+<p>自己还处于学习阶段，也没有原创输出。</p>
+<p>倘若不写，又感觉自己学习的知识印象不深，写还是要写的，权当学习记录了。</p>
+<p>当然，倘若能够帮助到一些人，我会更开心。</p>
+<p>如果文中有表述不当的地方还望指出。互相学习共同进步。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/nginx-deploy/">
+              <h3 class="post-title">
+                下一篇：Nginx学习笔记-项目部署
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

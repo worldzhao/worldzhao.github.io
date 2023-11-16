@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>从callback到async | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">从callback到async</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-01-24</span>
+          </div>
+          <div class="post-content">
+            <p>本文不是概念性文章,只是通过一个例子来看看操作异步的一些手段.</p>
+<h2 id="回调函数">回调函数</h2>
+<p>先看一个例子:</p>
+<pre><code class="language-js">const fs = require('fs')
+
+fs.readFile('./file.txt', 'utf-8', (err, res) =&gt; {
+  console.log(res)
+})
+</code></pre>
+<p>通过 node 提供的 fs.readFile 方法打印出<code>file.txt</code>的内容.</p>
+<p>如果<code>readFile</code>可以通过 promise 方式调用就好了, 像下面这样:</p>
+<pre><code class="language-js">readFile('./file.txt', 'utf-8').then(res =&gt; {
+  console.log(res)
+})
+</code></pre>
+<h2 id="promise">promise</h2>
+<p>现在我们将 callback 形式的方法调用 转成 promise 形式的调用,这个过程也成为 promisify</p>
+<pre><code class="language-js">const promisify = fn =&gt; (...args) =&gt;
+  new Promise((reslove, reject) =&gt;
+    func(...args, (err, result) =&gt; (err ? reject(err) : resolve(result)))
+  )
+</code></pre>
+<p>当然,在 node 8 及其以上版本,可以使用<a href="https://nodejs.org/api/util.html#util_util_promisify_original">util.promisify</a></p>
+<p>现在就可以这样做啦</p>
+<pre><code class="language-js">const fs = require('fs')
+const readFile = promisify(fs.readFile)
+readFile('./file.txt', 'utf-8').then(res =&gt; {
+  console.log(res)
+})
+</code></pre>
+<p>统一的 API,线性的调用方式,更为灵活的<a href="https://zhuanlan.zhihu.com/p/29792886">异步控制</a>,exciting!</p>
+<h2 id="async">async</h2>
+<p>ES7(ECMAScript 2016)推出了 Async 函数(async/await),实现了以顺序/同步代码的编写方式来控制异步流程.再来一遍</p>
+<pre><code class="language-js">const fs = require('fs')
+const util = require('util')
+const readFile = util.promisify(fs.readFile)
+
+;(async () =&gt; {
+  const res = await readFile('./package.json', 'utf-8')
+  console.log(res)
+})()
+</code></pre>
+<h2 id="使用-generator-与-promise-模拟-co">使用 generator 与 promise 模拟 co</h2>
+<p>相较于 promise,async/await 更易理解. 如果你听过大名鼎鼎的 co,则会发现这二者使用方式是多么相似啊!</p>
+<pre><code class="language-js">const co = require('co')
+const fs = require('fs')
+const util = require('util')
+const readFile = util.promisify(fs.readFile)
+co(function*() {
+  const res = yield readFile('./package.json', 'utf-8')
+  console.log(res)
+})
+</code></pre>
+<p>不过这并不是什么黑魔法,继续向下看.</p>
+<h3 id="generator">generator</h3>
+<p>首先我们需要一点 generator 的知识,你可以看<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Generator">Generator-MDN</a></p>
+<p>如果你不想看,看下 demo 也可以</p>
+<p>demo 1</p>
+<pre><code class="language-js">function* generatorFn() {
+  yield 1
+  yield 2
+  yield 3
+}
+
+const it = generatorFn()
+
+console.log(it.next()) // { value: 1, done: false }
+console.log(it.next()) // { value: 2, done: false }
+console.log(it.next()) // { value: 3, done: false }
+console.log(it.next()) // { value: undefined, done: true }
+</code></pre>
+<p>demo 2</p>
+<pre><code class="language-js">function* generatorFn() {
+  const a = yield 1
+  console.log(a) // hhh
+  yield 2
+  yield 3
+}
+
+const it = generatorFn()
+console.log(it.next()) // { value: 1, done: false }
+console.log(it.next('hhh')) // { value: 2, done: false }
+console.log(it.next()) // { value: 3, done: false }
+console.log(it.next()) // { value: undefined, done: true }
+</code></pre>
+<p>弄清楚代码执行顺序即可。</p>
+<h4 id="小练习">小练习</h4>
+<pre><code class="language-js">const fs = require('fs')
+const util = require('util')
+const readFile = util.promisify(fs.readFile)
+
+function go() {}
+
+go(function*() {
+  const file1 = yield readFile('./file1.txt', 'utf-8')
+  console.log(file1)
+  const file2 = yield readFile('./file2.txt', 'utf-8')
+  console.log(file2)
+})
+</code></pre>
+<h4 id="解答">解答</h4>
+<p>思路很简单,我们只要在 go 中接住 yield 抛出来的 promise,注册好&quot;解决函数&quot;(resolver),在 resolver 内部将执行结果塞进去即可.</p>
+<p>先写一个最挫的,只能玩 2 层,和我们的代码绑定的死死的.</p>
+<pre><code class="language-js">function go(gen) {
+  const it = gen()
+  const p1 = it.next().value
+  p1.then(res =&gt; {
+    const p2 = it.next(res).value
+    p2.then(res =&gt; {
+      it.next(res)
+    })
+  })
+}
+</code></pre>
+<p>很明显,可以优化一波</p>
+<pre><code class="language-js">function go(gen) {
+  const it = gen()
+
+  const run = p =&gt; {
+    p.then(res =&gt; {
+      const { value, done } = it.next(res)
+      if (done) {
+        // 如果结束了就返回
+        return value
+      }
+      run(value)
+    })
+  }
+  const { value, done } = it.next()
+  if (done) {
+    return value
+  }
+  run(p1)
+}
+</code></pre>
+<p>本文到此为止，代码很粗糙，下一篇文章拿 co 源码来读读。</p>
+<hr>
+<p>推荐阅读：</p>
+<ul>
+<li><a href="https://juejin.im/post/5b7ccc65f265da436631a3d9?utm_source=gold_browser_extension">来尝尝 Async 函数这块语法糖<br>
+</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/29792886">Promise 异步流程控制<br>
+</a></li>
+<li><a href="https://juejin.im/post/5c40484bf265da61171cfb4d?utm_source=gold_browser_extension">从 for of 聊到 Generator<br>
+</a></li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/design-pattern-strategy/">
+              <h3 class="post-title">
+                下一篇：设计模式-策略模式
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

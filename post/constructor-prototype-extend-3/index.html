@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>构造函数、原型与继承（三） | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">构造函数、原型与继承（三）</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-08</span>
+          </div>
+          <div class="post-content">
+            <figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf7y9t9bj30ro0qygod.jpg" alt="prototype.png" loading="lazy"></figure>
+<h2 id="原型链">原型链</h2>
+<ul>
+<li>定义: 每一个对象都存在构造函数,每一个构造函数都存在原型对象,每一个原型对象也存在构造函数,每一个原型对象的构造函数也存在原型对象,如此向上一层层查询,是一个链式结构,称为原型链.</li>
+</ul>
+<h2 id="继承">继承</h2>
+<h3 id="原型链继承">原型链继承:</h3>
+<p>利用原型中的成员可以被和其相关的对象所共享这一特性,可以实现原型继承通过修改原型链结构的方式实现继承,具体实现方式:<strong>让子类的原型对象地址指向超类的实例对象,这样子类实例对象则会拥有超类实例对象的所有成员(包括超类实例成员与超类原型对象成员)</strong></p>
+<pre><code class="language-js">function SuperType() {
+  this.class = &quot;信管班&quot;;
+}
+
+function SubType(name) {
+  this.name = name;
+}
+
+var superObj = new SuperType();
+
+SubType.prototype = superObj; //继承
+
+var subObj = new SubType(&quot;zzw&quot;);
+
+console.log(subObj.class); //信管班
+</code></pre>
+<p>属性搜索原则:当访问一个对象的成员时,按照原型链依次搜索</p>
+<h3 id="利用原型链继承安全地拓展内置对象">利用原型链继承安全地拓展内置对象</h3>
+<p>利用原型链继承安全地拓展内置对象(倘若直接为内置对象添加成员,会影响整个开发团队)</p>
+<pre><code class="language-js">var arr = [1, 2, 3];
+// 扩展内置对象(就是给内置对象新增成员)
+Array.prototype.sayHello = function () {
+  console.log(&quot;我是一个数组&quot;);
+};
+arr.sayHello();
+
+// 如何安全地扩展一个内置对象? 继承内置对象,扩展自身,而不影响内置对象
+
+function myArray() {}
+
+var a = new Array();
+
+myArray.prototype = a; //继承数组对象
+
+myArray.prototype.sayHello = function () {
+  //扩展自身
+  console.log(&quot;我是一个数组&quot;);
+};
+
+var myarr1 = new myArray();
+
+myarr1.push(1, 2, 3, 4, 5);
+
+console.log(myarr1);
+
+myarr1.sayHello();
+</code></pre>
+<p>原型链式继承存在的问题:同原型模式存在的问题一样,超类构造函数的实例对象成为子类的原型对象,导致超类实例对象的对象成员变成了子类的原型对象成员,某个子类实例对象修改原型对象中的引用类型会影响所有实例对象.</p>
+<p>示例代码如下:</p>
+<pre><code class="language-js">function SuperType() {
+  this.colors = [&quot;red&quot;, &quot;blue&quot;, &quot;black&quot;]; // 超类实例成员
+}
+
+SuperType.prototype.sayHello = function () {
+  console.log(&quot;hello&quot;);
+}; // 超类原型成员
+
+function SubType() {
+  this.sex = &quot;male&quot;; // 子类实例成员;
+}
+
+SubType.prototype = new SuperType(); // 继承
+SubType.prototype.constructor = SubType; // 保持闭三角关系
+
+var subObj1 = new SubType(); // 子类实例对象1
+var subObj2 = new SubType(); // 子类实例对象2
+</code></pre>
+<p>到此为止,我们就完成了一个经典的原型链式继承</p>
+<p>可以看出子类实例对象 1 2 都拥有了 new SuperType()的成员,包括其 实例成员以及原型方法</p>
+<pre><code class="language-js">console.log(subObj1);
+console.log(subObj2);
+</code></pre>
+<p>但存在一个问题,倘若修改子类实例对象 1 的 colors 会影响到实例对象 2,这也就是为什么很少单独使用原型链式继承的原因,就和为什么很少使用单独使用原型模式创建对象一样.</p>
+<pre><code class="language-js">subObj1.colors.push(&quot;white&quot;); //改变subObj1的colors
+console.log(subObj2.colors); //影响到了subObj2的colors
+</code></pre>
+<h3 id="组合式继承原型链构造函数">组合式继承(原型链+构造函数)</h3>
+<p>就像解决原型模式一样,利用构造函数.在子类构造函数中调用超类的构造函数,就可以使得子类实例对象拥有自己的成员从而屏蔽原型对象中的对应成员.</p>
+<pre><code class="language-js">function SuperType() {
+  this.colors = [&quot;red&quot;, &quot;blue&quot;, &quot;black&quot;];
+}
+
+SuperType.prototype.sayHello = function () {
+  console.log(&quot;hello&quot;);
+};
+
+function SubType() {
+  SuperType.call(this); // 调用超类的构造方法，子类实例对象拥有了自己的colors 屏蔽了原型的colors
+  this.sex = &quot;male&quot;;
+}
+
+SubType.prototype = new SuperType();
+SubType.prototype.constructor = SubType;
+
+var subObj1 = new SubType();
+var subObj2 = new SubType();
+
+//此处相较于上文而言,子类构造函数中调用了超类的构造函数,子类实例对象于是拥有了自己的colors,屏蔽掉了new SuperType中的colors
+
+console.log(subObj1);
+console.log(subObj2);
+
+subObj1.colors.push(&quot;white&quot;); // 改变subObj1的colors
+console.log(subObj1.colors); // 影响到了subObj1的colors
+console.log(subObj2.colors); // 并未影响到subObj2的colors
+</code></pre>
+<h3 id="寄生组合式继承">寄生组合式继承</h3>
+<p>组合继承把共享的属性、方法用原型链继承实现，独享的属性、方法用借用构造函数实现，所以组合继承几乎完美实现了 js 的继承。</p>
+<p>为什么说是“几乎”？</p>
+<p>组合继承有一个小 bug，实现的时候调用了两次超类构造函数，存在一点点性能问题。</p>
+<pre><code class="language-js">SuperType.call(this); // 第一次
+
+SubType.prototype = new SuperType(); // 第二次
+</code></pre>
+<p>怎么解决呢？于是“寄生继承”就出来了。</p>
+<p>基本思路是：很明显，第二次调用构造函数是有一些多余的，因为超类构造函数中的成员已经通过 SuperType.call 给子类继承了，我们不必为了指定子类型的原型而调用超类型的构造函数[原型成员+实例成员(重复)]，需要的无非就是超类型原型的一个副本而已。</p>
+<p>我们来实现一个 inheritPrototype 方法，通过它将子类的原型对象修改为继承自父类的原型对象的对象</p>
+<pre><code class="language-js">function inheritPrototype(subType, superType) {
+  var prototype = Object.create(superType.prototype);
+  prototype.constructor = subType;
+  subType.prototype = prototype;
+}
+</code></pre>
+<p>完整代码如下：</p>
+<pre><code class="language-js">function SuperType() {
+  this.colors = [&quot;red&quot;, &quot;blue&quot;, &quot;black&quot;];
+}
+
+SuperType.prototype.sayHello = function () {
+  console.log(&quot;hello&quot;);
+};
+
+function SubType() {
+  SuperType.call(this); // 调用超类的构造方法，子类实例对象拥有了自己的colors 屏蔽了原型的colors
+  this.sex = &quot;male&quot;;
+}
+
+inheritPrototype(subType, superType);
+
+var subObj1 = new SubType();
+var subObj2 = new SubType();
+
+//此处相较于上文而言,子类构造函数中调用了超类的构造函数,子类实例对象于是拥有了自己的colors,屏蔽掉了new SuperType中的colors
+
+console.log(subObj1);
+console.log(subObj2);
+
+subObj1.colors.push(&quot;white&quot;); // 改变subObj1的colors
+console.log(subObj1.colors); // 影响到了subObj1的colors
+console.log(subObj2.colors); // 并未影响到subObj2的colors
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/constructor-prototype-extend-2/">
+              <h3 class="post-title">
+                下一篇：构造函数、原型与继承（二）
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

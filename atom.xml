@@ -1,0 +1,2327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://worldzhao.github.io</id>
+    <title>海秋</title>
+    <updated>2023-11-16T03:33:04.102Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://worldzhao.github.io"/>
+    <link rel="self" href="https://worldzhao.github.io/atom.xml"/>
+    <subtitle>君子生非异也，善假于物也。</subtitle>
+    <logo>https://worldzhao.github.io/images/avatar.png</logo>
+    <icon>https://worldzhao.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2023, 海秋</rights>
+    <entry>
+        <title type="html"><![CDATA[React 组件库搭建指南-单元测试]]></title>
+        <id>https://worldzhao.github.io/post/build-your-own-react-ui-library-4/</id>
+        <link href="https://worldzhao.github.io/post/build-your-own-react-ui-library-4/">
+        </link>
+        <updated>2020-02-12T02:04:33.000Z</updated>
+        <summary type="html"><![CDATA[<p>与软件操作行为越接近的测试，越能给予你信心。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>与软件操作行为越接近的测试，越能给予你信心。</p>
+<!--more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p>本节主要讲述如何在组件库中引入<a href="https://jestjs.io/">jest</a>以及<a href="https://testing-library.com/docs/react-testing-library/intro">@testing-library/react</a>，而不会深入单元测试的学习。</p>
+<p>如果你对下列问题感兴趣：</p>
+<ol>
+<li>What-单元测试是什么？</li>
+<li>Why-为什么要写单元测试？</li>
+<li>How-编写单元测试的最佳实践？</li>
+</ol>
+<p>那么可以看看以下文章：</p>
+<ul>
+<li><a href="https://thomlom.dev/test-react-testing-library/">Test React apps with React Testing Library</a>：通过一个<code>&lt;Counter /&gt;</code>的例子延伸，阐述了选择<code>React Testing Library</code>而非<code>Enzyme</code>的理由，并对其进行了一些入门教学；</li>
+<li><a href="https://testing-library.com/docs/react-testing-library/intro">React Testing Library</a>：<code>@testing-library/react</code>的官方文档，该库提供的 API 在某个程度上就是在指引开发者进行单元测试的最佳实践；</li>
+<li><a href="https://testing-library.com/docs/recipes">React Testing Library-examples</a>：<code>@testing-library/react</code>的一些实例，提供了各种常见场景的测试；</li>
+<li><a href="https://github.com/linesh-simplicity/linesh-simplicity.github.io/issues/200">React 单元测试策略及落地</a>：如标题所示，值得一看。</li>
+</ul>
+<p>本节所有代码可在仓库<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-4/test">chapter-4</a>分支中获取。</p>
+<h2 id="相关配置">相关配置</h2>
+<p>安装依赖：</p>
+<pre><code class="language-bash">yarn add jest ts-jest @testing-library/react @testing-library/jest-dom identity-obj-proxy @types/jest @types/testing-library__react --dev
+</code></pre>
+<ul>
+<li><a href="https://jestjs.io/">jest</a>: JavaScript 测试框架，专注于简洁明快；</li>
+<li><a href="https://github.com/kulshekhar/ts-jest">ts-jest</a>：为<code>TypeScript</code>编写<code>jest</code>测试用例提供支持；</li>
+<li><a href="https://testing-library.com/docs/react-testing-library/intro">@testing-library/react</a>：简单而完整的<code>React DOM</code>测试工具，鼓励良好的测试实践；</li>
+<li><a href="https://testing-library.com/docs/ecosystem-jest-dom">@testing-library/jest-dom</a>：自定义的<code>jest</code>匹配器(<code>matchers</code>)，用于测试<code>DOM</code>的状态（即为<code>jest</code>的<code>except</code>方法返回值增加更多专注于<code>DOM</code>的<code>matchers</code>）；</li>
+<li><a href="https://www.npmjs.com/package/identity-obj-proxy">identity-obj-proxy</a>：一个工具库，此处用来<code>mock</code>样式文件。</li>
+</ul>
+<p>新建<code>jest.config.js</code>，并写入相关配置，更多配置可参考<a href="https://jestjs.io/docs/en/configuration">jest 官方文档-配置</a>，只看几个常用的就可以。</p>
+<p><strong>jest.config.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  verbose: true,
+  roots: ['&lt;rootDir&gt;/components'],
+  moduleNameMapper: {
+    '\\.(css|less|scss)$': 'identity-obj-proxy',
+    '^components$': '&lt;rootDir&gt;/components/index.tsx',
+    '^components(.*)$': '&lt;rootDir&gt;/components/$1',
+  },
+  testRegex: '(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  testPathIgnorePatterns: ['/node_modules/', '/lib/', '/esm/', '/dist/'],
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+};
+</code></pre>
+<p>修改<code>package.json</code>，增加测试相关命令，并且代码提交前，跑测试用例，如下：</p>
+<p><strong>package.json</strong></p>
+<pre><code class="language-diff">&quot;scripts&quot;: {
+  ...
++  &quot;test&quot;: &quot;jest&quot;,                         # 执行jest
++  &quot;test:watch&quot;: &quot;jest --watch&quot;,           # watch模式下执行
++  &quot;test:coverage&quot;: &quot;jest --coverage&quot;,     # 生成测试覆盖率报告
++  &quot;test:update&quot;: &quot;jest --updateSnapshot&quot;  # 更新快照
+},
+...
+&quot;lint-staged&quot;: {
+  &quot;components/**/*.ts?(x)&quot;: [
+    &quot;prettier --write&quot;,
+    &quot;eslint --fix&quot;,
++   &quot;jest --bail --findRelatedTests&quot;,
+    &quot;git add&quot;
+  ],
+  ...
+}
+</code></pre>
+<p>修改<code>gulpfile.js</code>以及<code>tsconfig.json</code>，避免打包时，把测试文件一并处理了。</p>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-diff">const paths = {
+  ...
+- scripts: ['components/**/*.{ts,tsx}', '!components/**/demo/*.{ts,tsx}'],
++ scripts: [
++   'components/**/*.{ts,tsx}',
++   '!components/**/demo/*.{ts,tsx}',
++   '!components/**/__tests__/*.{ts,tsx}',
++ ],
+};
+</code></pre>
+<p><strong>tsconfig.json</strong></p>
+<pre><code class="language-diff">{
+- &quot;exclude&quot;: [&quot;components/**/demo&quot;]
++ &quot;exclude&quot;: [&quot;components/**/demo&quot;, &quot;components/**/__tests__&quot;]
+}
+</code></pre>
+<h2 id="编写测试用例">编写测试用例</h2>
+<p><code>&lt;Alert /&gt;</code>比较简单，此处只作示例用，简单进行一下快照测试。</p>
+<p>在对应组件的文件夹下新建<code>__tests__</code>文件夹，用于存放测试文件，其内新建<code>index.test.tsx</code>文件，写入以下测试用例：</p>
+<p><strong>components/alert/<strong>tests</strong>/index.test.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import { render } from '@testing-library/react';
+import Alert from '../alert';
+
+describe('&lt;Alert /&gt;', () =&gt; {
+  test('should render default', () =&gt; {
+    const { container } = render(&lt;Alert&gt;default&lt;/Alert&gt;);
+    expect(container).toMatchSnapshot();
+  });
+
+  test('should render alert with type', () =&gt; {
+    const kinds: any[] = ['info', 'warning', 'positive', 'negative'];
+
+    const { getByText } = render(
+      &lt;&gt;
+        {kinds.map(k =&gt; (
+          &lt;Alert kind={k} key={k}&gt;
+            {k}
+          &lt;/Alert&gt;
+        ))}
+      &lt;/&gt;,
+    );
+
+    kinds.forEach(k =&gt; {
+      expect(getByText(k)).toMatchSnapshot();
+    });
+  });
+});
+</code></pre>
+<p>更新一下快照：</p>
+<pre><code class="language-bash">yarn test:update
+</code></pre>
+<p>可以看见同级目录下新增了一个<code>__snapshots__</code>文件夹，里面存放对应测试用例的快照文件。</p>
+<figure data-type="image" tabindex="1"><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcbw704fpmj31c00r2wi4.jpg" alt="生成的快照文件" loading="lazy"></figure>
+<p>再执行测试用例：</p>
+<pre><code class="language-bash">yarn test
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcbw73egztj30uw0ee0u2.jpg" alt="通过测试用例" loading="lazy"></figure>
+<p>可以发现我们通过了测试用例。。。额，这里当然能通过，主要是后续我们进行迭代重构时，都会重新执行测试用例，与最近的一次快照进行比对，如果与快照不一致（结构发生了改变），那么相应的测试用例就无法通过。</p>
+<p>对于快照测试，褒贬不一，这个例子也着实简单得很，甚至连扩展的 <code>jest-dom</code>提供的 <code>matchers</code> 都没用上，如何编写优秀的测试用例，我也是一个新手，只能说多看多写多尝试，概述推荐的文章很不错。</p>
+<p>本文如有错误，恳请指正，共同交流学习。</p>
+<p>To be Continued...</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[React 组件库搭建指南-打包输出]]></title>
+        <id>https://worldzhao.github.io/post/build-your-own-react-ui-library-3/</id>
+        <link href="https://worldzhao.github.io/post/build-your-own-react-ui-library-3/">
+        </link>
+        <updated>2019-12-25T07:15:14.000Z</updated>
+        <summary type="html"><![CDATA[<p>重头戏来了。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>重头戏来了。</p>
+<!--more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p><strong>宿主环境各不相同，需要将源码进行相关处理后发布至 npm。</strong></p>
+<p>明确以下目标：</p>
+<ol>
+<li>导出类型声明文件</li>
+<li>导出 <code>umd</code>/<code>Commonjs module</code>/<code>ES module</code> 等 3 种形式供使用者引入</li>
+<li>支持样式文件 <code>css</code> 引入，而非只有<code>less</code></li>
+<li>支持按需加载</li>
+</ol>
+<p>本节所有代码可在仓库<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-3/build">chapter-3</a>分支中获取。</p>
+<h2 id="导出类型声明文件">导出类型声明文件</h2>
+<p>既然是使用<code>typescript</code>编写的组件库，那么使用者应当享受到类型系统的好处。</p>
+<p>我们可以生成类型声明文件，并在<code>package.json</code>中定义入口，如下：</p>
+<p><strong>package.json</strong></p>
+<pre><code class="language-json">{
+  &quot;typings&quot;: &quot;types/index.d.ts&quot;, // 定义类型入口文件
+  &quot;scripts&quot;: {
+    &quot;build:types&quot;: &quot;tsc --emitDeclarationOnly&quot; // 执行tsc命令 只生成声明文件
+  }
+}
+</code></pre>
+<p>执行<code>yarn build:types</code>，可以发现根目录下已经生成了<code>types</code>文件夹（<code>tsconfig.json</code>中定义的<code>outDir</code>字段），目录结构与<code>components</code>文件夹保持一致，如下：</p>
+<p><strong>types</strong></p>
+<pre><code>├── alert
+│   ├── alert.d.ts
+│   ├── index.d.ts
+│   ├── interface.d.ts
+│   └── style
+│       └── index.d.ts
+└── index.d.ts
+</code></pre>
+<p>这样使用者引入<code>npm</code> 包时，便能得到自动提示，也能够复用相关组件的类型定义。</p>
+<p>接下来将<code>ts(x)</code>等文件处理成<code>js</code>文件。</p>
+<blockquote>
+<p>需要注意的是，我们需要输出<code>Commonjs module</code>以及<code>ES module</code>两种模块类型的文件（暂不考虑<code>umd</code>），以下使用<code>cjs</code>指代<code>Commonjs module</code>，<code>esm</code>指代<code>ES module</code>。<br/> 对此有疑问的同学推荐阅读：<a href="https://github.com/ShowJoy-com/showjoy-blog/issues/39">import、require、export、module.exports 混合详解</a></p>
+</blockquote>
+<h2 id="导出-commonjs-模块">导出 Commonjs 模块</h2>
+<p>其实完全可以使用<code>babel</code>或<code>tsc</code>命令行工具进行代码编译处理（实际上很多工具库就是这样做的），但考虑到还要<strong>处理样式及其按需加载</strong>，我们借助 <code>gulp</code> 来串起这个流程。</p>
+<h3 id="babel-配置">babel 配置</h3>
+<p>首先安装<code>babel</code>及其相关依赖</p>
+<pre><code class="language-bash">yarn add @babel/core @babel/preset-env @babel/preset-react @babel/preset-typescript @babel/plugin-proposal-class-properties  @babel/plugin-transform-runtime --dev
+</code></pre>
+<pre><code class="language-bash">yarn add @babel/runtime-corejs3
+</code></pre>
+<p>新建<code>.babelrc.js</code>文件，写入以下内容：</p>
+<p><strong>.babelrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  presets: ['@babel/env', '@babel/typescript', '@babel/react'],
+  plugins: [
+    '@babel/proposal-class-properties',
+    [
+      '@babel/plugin-transform-runtime',
+      {
+        corejs: 3,
+        helpers: true,
+      },
+    ],
+  ],
+};
+</code></pre>
+<p>关于<code>@babel/plugin-transform-runtime</code>与<code>@babel/runtime-corejs3</code>：</p>
+<ul>
+<li>若<code>helpers</code>选项设置为<code>true</code>，可抽离代码编译过程重复生成的 <code>helper</code> 函数（<code>classCallCheck</code>,<code>extends</code>等），减小生成的代码体积；</li>
+<li>若<code>corejs</code>设置为<code>3</code>，可引入不污染全局的按需<code>polyfill</code>，常用于类库编写（我更推荐：不引入<code>polyfill</code>，转而告知使用者需要引入何种<code>polyfill</code>，避免重复引入或产生冲突，后面会详细提到）。</li>
+</ul>
+<p>更多参见<a href="https://babeljs.io/docs/en/next/babel-plugin-transform-runtime">官方文档-@babel/plugin-transform-runtime </a></p>
+<p><strong>配置目标环境</strong></p>
+<p>为了避免转译浏览器原生支持的语法，新建<code>.browserslistrc</code>文件，根据适配需求，写入支持浏览器范围，作用于<code>@babel/preset-env</code>。</p>
+<p><strong>.browserslistrc</strong></p>
+<pre><code>&gt;0.2%
+not dead
+not op_mini all
+</code></pre>
+<p>很遗憾的是，<code>@babel/runtime-corejs3</code>无法在按需引入的基础上根据目标浏览器支持程度再次减少<code>polyfill</code>的引入，参见<a href="https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md#babelruntime-for-target-environment">@babel/runtime for target environment </a>。</p>
+<p>这意味着<code>@babel/runtime-corejs3</code> 甚至会在针对现代引擎的情况下注入所有可能的 <code>polyfill</code>：不必要地增加了最终捆绑包的大小。</p>
+<p>对于组件库（代码量可能很大），个人建议将<code>polyfill</code>的选择权交还给使用者，在宿主环境进行<code>polyfill</code>。若使用者具有兼容性要求，自然会使用<code>@babel/preset-env + core-js + .browserslistrc</code>进行全局<code>polyfill</code>，这套组合拳引入了最低目标浏览器不支持<code>API</code>的全部 <code>polyfill</code>。</p>
+<blockquote>
+<p>将<code>@babel/preset-env</code>的<code>useBuiltIns</code>选项值设置为 <code>usage</code>，同时把<code>node_modules</code>从<code>babel-loader</code>中<code>exclude</code>掉的同学可能想要这个特性：<a href="https://github.com/babel/babel/issues/9419">&quot;useBuiltIns: usage&quot; for node_modules without transpiling #9419</a>，在未支持该<code>issue</code>提到的内容之前，还是乖乖地将<code>useBuiltIns</code>设置为<code>entry</code>，或者不要把<code>node_modules</code>从<code>babel-loader</code>中<code>exclude</code>。</p>
+</blockquote>
+<p>所以组件库不用画蛇添足，引入多余的<code>polyfill</code>，写好文档说明，比什么都重要（就像<a href="https://github.com/youzan/zent#required-polyfills">zent</a>和<a href="https://ant.design/docs/react/getting-started-cn#%E5%85%BC%E5%AE%B9%E6%80%A7">antd</a>这样）。</p>
+<p>现在<code>@babel/runtime-corejs3</code>更换为<code>@babel/runtime</code>，只进行<code>helper</code>函数抽离。</p>
+<pre><code class="language-bash">yarn remove @babel/runtime-corejs3
+
+yarn add @babel/runtime
+</code></pre>
+<p><strong>.babelrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  presets: ['@babel/env', '@babel/typescript', '@babel/react'],
+  plugins: ['@babel/plugin-transform-runtime', '@babel/proposal-class-properties'],
+};
+</code></pre>
+<blockquote>
+<p><code>@babel/transform-runtime</code>的<code>helper</code>选项默认为<code>true</code>。</p>
+</blockquote>
+<h3 id="gulp-配置">gulp 配置</h3>
+<p>再来安装<code>gulp</code>相关依赖</p>
+<pre><code class="language-bash">yarn add gulp gulp-babel --dev
+</code></pre>
+<p>新建<code>gulpfile.js</code>，写入以下内容：</p>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-js">const gulp = require('gulp');
+const babel = require('gulp-babel');
+
+const paths = {
+  dest: {
+    lib: 'lib', // commonjs 文件存放的目录名 - 本块关注
+    esm: 'esm', // ES module 文件存放的目录名 - 暂时不关心
+    dist: 'dist', // umd文件存放的目录名 - 暂时不关心
+  },
+  styles: 'components/**/*.less', // 样式文件路径 - 暂时不关心
+  scripts: ['components/**/*.{ts,tsx}', '!components/**/demo/*.{ts,tsx}'], // 脚本文件路径
+};
+
+function compileCJS() {
+  const { dest, scripts } = paths;
+  return gulp
+    .src(scripts)
+    .pipe(babel()) // 使用gulp-babel处理
+    .pipe(gulp.dest(dest.lib));
+}
+
+// 并行任务 后续加入样式处理 可以并行处理
+const build = gulp.parallel(compileCJS);
+
+exports.build = build;
+
+exports.default = build;
+</code></pre>
+<p>修改<code>package.json</code></p>
+<p><strong>package.json</strong></p>
+<pre><code class="language-diff">{
+- &quot;main&quot;: &quot;index.js&quot;,
++ &quot;main&quot;: &quot;lib/index.js&quot;,
+  &quot;scripts&quot;: {
+    ...
++   &quot;clean&quot;: &quot;rimraf types lib esm dist&quot;,
++   &quot;build&quot;: &quot;npm run clean &amp;&amp; npm run build:types &amp;&amp; gulp&quot;,
+    ...
+  },
+}
+</code></pre>
+<p>执行<code>yarn build</code>，得到如下内容：</p>
+<p><strong>lib</strong></p>
+<pre><code>├── alert
+│   ├── alert.js
+│   ├── index.js
+│   ├── interface.js
+│   └── style
+│       └── index.js
+└── index.js
+</code></pre>
+<p>观察编译后的源码，可以发现：诸多<code>helper</code>方法已被抽离至<code>@babel/runtime</code>中，模块导入导出形式也是<code>commonjs</code>规范。</p>
+<p><strong>lib/alert/alert.js</strong></p>
+<figure data-type="image" tabindex="1"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gabgju58mlj30ve0u0k4o.jpg" alt="lib/alert/alert.js" loading="lazy"></figure>
+<h2 id="导出-es-module">导出 ES module</h2>
+<p>生成<code>ES module</code>可以更好地进行<a href="https://webpack.docschina.org/guides/tree-shaking/">tree shaking</a>，基于上一步的<code>babel</code>配置，更新以下内容：</p>
+<ol>
+<li>配置<code>@babel/preset-env</code>的<code>modules</code>选项为<code>false</code>，关闭模块转换；</li>
+<li>配置<code>@babel/plugin-transform-runtime</code>的<code>useESModules</code>选项为<code>true</code>，使用<code>ES module</code>形式引入<code>helper</code>函数。</li>
+</ol>
+<p><strong>.babelrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  presets: [
+    [
+      '@babel/env',
+      {
+        modules: false, // 关闭模块转换
+      },
+    ],
+    '@babel/typescript',
+    '@babel/react',
+  ],
+  plugins: [
+    '@babel/proposal-class-properties',
+    [
+      '@babel/plugin-transform-runtime',
+      {
+        useESModules: true, // 使用esm形式的helper
+      },
+    ],
+  ],
+};
+</code></pre>
+<p>目标达成，我们再使用环境变量区分<code>esm</code>和<code>cjs</code>（执行任务时设置对应的环境变量即可），最终<code>babel</code>配置如下：</p>
+<p><strong>.babelrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  presets: ['@babel/env', '@babel/typescript', '@babel/react'],
+  plugins: ['@babel/plugin-transform-runtime', '@babel/proposal-class-properties'],
+  env: {
+    esm: {
+      presets: [
+        [
+          '@babel/env',
+          {
+            modules: false,
+          },
+        ],
+      ],
+      plugins: [
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            useESModules: true,
+          },
+        ],
+      ],
+    },
+  },
+};
+</code></pre>
+<p>接下来修改<code>gulp</code>相关配置，抽离<code>compileScripts</code>任务，增加<code>compileESM</code>任务。</p>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-js">// ...
+
+/**
+ * 编译脚本文件
+ * @param {string} babelEnv babel环境变量
+ * @param {string} destDir 目标目录
+ */
+function compileScripts(babelEnv, destDir) {
+  const { scripts } = paths;
+  // 设置环境变量
+  process.env.BABEL_ENV = babelEnv;
+  return gulp
+    .src(scripts)
+    .pipe(babel()) // 使用gulp-babel处理
+    .pipe(gulp.dest(destDir));
+}
+
+/**
+ * 编译cjs
+ */
+function compileCJS() {
+  const { dest } = paths;
+  return compileScripts('cjs', dest.lib);
+}
+
+/**
+ * 编译esm
+ */
+function compileESM() {
+  const { dest } = paths;
+  return compileScripts('esm', dest.esm);
+}
+
+// 串行执行编译脚本任务（cjs,esm） 避免环境变量影响
+const buildScripts = gulp.series(compileCJS, compileESM);
+
+// 整体并行执行任务
+const build = gulp.parallel(buildScripts);
+
+// ...
+</code></pre>
+<p>执行<code>yarn build</code>，可以发现生成了<code>types</code>/<code>lib</code>/<code>esm</code>三个文件夹，观察<code>esm</code>目录，结构同<code>lib</code>/<code>types</code>一致，js 文件都是以<code>ES module</code>模块形式导入导出。</p>
+<p><strong>esm/alert/alert.js</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gabgrzmgjqj311i0u0air.jpg" alt="esm/alert/alert.js" loading="lazy"></figure>
+<p>别忘了给<code>package.json</code>增加相关入口。</p>
+<p><strong>package.json</strong></p>
+<pre><code class="language-diff">{
++ &quot;module&quot;: &quot;esm/index.js&quot;
+}
+</code></pre>
+<h2 id="处理样式文件">处理样式文件</h2>
+<h3 id="拷贝-less-文件">拷贝 less 文件</h3>
+<p>我们会将<code>less</code>文件包含在<code>npm</code>包中，用户可以通过<code>happy-ui/lib/alert/style/index.js</code>的形式按需引入<code>less</code>文件，此处可以直接将 less 文件拷贝至目标文件夹。</p>
+<p>在<code>gulpfile.js</code>中新建<code>copyLess</code>任务。</p>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-js">// ...
+
+/**
+ * 拷贝less文件
+ */
+function copyLess() {
+  return gulp
+    .src(paths.styles)
+    .pipe(gulp.dest(paths.dest.lib))
+    .pipe(gulp.dest(paths.dest.esm));
+}
+
+const build = gulp.parallel(buildScripts, copyLess);
+
+// ...
+</code></pre>
+<p>观察<code>lib</code>目录，可以发现 <code>less</code> 文件已被拷贝至<code>alert/style</code>目录下。</p>
+<p><strong>lib</strong></p>
+<pre><code>├── alert
+│   ├── alert.js
+│   ├── index.js
+│   ├── interface.js
+│   └── style
+│       ├── index.js
+│       └── index.less # less文件
+└── index.js
+</code></pre>
+<p>可能有些同学已经发现问题：若使用者没有使用<code>less</code>预处理器，使用的是<code>sass</code>方案甚至原生<code>css</code>方案，那现有方案就搞不定了。经分析，有以下 3 种预选方案：</p>
+<ol>
+<li>告知用户增加<code>less-loader</code>；</li>
+<li>打包出一份完整的 <code>css</code> 文件，进行<strong>全量</strong>引入；</li>
+<li>单独提供一份<code>style/css.js</code>文件，引入的是组件 <code>css</code>文件依赖，而非 <code>less</code> 依赖，组件库底层抹平差异。</li>
+</ol>
+<p>方案 1 会导致使用成本增加。</p>
+<p>方案 2 无法对样式文件进行按需引入（后续在 <code>umd</code> 打包时我们也会提供该样式文件）。</p>
+<p>以上两种方案实为下策（画外音：如果使用<code>css in js</code>就没有这么多屁事了）。</p>
+<p>方案 3 比较符合此时的的场景，<code>antd</code>使用的也是这种方案。</p>
+<p>在搭建组件库的过程中，有一个问题困扰了我很久：为什么需要<code>alert/style/index.js</code>引入<code>less</code>文件或<code>alert/style/css.js</code>引入<code>css</code>文件？</p>
+<p>答案是<strong>管理样式依赖</strong>。</p>
+<p>假设存在以下场景：引入<code>&lt;Button /&gt;</code>，<code>&lt;Button /&gt;</code>依赖了<code>&lt;Icon /&gt;</code>，使用者需要手动去引入调用的组件的样式（<code>&lt;Button /&gt;</code>）及其依赖的组件样式（<code>&lt;Icon /&gt;</code>），遇到复杂组件极其麻烦，所以组件库开发者可以提供一份这样的<code>js</code>文件，使用者手动引入这个<code>js</code>文件，就能引入对应组件及其依赖组件的样式。</p>
+<p>继续我们的旅程。</p>
+<h3 id="生成-css-文件">生成 css 文件</h3>
+<p>安装相关依赖。</p>
+<pre><code class="language-bash">yarn add gulp-less gulp-autoprefixer gulp-cssnano --dev
+</code></pre>
+<p>将<code>less</code>文件生成对应的<code>css</code>文件，在<code>gulpfile.js</code>中增加<code>less2css</code>任务。</p>
+<pre><code class="language-js">// ...
+
+/**
+ * 生成css文件
+ */
+function less2css() {
+  return gulp
+    .src(paths.styles)
+    .pipe(less()) // 处理less文件
+    .pipe(autoprefixer()) // 根据browserslistrc增加前缀
+    .pipe(cssnano({ zindex: false, reduceIdents: false })) // 压缩
+    .pipe(gulp.dest(paths.dest.lib))
+    .pipe(gulp.dest(paths.dest.esm));
+}
+
+const build = gulp.parallel(buildScripts, copyLess, less2css);
+
+// ...
+</code></pre>
+<p>执行<code>yarn build</code>，组件<code>style</code>目录下已经存在<code>css</code>文件了。</p>
+<p>接下来我们需要一个<code>alert/style/css.js</code>来帮用户引入<code>css</code>文件。</p>
+<h3 id="生成-cssjs">生成 css.js</h3>
+<p>此处参考<a href="https://github.com/ant-design/antd-tools/blob/master/lib/gulpfile.js#L248">antd-tools</a>的实现方式：在处理<code>scripts</code>任务中，截住<code>style/index.js</code>，生成<code>style/css.js</code>，并通过正则将引入的<code>less</code>文件后缀改成<code>css</code>。</p>
+<p>安装相关依赖。</p>
+<pre><code class="language-bash">yarn add through2 --dev
+</code></pre>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-js">// ...
+
+/**
+ * 编译脚本文件
+ * @param {*} babelEnv babel环境变量
+ * @param {*} destDir 目标目录
+ */
+function compileScripts(babelEnv, destDir) {
+  const { scripts } = paths;
+  process.env.BABEL_ENV = babelEnv;
+  return gulp
+    .src(scripts)
+    .pipe(babel()) // 使用gulp-babel处理
+    .pipe(
+      through2.obj(function z(file, encoding, next) {
+        this.push(file.clone());
+        // 找到目标
+        if (file.path.match(/(\/|\\)style(\/|\\)index\.js/)) {
+          const content = file.contents.toString(encoding);
+          file.contents = Buffer.from(cssInjection(content)); // 文件内容处理
+          file.path = file.path.replace(/index\.js/, 'css.js'); // 文件重命名
+          this.push(file); // 新增该文件
+          next();
+        } else {
+          next();
+        }
+      }),
+    )
+    .pipe(gulp.dest(destDir));
+}
+
+// ...
+</code></pre>
+<p><code>cssInjection</code>的实现：</p>
+<p><strong>gulpfile.js</strong></p>
+<pre><code class="language-js">/**
+ * 当前组件样式 import './index.less' =&gt; import './index.css'
+ * 依赖的其他组件样式 import '../test-comp/style' =&gt; import '../test-comp/style/css.js'
+ * 依赖的其他组件样式 import '../test-comp/style/index.js' =&gt; import '../test-comp/style/css.js'
+ * @param {string} content
+ */
+function cssInjection(content) {
+  return content
+    .replace(/\/style\/?'/g, &quot;/style/css'&quot;)
+    .replace(/\/style\/?&quot;/g, '/style/css&quot;')
+    .replace(/\.less/g, '.css');
+}
+</code></pre>
+<p>再进行打包，可以看见组件<code>style</code>目录下生成了<code>css.js</code>文件，引入的也是上一步<code>less</code>转换而来的<code>css</code>文件。</p>
+<p><strong>lib/alert</strong></p>
+<pre><code>├── alert.js
+├── index.js
+├── interface.js
+└── style
+    ├── css.js # 引入index.css
+    ├── index.css
+    ├── index.js
+    └── index.less
+</code></pre>
+<h2 id="按需加载">按需加载</h2>
+<p>在 package.json 中增加<code>sideEffects</code>属性，配合<code>ES module</code>达到<code>tree shaking</code>效果（将样式依赖文件标注为<code>side effects</code>，避免被误删除）。</p>
+<pre><code class="language-json">// ...
+&quot;sideEffects&quot;: [
+  &quot;dist/*&quot;,
+  &quot;esm/**/style/*&quot;,
+  &quot;lib/**/style/*&quot;,
+  &quot;*.less&quot;
+],
+// ...
+</code></pre>
+<p>使用以下方式引入，可以做到<code>js</code>部分的按需加载，但需要手动引入样式：</p>
+<pre><code class="language-js">import { Alert } from 'happy-ui';
+import 'happy-ui/esm/alert/style';
+</code></pre>
+<p>也可以使用以下方式引入：</p>
+<pre><code class="language-js">import Alert from 'happy-ui/esm/alert'; // or import Alert from 'happy-ui/lib/alert';
+import 'happy-ui/esm/alert/style'; // or import Alert from 'happy-ui/lib/alert';
+</code></pre>
+<p>以上引入样式文件的方式不太优雅，直接引入<strong>全量</strong>样式文件又和按需加载的本意相去甚远。</p>
+<p>使用者可以借助<a href="https://www.npmjs.com/package/babel-plugin-import">babel-plugin-import</a>来进行辅助，减少代码编写量。</p>
+<pre><code class="language-js">import { Alert } from 'happy-ui';
+</code></pre>
+<p>⬇️</p>
+<pre><code class="language-js">import Alert from 'happy-ui/lib/alert';
+import 'happy-ui/lib/alert/style';
+</code></pre>
+<h2 id="生成-umd">生成 umd</h2>
+<p>真正意义上的“打包”，生成全量 <code>js</code>文件 和 <code>css</code>文件供使用者外链引入。此处选择<code>rollup</code>进行打包。</p>
+<p>留坑待填。</p>
+<p>To be Continued...</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[React 组件库搭建指南-开发调试]]></title>
+        <id>https://worldzhao.github.io/post/build-your-own-react-ui-library-2/</id>
+        <link href="https://worldzhao.github.io/post/build-your-own-react-ui-library-2/">
+        </link>
+        <updated>2019-12-22T11:05:45.000Z</updated>
+        <summary type="html"><![CDATA[<p>MDX，文档生花。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>MDX，文档生花。</p>
+<!-- more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p>本文解决开发组件时的预览以及调试问题，顺路解决文档编写。</p>
+<p><strong>编写时完全无法进行预览调试</strong></p>
+<p>此处选择<a href="https://github.com/doczjs/docz">docz</a>来辅助预览调试。</p>
+<blockquote>
+<p><code>docz</code>基于<code>MDX</code>（Markdown + JSX），可以在 Markdown 中引入 React 组件，使得一边编写文档，一边预览调试成为了可能。而且得益于 React 组件生态，我们可以像编写应用一般编写文档，不仅仅是枯燥的文字。<code>docz</code> 也内置了一些组件，比如<code>&lt;Playground&gt;</code>。</p>
+</blockquote>
+<p>本节所有代码可在仓库<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-2/dev-and-doc">chapter-2</a>分支中获取。</p>
+<h2 id="安装-docz-以及自定义配置">安装 docz 以及自定义配置</h2>
+<pre><code class="language-bash">yarn add docz --dev
+
+yarn add rimraf --dev # 清空目录的一个辅助库
+</code></pre>
+<p>增加 <code>npm scripts</code> 至 <code>package.json</code>。</p>
+<pre><code class="language-json">&quot;scripts&quot;: {
+  &quot;dev&quot;: &quot;docz dev&quot;, // 启动本地开发环境
+  &quot;start&quot;: &quot;npm run dev&quot;, // dev命令别名
+  &quot;build:doc&quot;: &quot;rimraf doc-site &amp;&amp; docz build&quot;, // 后续会配置打包出来的文件目录名为doc-site，故每次build前删除
+  &quot;preview:doc&quot;: &quot;docz serve&quot; // 预览文档站点
+},
+</code></pre>
+<blockquote>
+<p>注意：本节所有操作都是针对站点应用。<code>打包</code>指代文档站点打包，而非组件库。</p>
+</blockquote>
+<p>新建<code>doczrc.js</code>配置文件，并写入以下内容：</p>
+<p><strong>doczrc.js</strong></p>
+<pre><code class="language-js">export default {
+  files: './components/**/*.{md,markdown,mdx}', // 识别的文件后缀
+  dest: 'doc-site', // 打包出来的文件目录名
+  title: 'happy-ui', // 站点标题
+  typescript: true, // 组件源文件是通过typescript开发，需要打开此选项
+};
+</code></pre>
+<p>由于使用了<code>less</code>作为样式预处理器，故需要安装 less 插件。</p>
+<pre><code class="language-bash">yarn add less gatsby-plugin-less --dev
+</code></pre>
+<p>新建<code>gatsby-config.js</code>，并写入以下内容：</p>
+<p><strong>gatsby-config.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  plugins: ['gatsby-theme-docz', 'gatsby-plugin-less'],
+};
+</code></pre>
+<h2 id="编写文档">编写文档</h2>
+<p>新建<code>components/alert/index.mdx</code>，并写入以下内容：</p>
+<pre><code class="language-md">---
+name: Alert 警告提示
+route: /Alert
+menu: 组件
+---
+
+import { Playground } from 'docz'; import Alert from './alert'; // 引入组件 import './style'; // 引入组件样式
+
+# Alert 警告提示
+
+警告提示，展现需要关注的信息。
+
+## 代码演示
+
+### 基本用法
+
+&lt;Playground&gt;
+  &lt;Alert kind=&quot;warning&quot;&gt;这是一条警告提示&lt;/Alert&gt;
+&lt;/Playground&gt;
+
+## API
+
+| 属性 | 说明     | 类型                                         | 默认值 |
+| ---- | -------- | -------------------------------------------- | ------ |
+| kind | 警告类型 | 'info'/'positive'/'negative'/'warning'非必填 | 'info' |
+</code></pre>
+<p>执行脚本命令：</p>
+<pre><code class="language-bash">yarn start # or yarn dev
+</code></pre>
+<p>可以在<code>localhost:3000</code>看到如下页面 ：</p>
+<figure data-type="image" tabindex="1"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1ujda771j31j50u0h06.jpg" alt="文档站点" loading="lazy"></figure>
+<p>现在可以在<code>index.mdx</code>中愉快地进行文档编写和调试了！</p>
+<p>倘若本文到了这里就结束（其实也可以结束了<code>(_^▽^_)</code>），那我只是官方文档的翻译复读机罢了，有兴趣的同学可以继续向下看。</p>
+<h2 id="优化文档编写">优化文档编写</h2>
+<p>如果<code>代码演示</code>部分的<code>demo</code>较多（比如基本用法、高级用法以及各种用法等等），在组件复杂的情况下（毕竟<code>&lt;Alert/&gt;</code>着实太简单了），会导致文档很长难以维护，你到底是在写文档呢还是在写代码呢？</p>
+<p>那就抽离吧。</p>
+<p>在<code>components/alert/</code>文件夹下新建<code>demo</code>文件夹，存放我们在编写文档时需要引用的 <code>demo</code>。</p>
+<p><strong>components/alert/demo/1-demo-basic.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import Alert from '../alert';
+import '../style';
+
+export default () =&gt; &lt;Alert kind=&quot;warning&quot;&gt;&lt;/Alert&gt;;
+</code></pre>
+<p><strong>components/alert/index.mdx</strong></p>
+<pre><code class="language-diff">- import Alert from './alert'; // 引入组件
+- import './style'; // 引入组件样式
++ import BasicDemo from './demo/1-demo-basic';
+
+...
+
+&lt;Playground&gt;
+- &lt;Alert kind=&quot;warning&quot;&gt;这是一条警告提示&lt;/Alert&gt;
++ &lt;BasicDemo /&gt;
+&lt;/Playground&gt;
+</code></pre>
+<p>这样我们就将 demo 与文档进行了分隔。预览如下：</p>
+<figure data-type="image" tabindex="2"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1v3li0poj31l80u0wix.jpg" alt="文档重构" loading="lazy"></figure>
+<p>等等，你下面显示的那个<code>&lt;BasicDemo /&gt;</code>有点撩人，这里应该是给用户爸爸们<code>copy</code>的<code>demo</code>源码，你弄一个标签在这里，用户爸爸肯定不开心 🙅‍♀️。</p>
+<p>然而<code>&lt;Playground /&gt;</code>组件暂时无法支持上述形式的展示：自定义下方展示的代码，而非<code>&lt;Playground /&gt;</code>内部的代码。相关讨论如下：</p>
+<ul>
+<li><a href="https://github.com/doczjs/docz/pull/907">Allow to hide the LiveError overlay #907 </a></li>
+<li><a href="https://github.com/doczjs/docz/pull/906">Allow to override the playground's editor's code #906 </a></li>
+</ul>
+<p>其实第一条 <code>PR</code> 已经解决了问题，但是被关闭了，无奈。</p>
+<p>不过既然都能引入 React 组件了，在<code>MDX</code>的环境下自定义一个<code>Playground</code>组件又有何难呢，无非就是渲染组件（MDX 自带）和展示源码，简单开放的东西大家都是喜闻乐见的，就叫<code>HappyBox</code>吧。</p>
+<h2 id="优化代码展示">优化代码展示</h2>
+<h3 id="编写-happybox-组件">编写 <code>&lt;HappyBox /&gt;</code>组件</h3>
+<p>安装依赖：</p>
+<pre><code>yarn add react-use antd react-simple-code-editor prismjs react-copy-to-clipboard raw-loader --dev
+</code></pre>
+<ul>
+<li><a href="https://github.com/streamich/react-use">react-use</a> - 2020 年了，当然要用<code>hooks</code></li>
+<li><a href="https://ant.design/">antd</a> - 使用一些辅助组件</li>
+<li><a href="https://github.com/satya164/react-simple-code-editor">react-simple-code-editor</a> - 代码展示区域</li>
+<li><a href="https://github.com/PrismJS/prism">prismjs</a> - 代码高亮</li>
+<li><a href="https://github.com/webpack-contrib/raw-loader">raw-loader</a> - 将源码转成字符串</li>
+<li><a href="https://github.com/nkbt/react-copy-to-clipboard">react-copy-to-clipboard</a> - 让用户爸爸们能够 copy demo 代码</li>
+</ul>
+<blockquote>
+<p>这些依赖都是服务于文档站点应用，和组件库自身毫无关联。</p>
+</blockquote>
+<p>最终效果如下：</p>
+<figure data-type="image" tabindex="3"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1ynynxxlj31dg0u0tde.jpg" alt="最终效果" loading="lazy"></figure>
+<p>根目录下新建<code>doc-comps</code>文件夹，存放文档中使用的一些工具组件，比如<code>&lt;HappyBox /&gt;</code>。</p>
+<p><strong>doc-comps</strong></p>
+<pre><code>├── happy-box
+│   ├── index.less
+│   └── index.tsx
+└── index.ts
+</code></pre>
+<p><strong>components/doc-comps/happy-box/index.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import Editor from 'react-simple-code-editor';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import useToggle from 'react-use/esm/useToggle';
+import { Divider, Typography, Icon, Tooltip, message } from 'antd';
+import { highlight, languages } from 'prismjs/components/prism-core';
+
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-markup';
+import './index.less';
+
+require('prismjs/components/prism-jsx');
+
+const { Text } = Typography;
+interface Props {
+  code: string;
+  title?: React.ReactNode;
+  desc?: React.ReactNode;
+}
+
+const HappyBox: React.FC&lt;Props&gt; = ({ code, title, desc, children }) =&gt; {
+  const [isEditVisible, toggleEditVisible] = useToggle(false);
+
+  return (
+    &lt;div className=&quot;code-box&quot;&gt;
+      &lt;section className=&quot;code-box-demo&quot;&gt; {children}&lt;/section&gt;
+      &lt;section className=&quot;code-box-meta&quot;&gt;
+        &lt;Divider orientation=&quot;left&quot;&gt;{title || '示例'}&lt;/Divider&gt;
+        &lt;div className=&quot;code-box-description&quot;&gt;
+          &lt;Text&gt;{desc || '暂无描述'}&lt;/Text&gt;
+        &lt;/div&gt;
+        &lt;Divider dashed&gt;&lt;/Divider&gt;
+        &lt;div className=&quot;code-box-action&quot;&gt;
+          &lt;Tooltip placement=&quot;top&quot; title={'复制代码'}&gt;
+            &lt;CopyToClipboard text={code} onCopy={() =&gt; message.success('复制成功')}&gt;
+              &lt;Icon type=&quot;copy&quot; /&gt;
+            &lt;/CopyToClipboard&gt;
+          &lt;/Tooltip&gt;
+          &lt;Tooltip placement=&quot;top&quot; title={isEditVisible ? '收起代码' : '显示代码'}&gt;
+            &lt;Icon type=&quot;code&quot; onClick={toggleEditVisible} /&gt;
+          &lt;/Tooltip&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+      {renderEditor()}
+    &lt;/div&gt;
+  );
+
+  /* 代码展示区域 */
+  function renderEditor() {
+    if (!isEditVisible) return null;
+    return (
+      &lt;div className=&quot;container_editor_area&quot;&gt;
+        &lt;Editor
+          readOnly
+          value={code}
+          onValueChange={() =&gt; {}}
+          highlight={code =&gt; highlight(code, languages.jsx)}
+          padding={10}
+          className=&quot;container__editor&quot;
+          style={{
+            fontFamily: '&quot;Fira code&quot;, &quot;Fira Mono&quot;, monospace',
+            fontSize: 14,
+          }}
+        /&gt;
+      &lt;/div&gt;
+    );
+  }
+};
+
+export default HappyBox;
+</code></pre>
+<h3 id="相关配置变更">相关配置变更</h3>
+<ul>
+<li>增加 <code>alias</code>别名，源码展示相对路径不够友好；</li>
+<li>antd 按需引入，即使是站点应用。</li>
+</ul>
+<p>新建<code>gatsby-node.js</code>，写入以下内容以开启<code>alias</code>：</p>
+<pre><code class="language-js">const path = require('path');
+
+exports.onCreateWebpackConfig = args =&gt; {
+  args.actions.setWebpackConfig({
+    resolve: {
+      modules: [path.resolve(__dirname, '../src'), 'node_modules'],
+      alias: {
+        'happy-ui/lib': path.resolve(__dirname, '../components/'),
+      },
+    },
+  });
+};
+</code></pre>
+<p><code>antd</code> 按需引入，安装依赖，并配置<code>gatsby-config.js</code>：</p>
+<pre><code class="language-bash">yarn add babel-plugin-import gatsby-plugin-import --dev
+</code></pre>
+<p><strong>gatsby-config.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  plugins: [
+    'gatsby-theme-docz',
+    'gatsby-plugin-less',
+    {
+      resolve: 'gatsby-plugin-import',
+      options: {
+        libraryName: 'antd',
+        style: 'css',
+      },
+    },
+  ],
+};
+</code></pre>
+<p><code>tsconfig.json</code> 忽略<code>demo</code>，避免组件库打包生成<code>types</code>时包含其中：</p>
+<p><strong>tsconfig.json</strong></p>
+<pre><code class="language-diff">{
+  &quot;compilerOptions&quot;: {
+    &quot;allowJs&quot;: false,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;commonjs&quot;,
+    &quot;jsx&quot;: &quot;react&quot;,
+    &quot;declaration&quot;: true,
+    &quot;outDir&quot;: &quot;types&quot;,
+    &quot;strict&quot;: true,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;allowSyntheticDefaultImports&quot;: true,
+    &quot;esModuleInterop&quot;: true
+  },
+  &quot;include&quot;: [&quot;components&quot;],
++ &quot;exclude&quot;: [&quot;components/**/demo&quot;]
+}
+</code></pre>
+<h3 id="改造相关文件">改造相关文件</h3>
+<p><strong>components/alert/demo/1-demo-basic.tsx</strong></p>
+<pre><code class="language-diff">- import Alert from '../alert';
++ import Alert from 'happy-ui/lib/alert';
+
+- import '../style';
++ import 'happy-ui/lib/alert/style';
+</code></pre>
+<p><strong>components/alert/index.mdx</strong></p>
+<pre><code class="language-diff">- import { Playground } from 'docz';
++ import { HappyBox } from '../../doc-comps';
+
++ import BasicDemoCode from '!raw-loader!./demo/1-demo-basic.tsx';
+
+...
+
+- &lt;Playground&gt;
+-   &lt;BasicDemo /&gt;
+- &lt;/Playground&gt;
+
++ &lt;HappyBox code={BasicDemoCode} title=&quot;基本用法&quot; desc=&quot;使用kind控制Alert类型&quot;&gt;
++  &lt;BasicDemo /&gt;
++ &lt;/HappyBox&gt;
+</code></pre>
+<h3 id="其他">其他</h3>
+<p><strong>.eslintignore</strong></p>
+<pre><code class="language-diff">+ doc-comps
++ demo
+</code></pre>
+<p><code>yarn start</code>卡住时尝试删除根目录<code>.docz</code>文件夹，而后重新执行命令。</p>
+<p>更多详见<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-2/dev-and-doc">仓库</a>。</p>
+<p>开发调试与文档编写结束，欢迎指点交流。</p>
+<p>To be Continued...</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[React 组件库搭建指南-准备工作]]></title>
+        <id>https://worldzhao.github.io/post/build-your-own-react-ui-library-1/</id>
+        <link href="https://worldzhao.github.io/post/build-your-own-react-ui-library-1/">
+        </link>
+        <updated>2019-12-18T04:12:25.000Z</updated>
+        <summary type="html"><![CDATA[<p>凡事预则立不预则废。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>凡事预则立不预则废。</p>
+<!--more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p>本系列文章主要是开发组件库<a href="https://github.com/worldzhao/dora-ui">dora-ui</a>过程中的一些经验总结，大致包含以下内容：</p>
+<ul>
+<li>prepare: 组件库前期开发准备工作。<code>eslint</code>/<code>commit lint</code>/<code>typescript</code>等等；</li>
+<li>dev: 使用<a href="https://github.com/doczjs/docz">docz</a>进行开发调试以及文档编写；</li>
+<li>build: <s><code>umd</code></s>/<code>cjs</code>/<code>esm</code>、types、polyfill 以及按需加载；</li>
+<li>deploy: 使用<a href="https://zeit.co/home">now</a>部署文档站点；</li>
+<li>publish: 发布组件库至<code>npm</code>；</li>
+<li>others: 组件测试</li>
+</ul>
+<p>注意：<code>.gitignore</code>、<code>.eslintignore</code>以及<code>.editorconfig</code>等更多文件可在<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-1/before-start">chapter-1</a>章节代码中获取。</p>
+<h2 id="初始化项目">初始化项目</h2>
+<p>新建一个<code>happy-ui</code>文件夹，并初始化。</p>
+<pre><code class="language-bash">mkdir happy-ui
+
+cd happy-ui
+
+npm init --y
+
+mkdir components &amp;&amp; cd components &amp;&amp; touch index.ts # 新建源码文件夹以及入口文件
+
+</code></pre>
+<h2 id="代码规范">代码规范</h2>
+<p>此处直接使用<a href="https://github.com/umijs/fabric">@umijs/fabric</a>的配置。</p>
+<pre><code class="language-bash">yarn add @umijs/fabric --dev
+
+yarn add prettier --dev # 因为@umijs/fabric没有将prettier作为依赖 所以我们需要手动安装
+</code></pre>
+<p><strong>.eslintrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  extends: [require.resolve('@umijs/fabric/dist/eslint')],
+};
+</code></pre>
+<p><strong>.prettierrc.js</strong></p>
+<pre><code class="language-js">const fabric = require('@umijs/fabric');
+
+module.exports = {
+  ...fabric.prettier,
+};
+</code></pre>
+<p><strong>.stylelintrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  extends: [require.resolve('@umijs/fabric/dist/stylelint')],
+};
+</code></pre>
+<p>想自行配置的同学可以参考以下文章：</p>
+<ul>
+<li><a href="https://medium.com/@dors718/linting-your-react-typescript-project-with-eslint-and-prettier-2423170c3d42">Linting Your React+Typescript Project with ESLint and Prettier!</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/62401626">使用 ESLint+Prettier 规范 React+Typescript 项目 </a></li>
+</ul>
+<h2 id="commit-lint">Commit Lint</h2>
+<p>进行<code>pre-commit</code>代码规范检测。</p>
+<pre><code class="language-bash">yarn add husky lint-staged --dev
+</code></pre>
+<p><strong>package.json</strong></p>
+<pre><code class="language-json">&quot;lint-staged&quot;: {
+  &quot;components/**/*.ts?(x)&quot;: [
+    &quot;prettier --write&quot;,
+    &quot;eslint --fix&quot;,
+    &quot;git add&quot;
+  ],
+  &quot;components/**/*.less&quot;: [
+    &quot;stylelint --syntax less --fix&quot;,
+    &quot;git add&quot;
+  ]
+},
+&quot;husky&quot;: {
+  &quot;hooks&quot;: {
+    &quot;pre-commit&quot;: &quot;lint-staged&quot;
+  }
+}
+</code></pre>
+<p>进行 Commit Message 检测。</p>
+<pre><code class="language-bash">yarn add @commitlint/cli @commitlint/config-conventional commitizen cz-conventional-changelog --dev
+</code></pre>
+<p>新增<code>.commitlintrc.js</code>写入以下内容</p>
+<pre><code class="language-js">module.exports = { extends: ['@commitlint/config-conventional'] };
+</code></pre>
+<p>package.json 写入以下内容：</p>
+<pre><code class="language-json">// ...
+&quot;scripts&quot;: {
+  &quot;commit&quot;: &quot;git-cz&quot;,
+}
+// ...
+&quot;husky&quot;: {
+  &quot;hooks&quot;: {
+    &quot;commit-msg&quot;: &quot;commitlint -E HUSKY_GIT_PARAMS&quot;,
+    &quot;pre-commit&quot;: &quot;lint-staged&quot;
+  }
+},
+&quot;config&quot;: {
+  &quot;commitizen&quot;: {
+    &quot;path&quot;: &quot;cz-conventional-changelog&quot;
+  }
+}
+</code></pre>
+<p>后续使用 <code>yarn commit</code> 替代 <code>git commit</code>生成规范的 Commit Message，当然为了效率你可以选择手写，但是要符合规范。</p>
+<h2 id="typescript">TypeScript</h2>
+<pre><code class="language-bash">yarn add typescript --dev
+</code></pre>
+<p>新建<code>tsconfig.json</code>并写入以下内容</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;allowJs&quot;: false,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;commonjs&quot;,
+    &quot;jsx&quot;: &quot;react&quot;,
+    &quot;declaration&quot;: true,
+    &quot;outDir&quot;: &quot;types&quot;,
+    &quot;strict&quot;: true,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;allowSyntheticDefaultImports&quot;: true,
+    &quot;esModuleInterop&quot;: true
+  },
+  &quot;include&quot;: [&quot;components&quot;]
+}
+</code></pre>
+<h2 id="测试">测试</h2>
+<p>在<code>components</code>文件夹下新建<code>alert</code>文件夹，目录结构如下：</p>
+<pre><code>alert
+    ├── alert.tsx           # 源文件
+    ├── index.ts            # 入口文件
+    ├── interface.ts        # 类型声明文件
+    └── style
+        ├── index.less      # 样式文件
+        └── index.ts        # 样式文件里为什么存在一个index.ts - 按需加载样式 管理样式依赖 后面章节会提到
+</code></pre>
+<p>安装<code>React</code>相关依赖：</p>
+<pre><code class="language-bash">yarn add react react-dom @types/react @types/react-dom --dev # 开发时依赖，宿主环境一定存在
+
+yarn add prop-types            # 运行时依赖，宿主环境可能不存在 安装本组件库时一起安装
+</code></pre>
+<blockquote>
+<p>此处依旧安装了<code>prop-types</code>这个库，因为无法保证宿主环境也使用<code>typescript</code>，从而能够进行静态检查，故使用<code>prop-types</code>保证<code>javascript</code>用户也能得到友好的运行时报错信息。</p>
+</blockquote>
+<p><strong>components/alert/interface.ts</strong></p>
+<pre><code class="language-js">export type Kind = 'info' | 'positive' | 'negative' | 'warning';
+export type KindMap = Record&lt;Kind, string&gt;;
+
+export interface AlertProps {
+  /**
+   * Set this to change alert kind
+   * @default info
+   */
+  kind?: 'info' | 'positive' | 'negative' | 'warning';
+}
+</code></pre>
+<p><strong>components/alert/alter.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import t from 'prop-types';
+
+import { AlertProps, KindMap } from './interface';
+
+const prefixCls = 'happy-alert';
+
+const kinds: KindMap = {
+  info: '#5352ED',
+  positive: '#2ED573',
+  negative: '#FF4757',
+  warning: '#FFA502',
+};
+
+const Alert: React.FC&lt;AlertProps&gt; = ({ children, kind = 'info', ...rest }) =&gt; (
+  &lt;div
+    className={prefixCls}
+    style={{
+      background: kinds[kind],
+    }}
+    {...rest}
+  &gt;
+    {children}
+  &lt;/div&gt;
+);
+
+Alert.propTypes = {
+  kind: t.oneOf(['info', 'positive', 'negative', 'warning']),
+};
+
+export default Alert;
+</code></pre>
+<p><strong>components/alert/index.ts</strong></p>
+<pre><code class="language-js">import Alert from './alert';
+
+export default Alert;
+
+export * from './interface';
+</code></pre>
+<p><strong>components/alert/style/index.less</strong></p>
+<pre><code class="language-less">@popupPrefix: happy-alert;
+
+.@{popupPrefix} {
+  padding: 20px;
+  background: white;
+  border-radius: 3;
+  color: white;
+}
+</code></pre>
+<p><strong>components/alert/style/index.ts</strong></p>
+<pre><code class="language-js">import './index.less';
+</code></pre>
+<p><strong>components/index.ts</strong></p>
+<pre><code class="language-js">export { default as Alert } from './alert';
+</code></pre>
+<blockquote>
+<p>此处组件参考的<code>docz</code>项目<code>typescript</code>以及<code>less</code>示例。</p>
+</blockquote>
+<p>git 一把梭，可以看到控制台已经进行钩子检测了。</p>
+<pre><code class="language-bash">git add .
+
+yarn commit  # 或 git commit -m'feat: chapter-1 准备工作'
+
+git push
+</code></pre>
+<p>准备工作结束，欢迎指点交流。</p>
+<p>To be Continued...</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[组件（库）开发相关总结]]></title>
+        <id>https://worldzhao.github.io/post/thinking-in-ui-library/</id>
+        <link href="https://worldzhao.github.io/post/thinking-in-ui-library/">
+        </link>
+        <updated>2019-10-13T16:00:00.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>本文首发于 2019-06-02<br><br>
+更新于 2019-10-14</p>
+</blockquote>
+<h1 id="组件库开发相关总结">组件（库）开发相关总结</h1>
+<h2 id="现状">现状</h2>
+<p>没有统一组件库，具体问题表现在以下几点：</p>
+<ol>
+<li>数量：可复用组件少，经常需要造轮子，并且造完没有抽出来以供其他项目复用；</li>
+<li>文档：文档缺失，更换开发者大概率需要摸瞎看源码，而且很可能 A 项目已经存在了解决方案，B 项目的开发者并不知道（或者知道了却根本无从下手拷贝），重复造轮子；</li>
+<li>维护：1 中的轮子复用依靠复制粘贴，可维护性差，出现问题多方同步修改。</li>
+</ol>
+<h2 id="可复用组件类型">可复用组件类型</h2>
+<ol start="4">
+<li>UI 组件：譬如弹层（Mask,SlideUp）、轻提示(Toast)以及输入框（Input）等组件（往往还存在一些兼容性问题）；</li>
+<li>业务组件：相同业务类型可复用的组件，譬如抽奖转盘组件；</li>
+<li>逻辑组件：譬如传送门（Portal）、切换器（Toggler）以及校验器（Validator）等可以用来优化代码结构并减少重复代码等无形态组件。</li>
+</ol>
+<h2 id="个人思考">个人思考</h2>
+<p>TO C 业务固然千奇百怪，但总有相似之处，如何与业务结合，分离可变与不可变，提高开发效率，正是工程师存在的意义（当然也需要产品【业务抽象】以及设计【ui 规范】同学的共同参与）。</p>
+<p>如果不同项目设计风格实在差异较大，也能够通过改改样式复用，而非重写一遍逻辑以及兼容性处理。</p>
+<p>既要有造轮子的能力（个人），也要有不造轮子的觉悟（团队）。</p>
+<h2 id="开发相关">开发相关</h2>
+<h3 id="模块处理">模块处理</h3>
+<p>通常我们一般会提供三种形式的模块：</p>
+<ul>
+<li>commonjs，简称 cjs。</li>
+<li>es module，简称 esm。便于应用打包时进行 tree-shaking。</li>
+<li>umd。供使用方外链使用，兼容 cjs 以及 amd。</li>
+</ul>
+<p>想要深入可以看<a href="https://github.com/ShowJoy-com/showjoy-blog/issues/39" title="import、require、export、module.exports 混合详解">import、require、export、module.exports 混合详解</a>这篇文章，此处只需要知道提供何种形式的模块以及何提供它们即可。</p>
+<h3 id="语法转译">语法转译</h3>
+<p>应用开发者通常会在 babel-loader 中 exclude 掉 node_modules，所以我们发出的包需要转成 es5 语法，避免在低版本浏览器上不兼容，可以使用 babel 以及 tsc 进行处理，现在 babel 也支持 typescript，建议直接使用 babel，还可以进行相关插件配置。</p>
+<p>在转译时，会存在一些辅助函数（helpers），这些函数式会在每一个文件生成，建议使用<a href="https://www.babeljs.cn/docs/babel-plugin-transform-runtime" title="`@babel/plugin-transform-runtime`"><code>@babel/plugin-transform-runtime</code></a>以及<code>@babel/runtime</code>将辅助函数抽离，可以减小打包体积的大小且可以复用宿主项目的<code>@babel/runtime</code>。</p>
+<h3 id="polyfill">Polyfill</h3>
+<ol>
+<li>不准使用<code>@babel/polyfill</code>污染宿主环境；</li>
+<li>可以使用<code>@babel/plugin-transform-runtime</code>结合<code>@babel/runtime-corejs3</code>，避免污染全局。<s>存在&quot;foobar&quot;.includes(&quot;foo&quot;) 的代码的话也是无能为力</s>(NOTE: Instance methods such as &quot;foobar&quot;.includes(&quot;foo&quot;) will only work when using corejs: 3.)；</li>
+<li>建议告知使用方依赖了哪些需要 polyfill 的 API，交由使用方自行配置 polyfill，否则可能会导致重复依赖或不同版本之间的冲突。</li>
+</ol>
+<p>如果宿主应用直接一个<code>import '@babel/polyfill'</code>，我们基本躺着就好。</p>
+<blockquote>
+<p>其实关于语法转译还有 polyfill 有一种名为<code>后编译</code>的操作。后编译：指的是应用依赖的 NPM 包并不需要在发布前编译，而是随着应用编译打包的时候一块编译。是一种性能优化手段，更多可参见<a href="https://juejin.im/post/59dc57f2f265da431d3ba2ef" title="webpack 应用编译优化之路">webpack 应用编译优化之路</a>。</p>
+</blockquote>
+<h3 id="样式处理">样式处理</h3>
+<p>先谈谈单组件开发，类似<code>react-slick</code>这种包含样式的典型组件。</p>
+<p>单组件样式处理和平时开发的应用样式处理较为类似，直接打包出一份 css 样式文件，交由使用方引入即可。</p>
+<p>当然也可以直接将 css 打入 js 文件，使用方无需引入。</p>
+<p>组件库（如 antd）则较为麻烦，因为要达到样式<strong>按需引入</strong>的效果。</p>
+<p>首先我们组件库的模块处理方式有以下 3 种：</p>
+<ul>
+<li>cjs 与 esm：只编译不打包（为了按需引入）、依赖外置</li>
+<li>umd：既编译也打包、部分依赖外置，部分依赖需要一同打包</li>
+</ul>
+<p>如果是 umd 形式，很明显和按需引入无缘，只需要通过<code>rollup</code>直接打包抽离 css 文件，交由使用方外链引入。</p>
+<p>而 cjs 以及 esm 的形式，要实现样式的按需引入，则有以下 4 种方式：</p>
+<ol>
+<li>
+<p>使用 sass/less/stylus 等预处理器开发，相应组件内部直接 import 相应(.scss/.less/.styl)文件。</p>
+<ul>
+<li>优点：1. 使用预处理器，开发体验佳；2. 使用方无需手动引入样式文件。</li>
+<li>缺点：1. 使用方需要关注预处理器适配问题。</li>
+</ul>
+</li>
+<li>
+<p>使用 css 开发，相应组件内部直接 import 样式文件。</p>
+<ul>
+<li>优点：1. 使用方不需要关注预处理器适配问题（css-loader 还是要的）；2. 使用方无需单独引入样式文件。</li>
+<li>缺点：1. 开发体验较差。</li>
+</ul>
+</li>
+<li>
+<p>antd 处理方案。使用 sass/less/stylus 等预处理器开发，相应组件不 import 样式文件，编写 style/index.js 管理组件间的样式依赖（sass/less/stylus），生成 style/css.js 管理组件间样式依赖（css），使用方根据宿主项目预处理器选择引入 style/index.js 或 style/css.js。</p>
+<ul>
+<li>优点：1. 使用预处理器开发体验佳；2. 使用方可以选择引入 css.js 样式，不用关心预处理器适配问题。</li>
+<li>缺点：1. 使用方需要单独引入 style/index.js 或 style/css.js（这一点可用 babel 插件解决）；2. 开发时需要编写一份 style/index.js 用于维护组件间的样式依赖；3. 打包时需要使用比较 tricky 的方式生成一份 style/css.js。</li>
+</ul>
+</li>
+<li>
+<p>css in js 方案。使用 styled-components，<a href="https://zhuanlan.zhihu.com/p/26878157" title="相关文章：精读《请停止 css-in-js 的行为》">相关文章：精读《请停止 css-in-js 的行为》</a>。</p>
+<ul>
+<li>优点：1. 开发体验较好；2. 使用方无需单独引入样式文件；3. 使用方无需关注预处理器适配问题。</li>
+<li>缺点：未成体系使用过，不了解。</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结">总结</h2>
+<ol>
+<li>不论是组件还是组件库，最好提供 cjs/esm/umd 等三种形式的模块供不同使用情景使用；</li>
+<li>组件库 esm/cjs 的形式需要达到按需引入， 推荐使用 gulp 结合 typescript 或 babel，只编译不打包，单独使用 tsc 或 babel 也可以，但考虑到需要处理样式，最好结合一个工具将流程串起来。umd 形式则直接使用 rollup 打包；</li>
+<li>组件库样式按需引入有上文四种方案，根据业务形式进行选择，需要进行权衡取舍；</li>
+<li>单组件不存在按需引入，直接使用 rollup 打包出 esm/cjs/umd 三种形式模块即可。</li>
+</ol>
+<h3 id="附录">附录：</h3>
+<pre><code>- [dora-ui](https://github.com/worldzhao/dora-ui &quot;dora-ui&quot;)
+- [react-component-template](https://github.com/worldzhao/react-componet-template &quot;react-component-template&quot;)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[基于React的权限系统设计]]></title>
+        <id>https://worldzhao.github.io/post/authorization-with-react-NSConflict-海秋-mac10.15.3/</id>
+        <link href="https://worldzhao.github.io/post/authorization-with-react-NSConflict-海秋-mac10.15.3/">
+        </link>
+        <updated>2019-09-25T11:52:53.000Z</updated>
+        <summary type="html"><![CDATA[<p>前端进行权限控制只是为了用户体验，对应的角色渲染对应的视图，真正的安全保障在后端。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>前端进行权限控制只是为了用户体验，对应的角色渲染对应的视图，真正的安全保障在后端。</p>
+<!-- more -->
+<h2 id="前言">前言</h2>
+<p>毕业之初，工作的主要内容便是开发一个后台管理系统，当时存在的一个现象是：</p>
+<p><strong>用户若记住了某个 url，直接浏览器输入，不论该用户是否拥有访问该页面的权限，均能进入页面。</strong></p>
+<p>若页面初始化时（<code>componentDidMount</code>）进行接口请求，后端会返回 403 的 HTTP 状态码，同时前端封装的<code>request.js</code>会对非业务异常进行相关处理，遇见 403，就重定向到无权限页面。</p>
+<p>若是页面初始化时不存在前后端交互，那就要等用户触发某些操作（比如表单提交）后才会触发上述流程。</p>
+<p>可以看到，安全保障是后端兜底的，那前端能做些什么呢？</p>
+<ol>
+<li>明确告知用户没有权限，避免用户误以为自己拥有该权限而进行操作（即使无法操作成功），直接跳转至无权限页面；</li>
+<li>拦截明确无权的请求，比如某些需要权限才能进行的操作入口（按钮 or 导航等）不对无权用户展示，其实本点包含上一点。</li>
+</ol>
+<p>最近也在看<code>Ant Design Pro</code>的权限相关处理，有必要进行一次总结。</p>
+<p>需要注意的是，本文虽然基于<code>Ant Design Pro</code>的权限设计思路，但并不是完全对其源码的解读（可能更偏向于 v1 的涉及思路，不涉及 umi）。</p>
+<p>如果有错误以及理解偏差请轻捶并指正，谢谢。</p>
+<h2 id="模块级别的权限处理">模块级别的权限处理</h2>
+<p>假设存在以下关系：</p>
+<table>
+<thead>
+<tr>
+<th>角色 role</th>
+<th>权限枚举值 authority</th>
+<th>逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通用户</td>
+<td>user</td>
+<td>不展示</td>
+</tr>
+<tr>
+<td>管理员</td>
+<td>admin</td>
+<td>展示“进入管理后台”按钮</td>
+</tr>
+</tbody>
+</table>
+<p>某页面上存在一个文案为“进入管理后台”的按钮，只对管理员展示，让我们实现一下。</p>
+<h3 id="简单实现">简单实现</h3>
+<pre><code class="language-jsx">// currentAuthority 为当前用户权限枚举值
+
+const AdminBtn = ({ currentAuthority }) =&gt; {
+  if (&quot;admin&quot; === currentAuthority) {
+    return &lt;button&gt;进入管理后台&lt;/button&gt;;
+  }
+  return null;
+};
+</code></pre>
+<p>好吧，简单至极。</p>
+<p>权限控制就是<code>if else</code>，实现功能并不复杂，大不了每个页面|模块|按钮涉及到的处理都写一遍判断就是了，总能实现需求的。</p>
+<p>不过，现在只是一个页面中的一个按钮而已，我们还会碰到许多“某（几）个页面存在某个 xxx，只对 xxx（或/以及 xxx） 展示”的场景。</p>
+<p>所以，还能做的更好一些。</p>
+<p>下面来封装一个最基本的权限管理组件<code>Authorized</code>。</p>
+<h3 id="组件封装-authorized">组件封装-Authorized</h3>
+<p>期望调用形式如下：</p>
+<pre><code class="language-jsx">&lt;Authorized
+  currentAuthority={currentAuthority}
+  authority={&quot;admin&quot;}
+  noMatch={null}
+&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>api 如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>类型</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>children</td>
+<td>正常渲染的元素，权限判断通过时展示</td>
+<td></td>
+<td>ReactNode</td>
+</tr>
+<tr>
+<td>currentAuthority</td>
+<td>当前权限</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>authority</td>
+<td>准入权限</td>
+<td>string/string[]</td>
+<td></td>
+</tr>
+<tr>
+<td>noMatch</td>
+<td>未通过权限判断时展示</td>
+<td>ReactNode</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>currentAuthority</code>这个属性没有必要每次调用都手动传递一遍，此处假设用户信息是通过 <code>redux</code> 获取并存放在全局 <code>store</code> 中。</p>
+<p><em>注意：我们当然也可以将用户信息挂在 <code>window</code> 下或者 <code>localStorage</code> 中，但很重要的一点是，绝大部分场景我们都是通过接口异步获取的数据，这点至关重要。如果是 <code>html</code> 托管在后端或是 <code>ssr</code>的情况下，服务端直接注入了用户信息，那真是再好不过了。</em></p>
+<p>新建<code>src/components/Authorized/Authorized.jsx</code>实现如下：</p>
+<pre><code class="language-jsx">import { connect } from &quot;react-redux&quot;;
+
+function Authorized(props) {
+  const { children, userInfo, authority, noMatch } = props;
+  const { currentAuthority } = userInfo || {};
+  if (!authority) return children;
+  const _authority = Array.isArray(authority) ? authority : [authority];
+  if (_authority.includes(currentAuthority)) return children;
+  return noMatch;
+}
+
+export default connect(store =&gt; ({ userInfo: store.common.userInfo }))(
+  Authorized
+);
+</code></pre>
+<p>现在我们无需手动传递<code>currentAuthority</code>：</p>
+<pre><code class="language-jsx">&lt;Authorized authority={&quot;admin&quot;} noMatch={null}&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>✨ 很好，我们现在迈出了第一步。</p>
+<blockquote>
+<p>在<code>Ant Design Pro</code>中，对于<code>currentAuthority</code>（当前权限）与<code>authority</code>（准入权限）的匹配功能，定义了一个<code>checkPermissions</code>方法，提供了各种形式的匹配，本文只讨论<code>authority</code>为数组（多个准入权限）或字符串（单个准入权限），<code>currentAuthority</code>为字符串（当前角色只有一种权限）的情况。</p>
+</blockquote>
+<h2 id="页面级别的权限处理">页面级别的权限处理</h2>
+<p><strong>页面就是放在<code>Route</code>组件下的模块。</strong></p>
+<p>知道这一点后，我们很轻松的可以写出如下代码：</p>
+<p>新建<code>src/router/index.jsx</code>，当用户角色与路由不匹配时，渲染<code>Redirect</code>组件用于重定向。</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { BrowserRouter, Route, Switch } from &quot;react-router-dom&quot;;
+import NormalPage from &quot;@/views/NormalPage&quot;; /* 公开页面 */
+import UserPage from &quot;@/views/UserPage&quot;; /* 普通用户和管理员均可访问的页面*/
+import AdminPage from &quot;@/views/AdminPage&quot;; /* 管理员才可访问的页面*/
+import Authorized from &quot;@/components/Authorized&quot;;
+
+// Layout就是一个布局组件，写一些公用头部底部啥的
+
+function Router() {
+  &lt;BrowserRouter&gt;
+    &lt;Layout&gt;
+      &lt;Switch&gt;
+        &lt;Route exact path=&quot;/&quot; component={NormalPage} /&gt;
+
+        &lt;Authorized
+          authority={[&quot;admin&quot;, &quot;user&quot;]}
+          noMatch={
+            &lt;Route
+              path=&quot;/user-page&quot;
+              render={() =&gt; &lt;Redirect to={{ pathname: &quot;/login&quot; }} /&gt;}
+            /&gt;
+          }
+        &gt;
+          &lt;Route path=&quot;/user-page&quot; component={UserPage} /&gt;
+        &lt;/Authorized&gt;
+
+        &lt;Authorized
+          authority={&quot;admin&quot;}
+          noMatch={
+            &lt;Route
+              path=&quot;/admin-page&quot;
+              render={() =&gt; &lt;Redirect to={{ pathname: &quot;/403&quot; }} /&gt;}
+            /&gt;
+          }
+        &gt;
+          &lt;Route path=&quot;/admin-page&quot; component={AdminPage} /&gt;
+        &lt;/Authorized&gt;
+      &lt;/Switch&gt;
+    &lt;/Layout&gt;
+  &lt;/BrowserRouter&gt;;
+}
+
+export default Router;
+</code></pre>
+<p>这段代码是不 work 的，因为当前权限信息是通过接口异步获取的，此时<code>Authorized</code>组件获取不到当前权限（<code>currentAuthority</code>），倘若直接通过 url 访问<code>/user-page</code>或<code>/admin-page</code>，不论用户身份是否符合，请求结果未回来，都会被重定向到<code>/login</code>或<code>/403</code>，这个问题后面再谈。</p>
+<p>先优化一下我们的代码。</p>
+<h3 id="抽离路由配置">抽离路由配置</h3>
+<p>路由配置相关 jsx 内容太多了，页面数量过多就不好维护了，可读性也大大降低，我们可以将路由配置抽离出来。</p>
+<p>新建<code>src/router/router.config.js</code>，专门用于存放路由相关配置信息。</p>
+<pre><code class="language-jsx">import NormalPage from &quot;@/views/NormalPage&quot;;
+import UserPage from &quot;@/views/UserPage&quot;;
+import AdminPage from &quot;@/views/AdminPage&quot;;
+
+export default [
+  {
+    exact: true,
+    path: &quot;/&quot;,
+    component: NormalPage
+  },
+  {
+    path: &quot;/user-page&quot;,
+    component: UserPage,
+    authority: [&quot;user&quot;, &quot;admin&quot;],
+    redirectPath: &quot;/login&quot;
+  },
+  {
+    path: &quot;/admin-page&quot;,
+    component: AdminPage,
+    authority: [&quot;admin&quot;],
+    redirectPath: &quot;/403&quot;
+  }
+];
+</code></pre>
+<h3 id="组件封装-authorizedroute">组件封装-AuthorizedRoute</h3>
+<p>接下来基于<code>Authorized</code>组件对<code>Route</code>组件进行二次封装。</p>
+<p>新建<code>src/components/Authorized/AuthorizedRoute.jsx</code>。</p>
+<p>实现如下：</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { Route } from &quot;react-router-dom&quot;;
+import Authorized from &quot;./Authorized&quot;;
+
+function AuthorizedRoute({
+  component: Component,
+  render,
+  authority,
+  redirectPath,
+  ...rest
+}) {
+  return (
+    &lt;Authorized
+      authority={authority}
+      noMatch={
+        &lt;Route
+          {...rest}
+          render={() =&gt; &lt;Redirect to={{ pathname: redirectPath }} /&gt;}
+        /&gt;
+      }
+    &gt;
+      &lt;Route
+        {...rest}
+        render={props =&gt; (Component ? &lt;Component {...props} /&gt; : render(props))}
+      /&gt;
+    &lt;/Authorized&gt;
+  );
+}
+
+export default AuthorizedRoute;
+</code></pre>
+<h3 id="优化后">优化后</h3>
+<p>现在重写我们的 Router 组件。</p>
+<pre><code class="language-jsx">import React from &quot;react&quot;;
+import { BrowserRouter, Route, Switch } from &quot;react-router-dom&quot;;
+import AuthorizedRoute from &quot;@/components/AuthorizedRoute&quot;;
+import routeConfig from &quot;./router.config.js&quot;;
+
+function Router() {
+  &lt;BrowserRouter&gt;
+    &lt;Layout&gt;
+      &lt;Switch&gt;
+        {routeConfig.map(rc =&gt; {
+          const { path, component, authority, redirectPath, ...rest } = rc;
+          return (
+            &lt;AuthorizedRoute
+              key={path}
+              path={path}
+              component={component}
+              authority={authority}
+              redirectPath={redirectPath}
+              {...rest}
+            /&gt;
+          );
+        })}
+      &lt;/Switch&gt;
+    &lt;/Layout&gt;
+  &lt;/BrowserRouter&gt;;
+}
+
+export default Router;
+</code></pre>
+<p>心情舒畅了许多。</p>
+<p>可是还留着一个问题呢——由于用户权限信息是异步获取的，在权限信息数据返回之前，<code>AuthorizedRoute</code>组件就将用户推到了<code>redirectPath</code>。</p>
+<blockquote>
+<p>其实<code>Ant Design Pro</code> v4 版本就有存在这个问题，相较于 v2 的<code>@/pages/Authorized</code>组件从<code>localStorage</code>中获取权限信息，v4 改为从 redux 中获取（redux 中的数据则是通过接口获取），和本文比较类似。具体可见<a href="https://github.com/ant-design/ant-design-pro/pull/5088">此次 PR</a>。</p>
+</blockquote>
+<h3 id="异步获取权限">异步获取权限</h3>
+<p>解决思路很简单：保证相关权限组件挂载时，redux 中已经存在用户权限信息。换句话说，接口数据返回后，再进行相关渲染。</p>
+<p>我们可以在 Layout 中进行用户信息的获取，数据获取完毕后渲染<code>children</code>。</p>
+<h2 id="结语">结语</h2>
+<p><code>Ant Design Pro</code>从 v2 开始底层基于 <code>umi</code>实现，通过路由配置的 <code>Routes</code> 属性，结合<code>@/pages/Authorized</code>组件（该组件基于<code>@/utils/Authorized</code>组件——<code>@/components/Authorized</code>的二次封装，注入<code>currentAuthority</code>（当前权限））实现主要流程。 同时，权限信息存放于<code>localStorage</code>，通过<code>@/utils/authority.js</code>提供的工具方法进行权限 <code>get</code> 以及 <code>set</code>。</p>
+<p>仔细看了下<code>@/components/Authorized</code>文件下的内容，发现还提供了<code>AuthorizedRoute</code>组件，但是并未在代码中使用（取而代之的是<code>@/pages/Authorized</code>组件），翻了 issue 才了解到，v1 没有基于<code>umi</code>的时候，是基于<code>AuthorizedRoute</code>进行路由权限管理的，升级了之后，<code>AuthorizedRoute</code>则并没有用于路由权限管理。</p>
+<p>涉及到的相关文件比较多（components/pages/utils），v4 的文档又有些缺失，看源码的话，若没有理清版本之间差异，着实会有些费力。</p>
+<p>本文在权限信息获取上，通过接口异步获取，存放至 redux（和 v4 版本有些类似，见<code>@/pages/Authorized</code>以及<code>@/layouts/SecurityLayout</code>）。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[基于React的权限系统设计]]></title>
+        <id>https://worldzhao.github.io/post/authorization-with-react/</id>
+        <link href="https://worldzhao.github.io/post/authorization-with-react/">
+        </link>
+        <updated>2019-09-25T11:52:53.000Z</updated>
+        <summary type="html"><![CDATA[<p>前端进行权限控制只是为了用户体验，对应的角色渲染对应的视图，真正的安全保障在后端。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>前端进行权限控制只是为了用户体验，对应的角色渲染对应的视图，真正的安全保障在后端。</p>
+<!-- more -->
+<h2 id="前言">前言</h2>
+<p>毕业之初，工作的主要内容便是开发一个后台管理系统，当时存在的一个现象是：</p>
+<p><strong>用户若记住了某个 url，直接浏览器输入，不论该用户是否拥有访问该页面的权限，均能进入页面。</strong></p>
+<p>若页面初始化时（<code>componentDidMount</code>）进行接口请求，后端会返回 403 的 HTTP 状态码，同时前端封装的<code>request.js</code>会对非业务异常进行相关处理，遇见 403，就重定向到无权限页面。</p>
+<p>若是页面初始化时不存在前后端交互，那就要等用户触发某些操作（比如表单提交）后才会触发上述流程。</p>
+<p>可以看到，安全保障是后端兜底的，那前端能做些什么呢？</p>
+<ol>
+<li>明确告知用户没有权限，避免用户误以为自己拥有该权限而进行操作（即使无法操作成功），直接跳转至无权限页面；</li>
+<li>拦截明确无权的请求，比如某些需要权限才能进行的操作入口（按钮 or 导航等）不对无权用户展示，其实本点包含上一点。</li>
+</ol>
+<p>最近也在看<code>Ant Design Pro</code>的权限相关处理，有必要进行一次总结。</p>
+<p>需要注意的是，本文虽然基于<code>Ant Design Pro</code>的权限设计思路，但并不是完全对其源码的解读（可能更偏向于 v1 的涉及思路，不涉及 umi）。</p>
+<p>如果有错误以及理解偏差请轻捶并指正，谢谢。</p>
+<h2 id="模块级别的权限处理">模块级别的权限处理</h2>
+<p>假设存在以下关系：</p>
+<table>
+<thead>
+<tr>
+<th>角色 role</th>
+<th>权限枚举值 authority</th>
+<th>逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通用户</td>
+<td>user</td>
+<td>不展示</td>
+</tr>
+<tr>
+<td>管理员</td>
+<td>admin</td>
+<td>展示“进入管理后台”按钮</td>
+</tr>
+</tbody>
+</table>
+<p>某页面上存在一个文案为“进入管理后台”的按钮，只对管理员展示，让我们实现一下。</p>
+<h3 id="简单实现">简单实现</h3>
+<pre><code class="language-jsx">// currentAuthority 为当前用户权限枚举值
+
+const AdminBtn = ({ currentAuthority }) =&gt; {
+  if ('admin' === currentAuthority) {
+    return &lt;button&gt;进入管理后台&lt;/button&gt;;
+  }
+  return null;
+};
+</code></pre>
+<p>好吧，简单至极。</p>
+<p>权限控制就是<code>if else</code>，实现功能并不复杂，大不了每个页面|模块|按钮涉及到的处理都写一遍判断就是了，总能实现需求的。</p>
+<p>不过，现在只是一个页面中的一个按钮而已，我们还会碰到许多“某（几）个页面存在某个 xxx，只对 xxx（或/以及 xxx） 展示”的场景。</p>
+<p>所以，还能做的更好一些。</p>
+<p>下面来封装一个最基本的权限管理组件<code>Authorized</code>。</p>
+<h3 id="组件封装-authorized">组件封装-Authorized</h3>
+<p>期望调用形式如下：</p>
+<pre><code class="language-jsx">&lt;Authorized currentAuthority={currentAuthority} authority={'admin'} noMatch={null}&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>api 如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>类型</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>children</td>
+<td>正常渲染的元素，权限判断通过时展示</td>
+<td></td>
+<td>ReactNode</td>
+</tr>
+<tr>
+<td>currentAuthority</td>
+<td>当前权限</td>
+<td>string</td>
+<td></td>
+</tr>
+<tr>
+<td>authority</td>
+<td>准入权限</td>
+<td>string/string[]</td>
+<td></td>
+</tr>
+<tr>
+<td>noMatch</td>
+<td>未通过权限判断时展示</td>
+<td>ReactNode</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><code>currentAuthority</code>这个属性没有必要每次调用都手动传递一遍，此处假设用户信息是通过 <code>redux</code> 获取并存放在全局 <code>store</code> 中。</p>
+<p><em>注意：我们当然也可以将用户信息挂在 <code>window</code> 下或者 <code>localStorage</code> 中，但很重要的一点是，绝大部分场景我们都是通过接口异步获取的数据，这点至关重要。如果是 <code>html</code> 托管在后端或是 <code>ssr</code>的情况下，服务端直接注入了用户信息，那真是再好不过了。</em></p>
+<p>新建<code>src/components/Authorized/Authorized.jsx</code>实现如下：</p>
+<pre><code class="language-jsx">import { connect } from 'react-redux';
+
+function Authorized(props) {
+  const { children, userInfo, authority, noMatch } = props;
+  const { currentAuthority } = userInfo || {};
+  if (!authority) return children;
+  const _authority = Array.isArray(authority) ? authority : [authority];
+  if (_authority.includes(currentAuthority)) return children;
+  return noMatch;
+}
+
+export default connect(store =&gt; ({ userInfo: store.common.userInfo }))(Authorized);
+</code></pre>
+<p>现在我们无需手动传递<code>currentAuthority</code>：</p>
+<pre><code class="language-jsx">&lt;Authorized authority={'admin'} noMatch={null}&gt;
+  &lt;button&gt;进入管理后台&lt;/button&gt;
+&lt;/Authorized&gt;
+</code></pre>
+<p>✨ 很好，我们现在迈出了第一步。</p>
+<blockquote>
+<p>在<code>Ant Design Pro</code>中，对于<code>currentAuthority</code>（当前权限）与<code>authority</code>（准入权限）的匹配功能，定义了一个<code>checkPermissions</code>方法，提供了各种形式的匹配，本文只讨论<code>authority</code>为数组（多个准入权限）或字符串（单个准入权限），<code>currentAuthority</code>为字符串（当前角色只有一种权限）的情况。</p>
+</blockquote>
+<h2 id="页面级别的权限处理">页面级别的权限处理</h2>
+<p><strong>页面就是放在<code>Route</code>组件下的模块。</strong></p>
+<p>知道这一点后，我们很轻松的可以写出如下代码：</p>
+<p>新建<code>src/router/index.jsx</code>，当用户角色与路由不匹配时，渲染<code>Redirect</code>组件用于重定向。</p>
+<pre><code class="language-jsx">import React from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import NormalPage from '@/views/NormalPage'; /* 公开页面 */
+import UserPage from '@/views/UserPage'; /* 普通用户和管理员均可访问的页面*/
+import AdminPage from '@/views/AdminPage'; /* 管理员才可访问的页面*/
+import Authorized from '@/components/Authorized';
+
+// Layout就是一个布局组件，写一些公用头部底部啥的
+
+function Router() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Layout&gt;
+        &lt;Switch&gt;
+          &lt;Route exact path='/' component={NormalPage} /&gt;
+
+          &lt;Authorized
+            authority={['admin', 'user']}
+            noMatch={
+              &lt;Route path='/user-page' render={() =&gt; &lt;Redirect to={{ pathname: '/login' }} /&gt;} /&gt;
+            }
+          &gt;
+            &lt;Route path='/user-page' component={UserPage} /&gt;
+          &lt;/Authorized&gt;
+
+          &lt;Authorized
+            authority={'admin'}
+            noMatch={
+              &lt;Route path='/admin-page' render={() =&gt; &lt;Redirect to={{ pathname: '/403' }} /&gt;} /&gt;
+            }
+          &gt;
+            &lt;Route path='/admin-page' component={AdminPage} /&gt;
+          &lt;/Authorized&gt;
+        &lt;/Switch&gt;
+      &lt;/Layout&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default Router;
+</code></pre>
+<p>这段代码是不 work 的，因为当前权限信息是通过接口异步获取的，此时<code>Authorized</code>组件获取不到当前权限（<code>currentAuthority</code>），倘若直接通过 url 访问<code>/user-page</code>或<code>/admin-page</code>，不论用户身份是否符合，请求结果未回来，都会被重定向到<code>/login</code>或<code>/403</code>，这个问题后面再谈。</p>
+<p>先优化一下我们的代码。</p>
+<h3 id="抽离路由配置">抽离路由配置</h3>
+<p>路由配置相关 jsx 内容太多了，页面数量过多就不好维护了，可读性也大大降低，我们可以将路由配置抽离出来。</p>
+<p>新建<code>src/router/router.config.js</code>，专门用于存放路由相关配置信息。</p>
+<pre><code class="language-jsx">import NormalPage from '@/views/NormalPage';
+import UserPage from '@/views/UserPage';
+import AdminPage from '@/views/AdminPage';
+
+export default [
+  {
+    exact: true,
+    path: '/',
+    component: NormalPage,
+  },
+  {
+    path: '/user-page',
+    component: UserPage,
+    authority: ['user', 'admin'],
+    redirectPath: '/login',
+  },
+  {
+    path: '/admin-page',
+    component: AdminPage,
+    authority: ['admin'],
+    redirectPath: '/403',
+  },
+];
+</code></pre>
+<h3 id="组件封装-authorizedroute">组件封装-AuthorizedRoute</h3>
+<p>接下来基于<code>Authorized</code>组件对<code>Route</code>组件进行二次封装。</p>
+<p>新建<code>src/components/Authorized/AuthorizedRoute.jsx</code>。</p>
+<p>实现如下：</p>
+<pre><code class="language-jsx">import React from 'react';
+import { Route } from 'react-router-dom';
+import Authorized from './Authorized';
+
+function AuthorizedRoute({ component: Component, render, authority, redirectPath, ...rest }) {
+  return (
+    &lt;Authorized
+      authority={authority}
+      noMatch={&lt;Route {...rest} render={() =&gt; &lt;Redirect to={{ pathname: redirectPath }} /&gt;} /&gt;}
+    &gt;
+      &lt;Route {...rest} render={props =&gt; (Component ? &lt;Component {...props} /&gt; : render(props))} /&gt;
+    &lt;/Authorized&gt;
+  );
+}
+
+export default AuthorizedRoute;
+</code></pre>
+<h3 id="优化后">优化后</h3>
+<p>现在重写我们的 Router 组件。</p>
+<pre><code class="language-jsx">import React from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import AuthorizedRoute from '@/components/AuthorizedRoute';
+import routeConfig from './router.config.js';
+
+function Router() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Layout&gt;
+        &lt;Switch&gt;
+          {routeConfig.map(rc =&gt; {
+            const { path, component, authority, redirectPath, ...rest } = rc;
+            return (
+              &lt;AuthorizedRoute
+                key={path}
+                path={path}
+                component={component}
+                authority={authority}
+                redirectPath={redirectPath}
+                {...rest}
+              /&gt;
+            );
+          })}
+        &lt;/Switch&gt;
+      &lt;/Layout&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default Router;
+</code></pre>
+<p>心情舒畅了许多。</p>
+<p>可是还留着一个问题呢——由于用户权限信息是异步获取的，在权限信息数据返回之前，<code>AuthorizedRoute</code>组件就将用户推到了<code>redirectPath</code>。</p>
+<blockquote>
+<p>其实<code>Ant Design Pro</code> v4 版本就有存在这个问题，相较于 v2 的<code>@/pages/Authorized</code>组件从<code>localStorage</code>中获取权限信息，v4 改为从 redux 中获取（redux 中的数据则是通过接口获取），和本文比较类似。具体可见<a href="https://github.com/ant-design/ant-design-pro/pull/5088">此次 PR</a>。</p>
+</blockquote>
+<h3 id="异步获取权限">异步获取权限</h3>
+<p>解决思路很简单：保证相关权限组件挂载时，redux 中已经存在用户权限信息。换句话说，接口数据返回后，再进行相关渲染。</p>
+<p>我们可以在 Layout 中进行用户信息的获取，数据获取完毕后渲染<code>children</code>。</p>
+<h2 id="结语">结语</h2>
+<p><code>Ant Design Pro</code>从 v2 开始底层基于 <code>umi</code>实现，通过路由配置的 <code>Routes</code> 属性，结合<code>@/pages/Authorized</code>组件（该组件基于<code>@/utils/Authorized</code>组件——<code>@/components/Authorized</code>的二次封装，注入<code>currentAuthority</code>（当前权限））实现主要流程。 同时，权限信息存放于<code>localStorage</code>，通过<code>@/utils/authority.js</code>提供的工具方法进行权限 <code>get</code> 以及 <code>set</code>。</p>
+<p>仔细看了下<code>@/components/Authorized</code>文件下的内容，发现还提供了<code>AuthorizedRoute</code>组件，但是并未在代码中使用（取而代之的是<code>@/pages/Authorized</code>组件），翻了 issue 才了解到，v1 没有基于<code>umi</code>的时候，是基于<code>AuthorizedRoute</code>进行路由权限管理的，升级了之后，<code>AuthorizedRoute</code>则并没有用于路由权限管理。</p>
+<p>涉及到的相关文件比较多（components/pages/utils），v4 的文档又有些缺失，看源码的话，若没有理清版本之间差异，着实会有些费力。</p>
+<p>本文在权限信息获取上，通过接口异步获取，存放至 redux（和 v4 版本有些类似，见<code>@/pages/Authorized</code>以及<code>@/layouts/SecurityLayout</code>）。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[关于前端项目部署发布的相关思考]]></title>
+        <id>https://worldzhao.github.io/post/thinking-in-deploy/</id>
+        <link href="https://worldzhao.github.io/post/thinking-in-deploy/">
+        </link>
+        <updated>2019-07-20T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p>习惯了前后端完全分离的开发模式，一时难以接受前端 html 托管在后端这种操作。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>习惯了前后端完全分离的开发模式，一时难以接受前端 html 托管在后端这种操作。</p>
+<!-- more -->
+<h2 id="公司前端项目部署现状">公司前端项目部署现状</h2>
+<p>将 html 托管给后端，前端只发静态资源（<code>index.js</code>/<code>index.css</code>），然后通过某种方式去刷 html 的静态资源版本号（?version=时间戳或递增数字）。</p>
+<p>原因：HTML 文件不能放在 CDN 上，会被缓存。</p>
+<h2 id="比较好的实践">比较好的实践</h2>
+<p>我们先来看看前端项目部署的比较好实践是什么？</p>
+<p>出处：<a href="https://www.zhihu.com/question/20790576/answer/32602154">大公司里怎样开发和部署前端代码？</a></p>
+<p>可以总结出以下四点：</p>
+<blockquote>
+<ol>
+<li>配置超长时间的本地缓存 —— 节省带宽，提高性能</li>
+<li>采用内容摘要作为缓存更新依据 —— 精确的缓存控制</li>
+<li>静态资源 CDN 部署 —— 优化网络请求</li>
+<li>变更资源发布路径实现非覆盖式发布 —— 平滑升级</li>
+</ol>
+</blockquote>
+<p>上面文章可是本文的基石，虽然已经过去了 5 年。</p>
+<h2 id="公司部署方案优缺点">公司部署方案优缺点</h2>
+<p>前端只发布静态资源，只要 html 引用的资源不刷版本号，请求的都是 CDN 上缓存的资源（如果 CDN 有缓存的话）。</p>
+<p><strong>（强行）优点</strong></p>
+<ol>
+<li>覆盖发布。服务器不会有大量静态资源文件积累；</li>
+<li>后端可以向 HTML 内注入一些内容，比如用户信息。</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>粗粒度的版本号刷新策略，导致根据文件内容变化选择性更新缓存（对应实践 2）无法实施；</li>
+<li>html 托管在后端，导致一定程度的前后端未分离（譬如打包策略变更需要后端配合更改 html）。</li>
+</ol>
+<h2 id="照猫画虎">照猫画虎</h2>
+<p>那么按照上面的实践，如何处理比较好呢？</p>
+<ol>
+<li>前端每次基于 content hash（依赖内容摘要算法） 打包生成静态资源文件名(例如 <code>aaa.[contenthash].js</code> 与 <code>bbb.[contenthash].css</code>)，文件名是否变化取决于文件内容是否变化；</li>
+<li>使用前端的 html，前端可在打包过程中自动注入静态资源文件地址；</li>
+<li>静态资源先发布，html 后发布。</li>
+</ol>
+<p>再来看看上面的缺点是否被解决了？</p>
+<p><em><code>1. 粗粒度的版本号刷新策略，导致根据文件内容变化选择性更新缓存（对应实践 2）无法实施</code></em></p>
+<p><strong>文件名是基于 content hash（依赖内容摘要算法）生成，在发布新的 html 后，若文件内容未发生变化，文件名不会发生改变，依旧使用本地强缓存，若文件内容变化，文件名会发生改变，会请求新的静态资源，达到了选择性更新缓存的效果。</strong></p>
+<p><em><code>2. 覆盖发布。在 html 刷新版本号前，新用户和老用户可能看到的页面版本（功能）不同</code></em></p>
+<p><strong>非覆盖式发布，文件名[contenthash]不同不会覆盖，旧的静态资源文件依旧存在。</strong></p>
+<p><strong>新的静态资源发布后，新的 html 未发布前这个时间段内，老用户请求到旧的 html，请求的是旧的静态资源，文件名(或者说文件路径)未变化，依旧使用本地强缓存，新用户请求到旧的 html，没有本地缓存，但旧的静态资源未被覆盖，依旧可以请求到，此时看到的都是旧版本内容。</strong></p>
+<p><strong>新的 html 发布后，老用户浏览器会选择性更新本地缓存，新用户直接请求新的静态资源，看到的都是新版本内容。</strong></p>
+<p><em><code>3. html 托管在后端，导致一定程度的前后端未分离（譬如打包策略变更需要后端配合更改 html）</code></em></p>
+<p><strong>html 完全由前端控制，后端只需要提供 API 即可，前后端真正意义上的完全分离。</strong></p>
+<p>缺点：</p>
+<ul>
+<li>发生变化的文件 hash 值不同，非覆盖发布，可能造成服务器上无用的静态资源越来越多，但这是可以解决的</li>
+<li>后端不能往 html 注入一些内容</li>
+</ul>
+<h2 id="结语">结语</h2>
+<p>项目上线需要配置 Nginx ，流程上还有可以优化的地方。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[双月谈-试用期思考]]></title>
+        <id>https://worldzhao.github.io/post/probation-period-in-xmly/</id>
+        <link href="https://worldzhao.github.io/post/probation-period-in-xmly/">
+        </link>
+        <updated>2019-07-06T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p>到新公司接近 2 个月了（4.29-7.07），这两个月里也许是我毕业一年思考最多的两个月，的确是有必要进行总结。当然，纯属个人看法。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>到新公司接近 2 个月了（4.29-7.07），这两个月里也许是我毕业一年思考最多的两个月，的确是有必要进行总结。当然，纯属个人看法。</p>
+<!-- more -->
+<h2 id="组织结构">组织结构</h2>
+<h3 id="背景">背景</h3>
+<p>我所在的事业部成立于去年八月，属于前台事业部，也就是所谓的“创业部门”，极少同事抽调于其他团队，大部分为新人，最长任职时间不到一年（此处只谈技术相关），以下“业务团队”字样指代我所在的部门，因为我并不了解其他部门。</p>
+<p>部门老大也就是技术老大，下面有若干前端与后端划分在不同的项目，但没有名义上的前端负责人与后端负责人，即使职称不一样，都是一线开发。</p>
+<p>公司内部是有前端架构团队的，提供一些基础类库以及相关服务，譬如 jssdk、埋点、脚手架以及发布工具。</p>
+<h3 id="问题">问题</h3>
+<p>这样的组织架构不少见，上家公司也是基本如此，但存在 2 点差异：</p>
+<ol>
+<li>得益于老东家规模以及业务类型，架构组能够较为容易的推行内部工具；</li>
+<li>业务线前后端是有负责人在的，可以理解为小组长，有一定的话语权。</li>
+</ol>
+<p>这 2 点差异导致了 3 点问题：</p>
+<ol>
+<li>选型不统一，已有项目经验难复用。公司规模大，架构组对业务团队基本没有约束力，导致业务团队除了一些公共基础服务必须使用内部工具，其他技术选型取决于具体项目的第一个开发者（大部分时候一言难尽），换一个项目可能要花一点时间适应一下，backup 困难；</li>
+<li>缺少规范，协作困难。项目内没有代码规范，eslint 存在感极低，缩进、空格混乱且没有<code>precommit lint</code>。说服所有人很难，而协作是可能与所有人发生的。（“每个人风格不一样，很难统一的”，我真的很讨厌这句话，那要团队做什么？规范就是让 <code>1+1&gt;2</code> 的）。</li>
+<li>一些好的实践难以推动。想推 typescript？看你有没有机会成为某一个新项目的第一个开发者吧，并且说服与你协作的同事（如果有的话）。</li>
+</ol>
+<h3 id="思考">思考</h3>
+<p>可能组织结构间接导致了下面我要谈的很多问题吧。</p>
+<p>当然，我资历尚浅，可能有更深的考量是我所不知晓的。可能我所在的部门就是不追求这些东西，抓紧时间完成需求就好了，这些并不重要，其他部门并不存在这些问题（感觉可能性不大），但是部门老大经常强调质量，我认为还是落地方面有些问题。</p>
+<h2 id="组件库">组件库</h2>
+<h3 id="现状">现状</h3>
+<p>没有统一组件库，具体问题表现在以下几点：</p>
+<ol>
+<li>数量：可复用组件少，经常需要造轮子，并且造完没有抽出来以供其他项目复用；</li>
+<li>文档：文档缺失，更换开发者大概率需要摸瞎看源码，而且很可能 A 项目已经存在了解决方案，B 项目的开发者并不知道（或者知道了却根本无从下手拷贝），重复造轮子；</li>
+<li>维护：1 中的轮子复用依靠复制粘贴，可维护性差，出现问题多方同步修改。</li>
+</ol>
+<p>可复用组件类型：</p>
+<ul>
+<li>UI 组件：譬如弹层（Popup）、轻提示(Toast)以及输入框（Input）等组件（往往还存在一些兼容性问题）；</li>
+<li>业务组件：相同业务类型可复用的组件，譬如抽奖转盘组件；</li>
+<li>逻辑组件：譬如传送门（Portal）、切换器（Toggler）以及校验器（Validator）等可以用来优化代码结构并减少重复代码等无形态组件。</li>
+</ul>
+<h3 id="思考-2">思考</h3>
+<p>活动页固然千奇百怪，但总有相似之处，如何与业务结合，分离可变与不可变，提高开发效率，正是工程师存在的意义（当然也需要产品【业务抽象】以及设计【ui 规范】同学的共同参与）。</p>
+<p>如果不同项目设计风格实在差异较大，也能够通过改改样式复用，而非重写一遍逻辑以及兼容性处理。</p>
+<p>既要有造轮子的能力（个人），也要有不造轮子的觉悟（团队）。</p>
+<p>画外音吐槽：为什么把一个组件文件夹在不同项目中拷来拷去？文档也没有，我怎么用，代码质量就不说了，没眼看，都是一个人用的一次性代码。</p>
+<h3 id="行动">行动</h3>
+<p>写了个 dora-ui，目前有以下组件：</p>
+<ul>
+<li>Countdown 倒计时</li>
+<li>Popup 弹层</li>
+<li>Portal 传送门</li>
+<li>Toast 轻提示</li>
+<li>Toggler 切换器</li>
+</ul>
+<p>感觉可以直接使用开源的组件库，为什么要自己写呢？</p>
+<ul>
+<li>反正没啥人用......(扎心了老铁</li>
+<li>后续会以业务组件为主</li>
+<li>也存在一点私心吧，锻炼自己，反正也支持按需加载，想和啥一起用就和啥一起用</li>
+<li>我会用心写好文档和单元测试的</li>
+</ul>
+<h2 id="脚手架模板">脚手架（模板）</h2>
+<h3 id="现状-2">现状</h3>
+<p>目前团队内新建项目都是用 CRA 或者 DVA（为啥不用 Umi）改一改，我还没有机会自己去新建一个项目，但我觉着这也太麻烦了吧。</p>
+<p>为什么不用公司内部的脚手架（框架）？我也不想看着五花八门的项目结构呀。</p>
+<ul>
+<li>我觉得可以用，但是团队内部没啥人用，架构组不强推，也没有前端负责人（话语权）...很难推呀；</li>
+<li>旧版本的 Bug。接的一个旧项目是用内部脚手架旧版本搭的，太多坑了，只能说勉强能用，团队其他人吓怕了，不过现在都修好了；</li>
+<li>公司内部的框架基本上都集成了我上面所说的内容。但框架定位是同构渲染，我们团队基本是纯前端项目，引入的很多概念概念配置增加了心智负担。建议把文档分开，给一个纯前端项目的最小知识集就好；</li>
+</ul>
+<p>用 DVA 搭建项目其实还好，本来就是最佳实践了，只需要自己配些环境变量控制下<code>publicPath</code>以及增加<code>precommit lint</code>就好，但是用<code>CRA</code>就很麻烦了，要自己改很多内容。</p>
+<h3 id="问题-2">问题</h3>
+<p>看项目内部架子（基于 CRA），最想吐槽的有 3 点：</p>
+<ul>
+<li>代码风格。前面说过。</li>
+<li>数据 Mock。为啥要在 src 里面根据环境变量引入 mock 文件，这不是开发时依赖吗？</li>
+<li>接口转发 Proxy。其实这个不算架子的问题。基本所有的架子都内置 Proxy 的，但是一些接口需要授权访问，这就需要鉴权，我们后台服务并没有提供给我们开发鉴权的形式，现在的解决方案比较麻烦：比如测试环境域名为<code>m.test.zzzzz.com</code>，使用<code>SwitchHosts</code>将本地 ip 映射为<code>m.dev.zzzzz.com</code>，前面<code>m.dev</code>可以自定义，后面保证一致，然后去 test 环境登录，这样就给浏览器注入 cookie 了，然后我们 Proxy 转发就能带着 cookie 转发了。可是缺点也很明显，内网 ip 会变化，把电脑带回家再带到公司，就要重新改 host，不知道还有什么好方案解决，感觉后端支持才是王道，也提到过这个问题，但是推不动。</li>
+</ul>
+<h3 id="思考-3">思考</h3>
+<p>我觉得团队内部初始化一个项目，模板必须集成以下功能：</p>
+<ul>
+<li>eslint/editorconfig（必须）</li>
+<li>precommit lint（必须）</li>
+<li>mock（必须）</li>
+<li>proxy（必须）</li>
+<li>自定义 webpack 配置（必须）</li>
+<li>集成 redux（可选）</li>
+<li>commitlint（可选）</li>
+<li>typescript（可选）</li>
+</ul>
+<p>当然有很多同学可能会说选型很多时候要考虑团队成员的能力。</p>
+<p>但是能力是有及格线的呀！能被工业化大规模使用的工具会很难吗？这个太重那个太复杂，又不是引入<code>angular</code> or <code>rxjs</code>，用某位大佬的话就是“你脑袋只有几 kb 吗？”。</p>
+<p>为什么要选择<code>redux-thunk</code>，是<code>dva</code>不好看还是<code>rematch</code>不好听？</p>
+<p>可能仅仅是因为第一个初始化项目的人只知道<code>redux-thunk</code>罢了（当然如果只是一个人开发，随便怎么玩），但如果是协作项目，建议由一个真正深入过思考的人去进行技术选型）。</p>
+<p>所以说脚手架很重要，但是 emmm...架构组的脚手架可能不适合所有业务场景（以及约束力因素），团队内部 emmm...大概率推不动（我正在写），说起来都是泪。</p>
+<h3 id="行动-2">行动</h3>
+<p>正在写一个适合团队内部使用的脚手架，会集成上述内容。</p>
+<p>尤其是预置代码规范以及风格，但是被关掉或者修改就没办法了呀，有些同事就是不喜欢用插件格式化代码，自己写的又达不到代码标准，真的好难。</p>
+<h2 id="前后端分离">前后端分离</h2>
+<p>惊不惊喜，意不意外。</p>
+<h3 id="现状-3">现状</h3>
+<p>前端项目如果初次发布，需要把<code>index.html</code>托管到后端那里，我们虽然把 html/js/css 都上传到了静态资源服务器，但 html 用的是后端托管的，打包出来的内容不能有 hash，如果资源地址变化，需要后端配合修改 html，每次上线要后端刷版本号（就是加个时间戳），避免请求到了缓存的 html。</p>
+<p>更多分析可以看我另外一篇文章——关于前端项目部署发布的相关思考。</p>
+<h3 id="思考-4">思考</h3>
+<p>Nginx 配置代理应当是最优的，不然更改打包策略还需要后端配合，着实无奈，可能的原因就是配置 Nginx 需要找人找人找人，但是后端上线难道就不找人了吗，这里不是很理解，听说有在解决这个问题，可能这种操作背后有什么历史原因吧，但放到今天，实在是很难接受。</p>
+<p>昨天在新生技术培训上向前端老大提了这个问题，听说架构组是有规划解决这个问题的，后面再看吧。</p>
+<h2 id="其他">其他</h2>
+<h3 id="关于上线流程">关于上线流程</h3>
+<p>目前是没有上线流程的，对，没有！</p>
+<ul>
+<li>开发完后一嗓子上线，有些需求少的、关联性不强的开发人员都不知道啥时候上线，上线的时候人不在结果没发；</li>
+<li>对线上发布没有敬畏之心，一天可以发几次。</li>
+</ul>
+<p>上周开了个会想要解决这个问题，希望能落地。</p>
+<p>无非就是固定上线日期以及发布次数，通过邮件以及文档等进行需求生命周期跟踪。</p>
+<pre><code>需求 =&gt; 视觉 =&gt; 开发 =&gt; 测试 =&gt; 预发 =&gt; 正式上线。
+</code></pre>
+<p>不过上线流程在我看来应该是公司统一的吧，不然新团队还要重新建立这些流程规范，一不小心就走偏了，捂脸哭。</p>
+<p>还有一个点就是公司内部没有使用邮件的习惯，见仁见智吧，我觉得比较神奇。</p>
+<h3 id="关于测试环境">关于测试环境</h3>
+<p>我从未见过如此不稳定的测试环境。</p>
+<h3 id="关于代码重构">关于代码重构</h3>
+<p>随着项目迭代，没有意义的代码要及时删除或注释，否则几经转手，没有人知道这些代码到底有没有用，反而还要在这些结构上进行新需求迭代，只会越来越乱，开发人员要有及时掏粪坑的决心与勇气（堆成屎山就完了- -!!），接过来的项目如果可复用程度不大，不如重做，当前项目架构不满足新需求时，应考虑及时扩展。</p>
+<h3 id="关于产品节奏">关于产品节奏</h3>
+<p>产品节奏很迷，一个需求提测后会有接近两周的空档，所以很感谢现在的项目，既让我了解到了一个项目能有多坑，又给我了如此多的时间去发现问题，修复缺陷。</p>
+<p>虽然我们公司基本不咋加班，但是这个节奏着实让我有点不太好意思。技术人员当然需要时间去复盘总结，学习新知识，但团队内部其他项目贼忙，对比起来好惭愧。</p>
+<p>但是心里面还是有些许动摇，虽然说成长靠自己（现在有时间去学习成长），但我还是想有一个更为优秀的团队以及平台，能够去落地一些事情。而现在团队内部，有极个别成员即使有许多时间，但也不见有何产出，一言难尽，虽然我现在有热情，但是我害怕有一天也会这样，可能就是贱吧。</p>
+<h2 id="总结">总结</h2>
+<p>以上就是一些思考以及吐槽，这两个月成长的太多太多，在上一家公司和一个人负责项目，来这边三个人一起负责一个项目（感觉有资源过剩），遇到了种种问题，有的问题解决了，有的问题人言微轻，影响不大。</p>
+<p>也有了 3 点感悟，哈哈。</p>
+<ol>
+<li>办法总比问题多；</li>
+<li>是问题还是绩效取决于自己；</li>
+<li>永远保持好奇心。</li>
+</ol>
+<p>一片荒芜。</p>
+<p>但大有可为。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[编写干净的代码]]></title>
+        <id>https://worldzhao.github.io/post/write-clean-code-in-react/</id>
+        <link href="https://worldzhao.github.io/post/write-clean-code-in-react/">
+        </link>
+        <updated>2019-05-14T16:00:00.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="项目基础配置">项目基础配置</h2>
+<p>工欲善其事必先利其器，一个好的项目架子（目录结构以及代码风格，即规范）就是一套教程。</p>
+<p>规范是为了使得团队成员<strong>协作</strong>更为轻松而存在的，应当在个人习惯以及团队协作之间取得平衡，有红线、也有金线。</p>
+<p>统一的规范也是使得团队发挥出 <code>1 + 1 &gt; 2</code> 能力的基础。</p>
+<p>必须遵循两个基本原则：</p>
+<ol>
+<li>少数服从多数（协商讨论）；</li>
+<li>用工具统一风格（lint 工具）。</li>
+</ol>
+<p>常用工具：</p>
+<ul>
+<li>eslint</li>
+<li>editorconfig</li>
+<li>husky[pre-commit]</li>
+<li>vscode plugins</li>
+<li>贯彻执行</li>
+</ul>
+<blockquote>
+<p><a href="https://juejin.im/entry/5b911ff9e51d450e65482870">推荐阅读-如何保障前端项目的代码质量-掘金</a></p>
+</blockquote>
+<h2 id="代码相关">代码相关</h2>
+<blockquote>
+<p>关键字：简单、可读、好维护</p>
+</blockquote>
+<p>一切为了简单、可读，好维护。</p>
+<h3 id="策略模式">策略模式</h3>
+<p>使用策略模式优化 if-else，换汤(switch)不换药(if)，策略(map)更有效</p>
+<pre><code class="language-js">// bad
+const { channel } = this.state;
+let chal = &quot;&quot;;
+switch (channel) {
+  case &quot;weixin&quot;:
+    chal = 1;
+    break;
+  case &quot;weixinGroup&quot;:
+    chal = 2;
+    break;
+  case &quot;qq&quot;:
+    chal = 3;
+    break;
+  case &quot;qrCode&quot;:
+    chal = 4;
+    break;
+}
+</code></pre>
+<pre><code class="language-js">// good
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: 1,
+  weixinGroup: 2,
+  qq: 3,
+  chal: 4,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<p>此处是根据 channel 拿取对应 code，如果是根据后端 code 显示文案同理，如果是根据后端 code 进行不同操作也是同理，只不过将键值对的值更换为我们抽象的方法而已，将不同策略抽取出去，策略对象只负责选取策略，分离可变与不可变，即为策略模式。</p>
+<p>想要深入戳此处：</p>
+<blockquote>
+<p><a href="https://juejin.im/post/5bdfef86e51d453bf8051bf8">推荐阅读-JavaScript 复杂判断的更优雅写法-掘金</a> &gt; <a href="https://worldzhao.github.io/2018/11/23/design-pattern-strategy/">推荐阅读-设计模式-策略模式-我的博客</a></p>
+</blockquote>
+<h3 id="定义常量">定义常量</h3>
+<p>倘若一个字符串或是一个数字在项目中反复被使用（单个文件除外），就应当抽离出配置文件，而非在业务代码中写满意义不明的 number 与 string</p>
+<pre><code class="language-js">// bad
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: 1,
+  weixinGroup: 2,
+  qq: 3,
+  chal: 4,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<pre><code class="language-js">// good
+// constants.js
+export const CHANNEL_CODES = {
+  WEIXIN: 1,
+  WEIXIN_GROUP: 2,
+  QQ: 3,
+  CHAL: 4,
+};
+
+// index.js
+import { CHANNEL_CODES } from &quot;path2config/constants&quot;;
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: CHANNEL_CODES.WEIXIN,
+  weixinGroup: CHANNEL_CODES.WEIXIN_GROUP,
+  qq: CHANNEL_CODES.WEIXIN_QQ,
+  chal: CHANNEL_CODES.WEIXIN_CHAL,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<h3 id="使用-asyncawait">使用 async/await</h3>
+<p>除开极其复杂的异步流程（极少情况，我没碰到过）需要使用 Promise，绝大多数情况 async/await 就可以 hold 住，并且少了括号嵌套，可读性极佳。</p>
+<pre><code class="language-js">// bad
+/* 获取用户信息后获取用户提现信息 */
+getWithdrawInfo = () =&gt; {
+  getUserInfo()
+    .then((res) =&gt; {
+      return getWithdrawInfo(res.userId);
+    })
+    .then((withdrawInfo) =&gt; {
+      this.setState({
+        withdrawInfo,
+      });
+    })
+    .catch((err) =&gt; {
+      console.log(err);
+    });
+};
+</code></pre>
+<pre><code class="language-js">// good
+/* 获取用户信息后获取用户提现信息 */
+getWithdrawInfo = async () =&gt; {
+  const userInfo = await getUserInfo();
+  const withdrawInfo = await getWithdrawInfo(userInfo.userId);
+  this.setState({
+    withdrawInfo,
+  });
+};
+</code></pre>
+<blockquote>
+<p><a href="https://worldzhao.github.io/2019/01/23/pig/">推荐阅读-从 callback 到 async-我的博客</a></p>
+</blockquote>
+<h3 id="单一职责">单一职责</h3>
+<p>一个方法做一件事，生命周期函数力求清晰简单，内部不要有业务逻辑，简单调用业务方法即可。</p>
+<p>bad patter 就是在生命周期内写一大堆业务逻辑，看得头皮发麻，此处不做示例。</p>
+<pre><code class="language-js">// good
+componentDidMount() {
+    // 获取账户信息
+    this.getAccountInfo();
+    // 获取提现配置信息
+    this.getWithdrawConfig();
+    // 获取收听时长
+    this.getListenData();
+}
+</code></pre>
+<h3 id="类名拼接">类名拼接</h3>
+<p>使用 classnames 库（声明式）拼接复杂类名，而非各种拼接字符串（过程式）。</p>
+<pre><code class="language-js">// bad
+// 这个例子写的太累了。。。
+const Button = (props) =&gt; {
+  const { size, type, openPrefixCl, prefixCl } = props;
+  let btnCls = &quot;test-btn&quot;;
+  if (size === &quot;large&quot;) {
+    btnCls += &quot; test-btn__large&quot;;
+  } else if (size === &quot;medium&quot;) {
+    btnCls += &quot; test-btn__medium&quot;;
+  } else {
+    btnCls += &quot; test-btn__small&quot;;
+  }
+
+  if (type === &quot;primary&quot;) {
+    btnCls += &quot; test-btn__primary&quot;;
+  } else if (type === &quot;warning&quot;) {
+    btnCls += &quot; test-btn__warning&quot;;
+  } else if (type === &quot;danger&quot;) {
+    btnCls += &quot; test-btn__danger&quot;;
+  } else {
+    btnCls += &quot; test-btn__default&quot;;
+  }
+
+  if (openPrefixCl === 1) {
+    // 这个例子放在这里不合理 只是为了说明classnames的好处
+    btnCls += ` ${prefixCl}`;
+  }
+  return &lt;button className={btnCls}&gt;点我&lt;/button&gt;;
+};
+</code></pre>
+<pre><code class="language-js">// good
+import cx from &quot;classnames&quot;;
+
+const sizeClsMap = {
+  small: &quot;test-btn__large&quot;,
+  medium: &quot;test-btn__medium&quot;,
+  large: &quot;test-btn__small&quot;,
+};
+
+const typeClsMap = {
+  primary: &quot;test-btn__primary&quot;,
+  warning: &quot;test-btn__warning&quot;,
+  danger: &quot;test-btn__danger&quot;,
+};
+
+const Button = (props) =&gt; {
+  const { size, type, openPrefixCl, prefixCl } = props;
+  const sizeCl = sizeClsMap[size] || &quot;test-btn__medium&quot;;
+  const typeCl = typeClsMap[type] || &quot;test-btn__default&quot;;
+  const btnCls = cx({
+    &quot;test-btn&quot;: true,
+    [typeCl]: true,
+    [sizeCl]: true,
+    [prefixCl]: openPrefixCl === 1,
+  });
+  return &lt;button className={btnCls}&gt;点我&lt;/button&gt;;
+};
+</code></pre>
+<h3 id="伪计算属性">（伪）计算属性</h3>
+<p>通过 get 关键字，抽离计算逻辑，根据 state 与 props 计算出衍生值。</p>
+<pre><code class="language-js">// 使用 getters 封装 render 所需要的状态或条件的组合
+// 对于返回 boolean 的 getter 使用 is- 前缀命名
+
+// bad
+render() {
+    const { age } = this.state;
+    const { school } = this.props;
+    return (
+        &lt;&gt;
+        {
+           age &gt; 18 &amp;&amp; (school === 'A' || school === 'B')
+            ? &lt;VipComponent /&gt;
+            : &lt;NormalComponent /&gt;
+        }
+        &lt;/&gt;
+    )
+}
+</code></pre>
+<pre><code class="language-js">// good
+get isVIP() {
+    const { age } = this.state;
+    const { school } = this.props;
+    return age &gt; 18 &amp;&amp; (school === 'A' || school === 'B')
+    }
+
+render() {
+    return (
+        &lt;&gt;
+        {this.isVIP ? &lt;VipComponent /&gt; : &lt;NormalComponent /&gt;}
+        &lt;/&gt;
+    )
+}
+</code></pre>
+<p>为什么是（伪），因为通过这种效果模拟出来的计算属性和 Vue 提供的计算属性有本质区别。</p>
+<p>对于 Vue 计算属性，Vue 官方文档中存在解释：”我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。”</p>
+<p>假使存在两个 state 属性 A.B，计算属性只依赖 A，不依赖 B。倘若 B 变化，计算属性不会重新计算。</p>
+<p>但在 React 中，依旧会执行 render，所以 get 没有缓存，只是个语法糖。</p>
+<blockquote>
+<p><a href="https://worldzhao.github.io/2019/03/16/react-computed/">推荐阅读-使用 get 关键字优雅处理表单联动-我的博客</a></p>
+</blockquote>
+<h3 id="降低-jsx-复杂度">降低 jsx 复杂度</h3>
+<p>render(jsx) 方法复杂到一定程度时，需要合理拆分成不同子组件或子方法（单一职责）。</p>
+<p>bad pattern 不作展示，想像一个 200 行的 render 方法并且 jsx 中充斥着各种判断判断逻辑即可。</p>
+<p>以一个模态框组件为例，模态框 Header 以及 Footer 基本都是可配置的，会存在许多判断，将其抽离分而治之可以更干净。</p>
+<p>只要合理抽象方法，代码基本不会有太大问题。</p>
+<pre><code class="language-js">renderModalHeader = () =&gt; {};
+
+renderModalContent = () =&gt; {};
+
+renderModalFooter = () =&gt; {};
+
+render() {
+    return (
+      &lt;div className=&quot;test-modal--container&quot;&gt;
+        {this.renderModalHeader()}
+        {this.renderModalContent()}
+        {this.renderModalFooter()}
+      &lt;/div&gt;
+    );
+  }
+</code></pre>
+<h3 id="其他">其他</h3>
+<ul>
+<li>
+<p>if 判断语句不通过尽早返回，避免一大堆逻辑后来个 else，很多时候直接 return 更清晰</p>
+</li>
+<li>
+<p>在合适的场景使用 reduce/map/filter/some/every（声明式） 等方法替换 for 循环（过程式）</p>
+</li>
+<li>
+<p>配置 webpack alias 避免导入模块相对路径过长的问题</p>
+</li>
+</ul>
+<pre><code class="language-js">// bad
+import { Modal } from &quot;../../../components/&quot;;
+</code></pre>
+<pre><code class="language-js">// good
+import { Modal } from &quot;@components&quot;;
+</code></pre>
+<ul>
+<li>公共组件需要有 propTypes 以及 defaultPropTypes 静态属性</li>
+</ul>
+<p>看了 propTypes 属性就基本了解了组件的使用方式，代码即文档，如果 typescript 更好（interface）</p>
+<ul>
+<li>相同的组件功能使用 HOC / render props/hooks 优化（高阶组件需要注意属性覆盖与静态方法丢失）</li>
+</ul>
+]]></content>
+    </entry>
+</feed>

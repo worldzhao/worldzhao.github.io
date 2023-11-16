@@ -1,0 +1,455 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>编写干净的代码 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">编写干净的代码</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-05-15</span>
+          </div>
+          <div class="post-content">
+            <h2 id="项目基础配置">项目基础配置</h2>
+<p>工欲善其事必先利其器，一个好的项目架子（目录结构以及代码风格，即规范）就是一套教程。</p>
+<p>规范是为了使得团队成员<strong>协作</strong>更为轻松而存在的，应当在个人习惯以及团队协作之间取得平衡，有红线、也有金线。</p>
+<p>统一的规范也是使得团队发挥出 <code>1 + 1 &gt; 2</code> 能力的基础。</p>
+<p>必须遵循两个基本原则：</p>
+<ol>
+<li>少数服从多数（协商讨论）；</li>
+<li>用工具统一风格（lint 工具）。</li>
+</ol>
+<p>常用工具：</p>
+<ul>
+<li>eslint</li>
+<li>editorconfig</li>
+<li>husky[pre-commit]</li>
+<li>vscode plugins</li>
+<li>贯彻执行</li>
+</ul>
+<blockquote>
+<p><a href="https://juejin.im/entry/5b911ff9e51d450e65482870">推荐阅读-如何保障前端项目的代码质量-掘金</a></p>
+</blockquote>
+<h2 id="代码相关">代码相关</h2>
+<blockquote>
+<p>关键字：简单、可读、好维护</p>
+</blockquote>
+<p>一切为了简单、可读，好维护。</p>
+<h3 id="策略模式">策略模式</h3>
+<p>使用策略模式优化 if-else，换汤(switch)不换药(if)，策略(map)更有效</p>
+<pre><code class="language-js">// bad
+const { channel } = this.state;
+let chal = &quot;&quot;;
+switch (channel) {
+  case &quot;weixin&quot;:
+    chal = 1;
+    break;
+  case &quot;weixinGroup&quot;:
+    chal = 2;
+    break;
+  case &quot;qq&quot;:
+    chal = 3;
+    break;
+  case &quot;qrCode&quot;:
+    chal = 4;
+    break;
+}
+</code></pre>
+<pre><code class="language-js">// good
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: 1,
+  weixinGroup: 2,
+  qq: 3,
+  chal: 4,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<p>此处是根据 channel 拿取对应 code，如果是根据后端 code 显示文案同理，如果是根据后端 code 进行不同操作也是同理，只不过将键值对的值更换为我们抽象的方法而已，将不同策略抽取出去，策略对象只负责选取策略，分离可变与不可变，即为策略模式。</p>
+<p>想要深入戳此处：</p>
+<blockquote>
+<p><a href="https://juejin.im/post/5bdfef86e51d453bf8051bf8">推荐阅读-JavaScript 复杂判断的更优雅写法-掘金</a> &gt; <a href="https://worldzhao.github.io/2018/11/23/design-pattern-strategy/">推荐阅读-设计模式-策略模式-我的博客</a></p>
+</blockquote>
+<h3 id="定义常量">定义常量</h3>
+<p>倘若一个字符串或是一个数字在项目中反复被使用（单个文件除外），就应当抽离出配置文件，而非在业务代码中写满意义不明的 number 与 string</p>
+<pre><code class="language-js">// bad
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: 1,
+  weixinGroup: 2,
+  qq: 3,
+  chal: 4,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<pre><code class="language-js">// good
+// constants.js
+export const CHANNEL_CODES = {
+  WEIXIN: 1,
+  WEIXIN_GROUP: 2,
+  QQ: 3,
+  CHAL: 4,
+};
+
+// index.js
+import { CHANNEL_CODES } from &quot;path2config/constants&quot;;
+const { channel } = this.state;
+const channelCodeMap = {
+  weixin: CHANNEL_CODES.WEIXIN,
+  weixinGroup: CHANNEL_CODES.WEIXIN_GROUP,
+  qq: CHANNEL_CODES.WEIXIN_QQ,
+  chal: CHANNEL_CODES.WEIXIN_CHAL,
+};
+const chal = channelCodeMap[channel] || &quot;&quot;;
+</code></pre>
+<h3 id="使用-asyncawait">使用 async/await</h3>
+<p>除开极其复杂的异步流程（极少情况，我没碰到过）需要使用 Promise，绝大多数情况 async/await 就可以 hold 住，并且少了括号嵌套，可读性极佳。</p>
+<pre><code class="language-js">// bad
+/* 获取用户信息后获取用户提现信息 */
+getWithdrawInfo = () =&gt; {
+  getUserInfo()
+    .then((res) =&gt; {
+      return getWithdrawInfo(res.userId);
+    })
+    .then((withdrawInfo) =&gt; {
+      this.setState({
+        withdrawInfo,
+      });
+    })
+    .catch((err) =&gt; {
+      console.log(err);
+    });
+};
+</code></pre>
+<pre><code class="language-js">// good
+/* 获取用户信息后获取用户提现信息 */
+getWithdrawInfo = async () =&gt; {
+  const userInfo = await getUserInfo();
+  const withdrawInfo = await getWithdrawInfo(userInfo.userId);
+  this.setState({
+    withdrawInfo,
+  });
+};
+</code></pre>
+<blockquote>
+<p><a href="https://worldzhao.github.io/2019/01/23/pig/">推荐阅读-从 callback 到 async-我的博客</a></p>
+</blockquote>
+<h3 id="单一职责">单一职责</h3>
+<p>一个方法做一件事，生命周期函数力求清晰简单，内部不要有业务逻辑，简单调用业务方法即可。</p>
+<p>bad patter 就是在生命周期内写一大堆业务逻辑，看得头皮发麻，此处不做示例。</p>
+<pre><code class="language-js">// good
+componentDidMount() {
+    // 获取账户信息
+    this.getAccountInfo();
+    // 获取提现配置信息
+    this.getWithdrawConfig();
+    // 获取收听时长
+    this.getListenData();
+}
+</code></pre>
+<h3 id="类名拼接">类名拼接</h3>
+<p>使用 classnames 库（声明式）拼接复杂类名，而非各种拼接字符串（过程式）。</p>
+<pre><code class="language-js">// bad
+// 这个例子写的太累了。。。
+const Button = (props) =&gt; {
+  const { size, type, openPrefixCl, prefixCl } = props;
+  let btnCls = &quot;test-btn&quot;;
+  if (size === &quot;large&quot;) {
+    btnCls += &quot; test-btn__large&quot;;
+  } else if (size === &quot;medium&quot;) {
+    btnCls += &quot; test-btn__medium&quot;;
+  } else {
+    btnCls += &quot; test-btn__small&quot;;
+  }
+
+  if (type === &quot;primary&quot;) {
+    btnCls += &quot; test-btn__primary&quot;;
+  } else if (type === &quot;warning&quot;) {
+    btnCls += &quot; test-btn__warning&quot;;
+  } else if (type === &quot;danger&quot;) {
+    btnCls += &quot; test-btn__danger&quot;;
+  } else {
+    btnCls += &quot; test-btn__default&quot;;
+  }
+
+  if (openPrefixCl === 1) {
+    // 这个例子放在这里不合理 只是为了说明classnames的好处
+    btnCls += ` ${prefixCl}`;
+  }
+  return &lt;button className={btnCls}&gt;点我&lt;/button&gt;;
+};
+</code></pre>
+<pre><code class="language-js">// good
+import cx from &quot;classnames&quot;;
+
+const sizeClsMap = {
+  small: &quot;test-btn__large&quot;,
+  medium: &quot;test-btn__medium&quot;,
+  large: &quot;test-btn__small&quot;,
+};
+
+const typeClsMap = {
+  primary: &quot;test-btn__primary&quot;,
+  warning: &quot;test-btn__warning&quot;,
+  danger: &quot;test-btn__danger&quot;,
+};
+
+const Button = (props) =&gt; {
+  const { size, type, openPrefixCl, prefixCl } = props;
+  const sizeCl = sizeClsMap[size] || &quot;test-btn__medium&quot;;
+  const typeCl = typeClsMap[type] || &quot;test-btn__default&quot;;
+  const btnCls = cx({
+    &quot;test-btn&quot;: true,
+    [typeCl]: true,
+    [sizeCl]: true,
+    [prefixCl]: openPrefixCl === 1,
+  });
+  return &lt;button className={btnCls}&gt;点我&lt;/button&gt;;
+};
+</code></pre>
+<h3 id="伪计算属性">（伪）计算属性</h3>
+<p>通过 get 关键字，抽离计算逻辑，根据 state 与 props 计算出衍生值。</p>
+<pre><code class="language-js">// 使用 getters 封装 render 所需要的状态或条件的组合
+// 对于返回 boolean 的 getter 使用 is- 前缀命名
+
+// bad
+render() {
+    const { age } = this.state;
+    const { school } = this.props;
+    return (
+        &lt;&gt;
+        {
+           age &gt; 18 &amp;&amp; (school === 'A' || school === 'B')
+            ? &lt;VipComponent /&gt;
+            : &lt;NormalComponent /&gt;
+        }
+        &lt;/&gt;
+    )
+}
+</code></pre>
+<pre><code class="language-js">// good
+get isVIP() {
+    const { age } = this.state;
+    const { school } = this.props;
+    return age &gt; 18 &amp;&amp; (school === 'A' || school === 'B')
+    }
+
+render() {
+    return (
+        &lt;&gt;
+        {this.isVIP ? &lt;VipComponent /&gt; : &lt;NormalComponent /&gt;}
+        &lt;/&gt;
+    )
+}
+</code></pre>
+<p>为什么是（伪），因为通过这种效果模拟出来的计算属性和 Vue 提供的计算属性有本质区别。</p>
+<p>对于 Vue 计算属性，Vue 官方文档中存在解释：”我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。”</p>
+<p>假使存在两个 state 属性 A.B，计算属性只依赖 A，不依赖 B。倘若 B 变化，计算属性不会重新计算。</p>
+<p>但在 React 中，依旧会执行 render，所以 get 没有缓存，只是个语法糖。</p>
+<blockquote>
+<p><a href="https://worldzhao.github.io/2019/03/16/react-computed/">推荐阅读-使用 get 关键字优雅处理表单联动-我的博客</a></p>
+</blockquote>
+<h3 id="降低-jsx-复杂度">降低 jsx 复杂度</h3>
+<p>render(jsx) 方法复杂到一定程度时，需要合理拆分成不同子组件或子方法（单一职责）。</p>
+<p>bad pattern 不作展示，想像一个 200 行的 render 方法并且 jsx 中充斥着各种判断判断逻辑即可。</p>
+<p>以一个模态框组件为例，模态框 Header 以及 Footer 基本都是可配置的，会存在许多判断，将其抽离分而治之可以更干净。</p>
+<p>只要合理抽象方法，代码基本不会有太大问题。</p>
+<pre><code class="language-js">renderModalHeader = () =&gt; {};
+
+renderModalContent = () =&gt; {};
+
+renderModalFooter = () =&gt; {};
+
+render() {
+    return (
+      &lt;div className=&quot;test-modal--container&quot;&gt;
+        {this.renderModalHeader()}
+        {this.renderModalContent()}
+        {this.renderModalFooter()}
+      &lt;/div&gt;
+    );
+  }
+</code></pre>
+<h3 id="其他">其他</h3>
+<ul>
+<li>
+<p>if 判断语句不通过尽早返回，避免一大堆逻辑后来个 else，很多时候直接 return 更清晰</p>
+</li>
+<li>
+<p>在合适的场景使用 reduce/map/filter/some/every（声明式） 等方法替换 for 循环（过程式）</p>
+</li>
+<li>
+<p>配置 webpack alias 避免导入模块相对路径过长的问题</p>
+</li>
+</ul>
+<pre><code class="language-js">// bad
+import { Modal } from &quot;../../../components/&quot;;
+</code></pre>
+<pre><code class="language-js">// good
+import { Modal } from &quot;@components&quot;;
+</code></pre>
+<ul>
+<li>公共组件需要有 propTypes 以及 defaultPropTypes 静态属性</li>
+</ul>
+<p>看了 propTypes 属性就基本了解了组件的使用方式，代码即文档，如果 typescript 更好（interface）</p>
+<ul>
+<li>相同的组件功能使用 HOC / render props/hooks 优化（高阶组件需要注意属性覆盖与静态方法丢失）</li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/write-faster-react-code-with-memoize-one/">
+              <h3 class="post-title">
+                下一篇：memoize-one 简介
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

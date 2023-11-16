@@ -1,0 +1,475 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>React 组件库搭建指南-开发调试 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">React 组件库搭建指南-开发调试</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-12-22</span>
+          </div>
+          <div class="post-content">
+            <p>MDX，文档生花。</p>
+<!-- more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p>本文解决开发组件时的预览以及调试问题，顺路解决文档编写。</p>
+<p><strong>编写时完全无法进行预览调试</strong></p>
+<p>此处选择<a href="https://github.com/doczjs/docz">docz</a>来辅助预览调试。</p>
+<blockquote>
+<p><code>docz</code>基于<code>MDX</code>（Markdown + JSX），可以在 Markdown 中引入 React 组件，使得一边编写文档，一边预览调试成为了可能。而且得益于 React 组件生态，我们可以像编写应用一般编写文档，不仅仅是枯燥的文字。<code>docz</code> 也内置了一些组件，比如<code>&lt;Playground&gt;</code>。</p>
+</blockquote>
+<p>本节所有代码可在仓库<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-2/dev-and-doc">chapter-2</a>分支中获取。</p>
+<h2 id="安装-docz-以及自定义配置">安装 docz 以及自定义配置</h2>
+<pre><code class="language-bash">yarn add docz --dev
+
+yarn add rimraf --dev # 清空目录的一个辅助库
+</code></pre>
+<p>增加 <code>npm scripts</code> 至 <code>package.json</code>。</p>
+<pre><code class="language-json">&quot;scripts&quot;: {
+  &quot;dev&quot;: &quot;docz dev&quot;, // 启动本地开发环境
+  &quot;start&quot;: &quot;npm run dev&quot;, // dev命令别名
+  &quot;build:doc&quot;: &quot;rimraf doc-site &amp;&amp; docz build&quot;, // 后续会配置打包出来的文件目录名为doc-site，故每次build前删除
+  &quot;preview:doc&quot;: &quot;docz serve&quot; // 预览文档站点
+},
+</code></pre>
+<blockquote>
+<p>注意：本节所有操作都是针对站点应用。<code>打包</code>指代文档站点打包，而非组件库。</p>
+</blockquote>
+<p>新建<code>doczrc.js</code>配置文件，并写入以下内容：</p>
+<p><strong>doczrc.js</strong></p>
+<pre><code class="language-js">export default {
+  files: './components/**/*.{md,markdown,mdx}', // 识别的文件后缀
+  dest: 'doc-site', // 打包出来的文件目录名
+  title: 'happy-ui', // 站点标题
+  typescript: true, // 组件源文件是通过typescript开发，需要打开此选项
+};
+</code></pre>
+<p>由于使用了<code>less</code>作为样式预处理器，故需要安装 less 插件。</p>
+<pre><code class="language-bash">yarn add less gatsby-plugin-less --dev
+</code></pre>
+<p>新建<code>gatsby-config.js</code>，并写入以下内容：</p>
+<p><strong>gatsby-config.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  plugins: ['gatsby-theme-docz', 'gatsby-plugin-less'],
+};
+</code></pre>
+<h2 id="编写文档">编写文档</h2>
+<p>新建<code>components/alert/index.mdx</code>，并写入以下内容：</p>
+<pre><code class="language-md">---
+name: Alert 警告提示
+route: /Alert
+menu: 组件
+---
+
+import { Playground } from 'docz'; import Alert from './alert'; // 引入组件 import './style'; // 引入组件样式
+
+# Alert 警告提示
+
+警告提示，展现需要关注的信息。
+
+## 代码演示
+
+### 基本用法
+
+&lt;Playground&gt;
+  &lt;Alert kind=&quot;warning&quot;&gt;这是一条警告提示&lt;/Alert&gt;
+&lt;/Playground&gt;
+
+## API
+
+| 属性 | 说明     | 类型                                         | 默认值 |
+| ---- | -------- | -------------------------------------------- | ------ |
+| kind | 警告类型 | 'info'/'positive'/'negative'/'warning'非必填 | 'info' |
+</code></pre>
+<p>执行脚本命令：</p>
+<pre><code class="language-bash">yarn start # or yarn dev
+</code></pre>
+<p>可以在<code>localhost:3000</code>看到如下页面 ：</p>
+<figure data-type="image" tabindex="1"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1ujda771j31j50u0h06.jpg" alt="文档站点" loading="lazy"></figure>
+<p>现在可以在<code>index.mdx</code>中愉快地进行文档编写和调试了！</p>
+<p>倘若本文到了这里就结束（其实也可以结束了<code>(_^▽^_)</code>），那我只是官方文档的翻译复读机罢了，有兴趣的同学可以继续向下看。</p>
+<h2 id="优化文档编写">优化文档编写</h2>
+<p>如果<code>代码演示</code>部分的<code>demo</code>较多（比如基本用法、高级用法以及各种用法等等），在组件复杂的情况下（毕竟<code>&lt;Alert/&gt;</code>着实太简单了），会导致文档很长难以维护，你到底是在写文档呢还是在写代码呢？</p>
+<p>那就抽离吧。</p>
+<p>在<code>components/alert/</code>文件夹下新建<code>demo</code>文件夹，存放我们在编写文档时需要引用的 <code>demo</code>。</p>
+<p><strong>components/alert/demo/1-demo-basic.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import Alert from '../alert';
+import '../style';
+
+export default () =&gt; &lt;Alert kind=&quot;warning&quot;&gt;&lt;/Alert&gt;;
+</code></pre>
+<p><strong>components/alert/index.mdx</strong></p>
+<pre><code class="language-diff">- import Alert from './alert'; // 引入组件
+- import './style'; // 引入组件样式
++ import BasicDemo from './demo/1-demo-basic';
+
+...
+
+&lt;Playground&gt;
+- &lt;Alert kind=&quot;warning&quot;&gt;这是一条警告提示&lt;/Alert&gt;
++ &lt;BasicDemo /&gt;
+&lt;/Playground&gt;
+</code></pre>
+<p>这样我们就将 demo 与文档进行了分隔。预览如下：</p>
+<figure data-type="image" tabindex="2"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1v3li0poj31l80u0wix.jpg" alt="文档重构" loading="lazy"></figure>
+<p>等等，你下面显示的那个<code>&lt;BasicDemo /&gt;</code>有点撩人，这里应该是给用户爸爸们<code>copy</code>的<code>demo</code>源码，你弄一个标签在这里，用户爸爸肯定不开心 🙅‍♀️。</p>
+<p>然而<code>&lt;Playground /&gt;</code>组件暂时无法支持上述形式的展示：自定义下方展示的代码，而非<code>&lt;Playground /&gt;</code>内部的代码。相关讨论如下：</p>
+<ul>
+<li><a href="https://github.com/doczjs/docz/pull/907">Allow to hide the LiveError overlay #907 </a></li>
+<li><a href="https://github.com/doczjs/docz/pull/906">Allow to override the playground's editor's code #906 </a></li>
+</ul>
+<p>其实第一条 <code>PR</code> 已经解决了问题，但是被关闭了，无奈。</p>
+<p>不过既然都能引入 React 组件了，在<code>MDX</code>的环境下自定义一个<code>Playground</code>组件又有何难呢，无非就是渲染组件（MDX 自带）和展示源码，简单开放的东西大家都是喜闻乐见的，就叫<code>HappyBox</code>吧。</p>
+<h2 id="优化代码展示">优化代码展示</h2>
+<h3 id="编写-happybox-组件">编写 <code>&lt;HappyBox /&gt;</code>组件</h3>
+<p>安装依赖：</p>
+<pre><code>yarn add react-use antd react-simple-code-editor prismjs react-copy-to-clipboard raw-loader --dev
+</code></pre>
+<ul>
+<li><a href="https://github.com/streamich/react-use">react-use</a> - 2020 年了，当然要用<code>hooks</code></li>
+<li><a href="https://ant.design/">antd</a> - 使用一些辅助组件</li>
+<li><a href="https://github.com/satya164/react-simple-code-editor">react-simple-code-editor</a> - 代码展示区域</li>
+<li><a href="https://github.com/PrismJS/prism">prismjs</a> - 代码高亮</li>
+<li><a href="https://github.com/webpack-contrib/raw-loader">raw-loader</a> - 将源码转成字符串</li>
+<li><a href="https://github.com/nkbt/react-copy-to-clipboard">react-copy-to-clipboard</a> - 让用户爸爸们能够 copy demo 代码</li>
+</ul>
+<blockquote>
+<p>这些依赖都是服务于文档站点应用，和组件库自身毫无关联。</p>
+</blockquote>
+<p>最终效果如下：</p>
+<figure data-type="image" tabindex="3"><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1ga1ynynxxlj31dg0u0tde.jpg" alt="最终效果" loading="lazy"></figure>
+<p>根目录下新建<code>doc-comps</code>文件夹，存放文档中使用的一些工具组件，比如<code>&lt;HappyBox /&gt;</code>。</p>
+<p><strong>doc-comps</strong></p>
+<pre><code>├── happy-box
+│   ├── index.less
+│   └── index.tsx
+└── index.ts
+</code></pre>
+<p><strong>components/doc-comps/happy-box/index.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import Editor from 'react-simple-code-editor';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import useToggle from 'react-use/esm/useToggle';
+import { Divider, Typography, Icon, Tooltip, message } from 'antd';
+import { highlight, languages } from 'prismjs/components/prism-core';
+
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-markup';
+import './index.less';
+
+require('prismjs/components/prism-jsx');
+
+const { Text } = Typography;
+interface Props {
+  code: string;
+  title?: React.ReactNode;
+  desc?: React.ReactNode;
+}
+
+const HappyBox: React.FC&lt;Props&gt; = ({ code, title, desc, children }) =&gt; {
+  const [isEditVisible, toggleEditVisible] = useToggle(false);
+
+  return (
+    &lt;div className=&quot;code-box&quot;&gt;
+      &lt;section className=&quot;code-box-demo&quot;&gt; {children}&lt;/section&gt;
+      &lt;section className=&quot;code-box-meta&quot;&gt;
+        &lt;Divider orientation=&quot;left&quot;&gt;{title || '示例'}&lt;/Divider&gt;
+        &lt;div className=&quot;code-box-description&quot;&gt;
+          &lt;Text&gt;{desc || '暂无描述'}&lt;/Text&gt;
+        &lt;/div&gt;
+        &lt;Divider dashed&gt;&lt;/Divider&gt;
+        &lt;div className=&quot;code-box-action&quot;&gt;
+          &lt;Tooltip placement=&quot;top&quot; title={'复制代码'}&gt;
+            &lt;CopyToClipboard text={code} onCopy={() =&gt; message.success('复制成功')}&gt;
+              &lt;Icon type=&quot;copy&quot; /&gt;
+            &lt;/CopyToClipboard&gt;
+          &lt;/Tooltip&gt;
+          &lt;Tooltip placement=&quot;top&quot; title={isEditVisible ? '收起代码' : '显示代码'}&gt;
+            &lt;Icon type=&quot;code&quot; onClick={toggleEditVisible} /&gt;
+          &lt;/Tooltip&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+      {renderEditor()}
+    &lt;/div&gt;
+  );
+
+  /* 代码展示区域 */
+  function renderEditor() {
+    if (!isEditVisible) return null;
+    return (
+      &lt;div className=&quot;container_editor_area&quot;&gt;
+        &lt;Editor
+          readOnly
+          value={code}
+          onValueChange={() =&gt; {}}
+          highlight={code =&gt; highlight(code, languages.jsx)}
+          padding={10}
+          className=&quot;container__editor&quot;
+          style={{
+            fontFamily: '&quot;Fira code&quot;, &quot;Fira Mono&quot;, monospace',
+            fontSize: 14,
+          }}
+        /&gt;
+      &lt;/div&gt;
+    );
+  }
+};
+
+export default HappyBox;
+</code></pre>
+<h3 id="相关配置变更">相关配置变更</h3>
+<ul>
+<li>增加 <code>alias</code>别名，源码展示相对路径不够友好；</li>
+<li>antd 按需引入，即使是站点应用。</li>
+</ul>
+<p>新建<code>gatsby-node.js</code>，写入以下内容以开启<code>alias</code>：</p>
+<pre><code class="language-js">const path = require('path');
+
+exports.onCreateWebpackConfig = args =&gt; {
+  args.actions.setWebpackConfig({
+    resolve: {
+      modules: [path.resolve(__dirname, '../src'), 'node_modules'],
+      alias: {
+        'happy-ui/lib': path.resolve(__dirname, '../components/'),
+      },
+    },
+  });
+};
+</code></pre>
+<p><code>antd</code> 按需引入，安装依赖，并配置<code>gatsby-config.js</code>：</p>
+<pre><code class="language-bash">yarn add babel-plugin-import gatsby-plugin-import --dev
+</code></pre>
+<p><strong>gatsby-config.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  plugins: [
+    'gatsby-theme-docz',
+    'gatsby-plugin-less',
+    {
+      resolve: 'gatsby-plugin-import',
+      options: {
+        libraryName: 'antd',
+        style: 'css',
+      },
+    },
+  ],
+};
+</code></pre>
+<p><code>tsconfig.json</code> 忽略<code>demo</code>，避免组件库打包生成<code>types</code>时包含其中：</p>
+<p><strong>tsconfig.json</strong></p>
+<pre><code class="language-diff">{
+  &quot;compilerOptions&quot;: {
+    &quot;allowJs&quot;: false,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;commonjs&quot;,
+    &quot;jsx&quot;: &quot;react&quot;,
+    &quot;declaration&quot;: true,
+    &quot;outDir&quot;: &quot;types&quot;,
+    &quot;strict&quot;: true,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;allowSyntheticDefaultImports&quot;: true,
+    &quot;esModuleInterop&quot;: true
+  },
+  &quot;include&quot;: [&quot;components&quot;],
++ &quot;exclude&quot;: [&quot;components/**/demo&quot;]
+}
+</code></pre>
+<h3 id="改造相关文件">改造相关文件</h3>
+<p><strong>components/alert/demo/1-demo-basic.tsx</strong></p>
+<pre><code class="language-diff">- import Alert from '../alert';
++ import Alert from 'happy-ui/lib/alert';
+
+- import '../style';
++ import 'happy-ui/lib/alert/style';
+</code></pre>
+<p><strong>components/alert/index.mdx</strong></p>
+<pre><code class="language-diff">- import { Playground } from 'docz';
++ import { HappyBox } from '../../doc-comps';
+
++ import BasicDemoCode from '!raw-loader!./demo/1-demo-basic.tsx';
+
+...
+
+- &lt;Playground&gt;
+-   &lt;BasicDemo /&gt;
+- &lt;/Playground&gt;
+
++ &lt;HappyBox code={BasicDemoCode} title=&quot;基本用法&quot; desc=&quot;使用kind控制Alert类型&quot;&gt;
++  &lt;BasicDemo /&gt;
++ &lt;/HappyBox&gt;
+</code></pre>
+<h3 id="其他">其他</h3>
+<p><strong>.eslintignore</strong></p>
+<pre><code class="language-diff">+ doc-comps
++ demo
+</code></pre>
+<p><code>yarn start</code>卡住时尝试删除根目录<code>.docz</code>文件夹，而后重新执行命令。</p>
+<p>更多详见<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-2/dev-and-doc">仓库</a>。</p>
+<p>开发调试与文档编写结束，欢迎指点交流。</p>
+<p>To be Continued...</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/build-your-own-react-ui-library-1/">
+              <h3 class="post-title">
+                下一篇：React 组件库搭建指南-准备工作
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

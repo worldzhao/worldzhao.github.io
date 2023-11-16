@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>this、箭头函数与React事件绑定（一） | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">this、箭头函数与React事件绑定（一）</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-10-13</span>
+          </div>
+          <div class="post-content">
+            <h1 id="函数调用模式">函数调用模式</h1>
+<p>函数有 4 种调用模式:</p>
+<ol>
+<li>方法调用模式(对象)</li>
+<li>函数调用模式(window 对象)</li>
+<li>构造器调用模式(new)</li>
+<li>上下文模式</li>
+</ol>
+<p>了解函数调用模式的不同,对于我们理解函数内部 this 指向有着重要的作用</p>
+<h2 id="方法调用模式与函数调用模式">方法调用模式与函数调用模式</h2>
+<p>demo1:</p>
+<pre><code class="language-js">var age = 38
+var obj = {
+  age: 18,
+  getAge: function() {
+    return this.age
+  }
+}
+console.log(obj.getAge()) //18  方法调用模式
+
+var getAge = obj.getAge
+console.log(getAge()) //38   函数调用模式
+</code></pre>
+<p>demo2:</p>
+<pre><code class="language-js">var age = 38
+var obj = {
+  age: 18,
+  getAge: function() {
+    //方法调用 this指向调用对象
+    console(this.age)
+    function foo() {
+      console.log(this.age)
+    }
+    foo() //函数调用,this指向window对象(非严格模式)
+  }
+}
+
+obj.getAge() // 18  38
+</code></pre>
+<p>demo3:</p>
+<pre><code class="language-js">var length = 10
+function fn() {
+  console.log(this.length)
+}
+
+var obj = {
+  length: 5,
+  method: function(fn) {
+    fn() //函数调用 10
+    arguments[0]() // 方法调用 arguments[0] =&gt; arguments.fn  this 指向 arguments length为2
+  }
+}
+obj.method(fn, 123) //10 2
+</code></pre>
+<p>相当于 arguments 调用了 fn 返回 arguments 的长度</p>
+<blockquote>
+<p>arguments 是一个包含很多属性的对象,键名为索引,键值为传进来的参数值</p>
+</blockquote>
+<p>获取对象的属性值有两种方法:点方法与中括号法 obj.name === obj['name']</p>
+<p>arguments[0] === arguments.0(并不能这样写)</p>
+<p>调用 arguments.0()==arguments[0]() 实际上是方法调用</p>
+<p>理解不了看下面:</p>
+<pre><code class="language-js">var obj = { abc: fn }
+obj.abc() //方法调用
+obj['abc']() //方法调用
+</code></pre>
+<h2 id="构造器调用模式">构造器调用模式</h2>
+<p>demo4:</p>
+<pre><code class="language-js">function Person(name, age) {
+  this.name = name
+  this.age = age
+}
+var p = new Person('zzw', '18')
+</code></pre>
+<p>new 关键字就做了一点微小的工作</p>
+<pre><code class="language-js">var obj={};
+obj.\_\_proto\_\_=Person.prototype;
+Person.call(obj);//通过call方法强行将构造函数内部的this指向了obj
+</code></pre>
+<h2 id="上下文模式">上下文模式</h2>
+<p>首先来看代码:</p>
+<pre><code class="language-js">var p1 = {
+  name: '赵志文',
+  age: '18'
+}
+
+var name = '周娇娇'
+
+function getName() {
+  console.log(this.name, this)
+}
+
+getName() //周娇娇 window //函数调用,this指向window(非严格模式)
+
+getName.call(p1) //赵志文 Object //改变了getName内部的this指向,指向p1
+
+getName.apply(p1) //同上
+</code></pre>
+<p>相信各位读者通过上例能够很轻易的知道 call 与 apply 的作用:改变调用函数内部的 this 指向.</p>
+<p><strong>使用 call 与 apply,可以修改函数调用上下文,也就是 this 的值,这两个方法都是定义在 Function.prototype 中,所有函数都可以调用</strong></p>
+<h3 id="functionprototypeapplycall">Function.prototype.apply/call</h3>
+<p>MDN 文档中写道:&quot;apply()方法在指定 this 值和参数(参数以数组或类数组形式存在)的情况下调用某个函数.&quot;</p>
+<blockquote>
+<p>apply()方法与 call()方法仅有的区别:call()方法接收的是一个参数列表,而 apply()方法接收的是一个包含多个参数的数组(或类数组对象);</p>
+</blockquote>
+<p>语法:</p>
+<pre><code class="language-js">fun.apply(thisArg [,argsArray]);
+fun.call(thisArg,para1,para2,...);
+</code></pre>
+<p>例子</p>
+<pre><code class="language-js">var name = 'zzw'
+
+function test(a, b) {
+  console.log(this.name + '吃了' + (a + b) + '个西瓜')
+}
+
+test(1, 2) // 函数调用模式 非严格模式下指向window zzw吃了3个西瓜
+
+var obj = {
+  name: 'zjj'
+}
+
+var obj1 = {
+  name: 'ruizhi'
+}
+
+test.call(obj, 4, 5) // 改变this指向为obj同时传参  zjj吃了9个西瓜
+test.apply(obj1, [100, 99]) // 改变this指向为obj同时传参 ruizhi吃了199个西瓜
+</code></pre>
+<h3 id="举例">举例</h3>
+<ul>
+<li>求一个数组中的最大值</li>
+</ul>
+<blockquote>
+<p>js 中 Math 对象有个方法 max,求出参数中的最大值<br>
+但是往往给定的是数组 ,怎么办捏<br>
+使用 apply,这里就不改变 this 了,单纯数组转参数</p>
+</blockquote>
+<p>知识点:apply 与 call 第一个参数为 null 时,单纯调用函数,着眼于参数类型(例如给定数组,通过 apply 数组转参数列表)</p>
+<pre><code class="language-js">var arr = [1, 20, 157, 76, 84]
+var max = Math.max.apply(null, arr)
+console.log(max)
+</code></pre>
+<ul>
+<li>将传入函数的参数打印出来,用'-'连接</li>
+</ul>
+<p>法一:自己的傻瓜拼接字符串法</p>
+<pre><code class="language-js">function demo4() {
+  var res = ''
+  for (var j = 0; j &lt; arguments.length; j++) {
+    if (j &lt; arguments.length - 1) {
+      res += arguments[j] + '-'
+    } else {
+      res += arguments[j]
+    }
+  }
+  console.log(res)
+}
+demo4(1, 2, 3, 'abc', 'zzw') //1-2-3-abc-zzw
+</code></pre>
+<p>法二:可以重新创建一个数组容纳参数,调用 join 方法</p>
+<pre><code class="language-js">function demo4() {
+  var arr = []
+  for (var i = arguments.length - 1; i &gt;= 0; i--) {
+    arr.unshift(arguments[i])
+  }
+  arr = arr.join('-')
+  console.log(arr)
+}
+demo4(1, 2, 3, 'abc', 'zzw') //1-2-3-abc-zzw
+</code></pre>
+<p>法三:直接借用 join 方法,改变 join 的内部 this 指向</p>
+<pre><code class="language-js">function demo4() {
+  //return arguments.join(&quot;-&quot;);//报错 伪数组并非数组 不可以使用join
+  var str = Array.prototype.join.call(arguments, '-') //改变join内部的this
+  console.log(str)
+  //或写成 var str = [].join.call(arguments,&quot;-&quot;);
+}
+demo4(1, 2, 3, 'abc', 'zzw') //1-2-3-abc-zzw
+</code></pre>
+<h3 id="this-与构造函数">this 与构造函数</h3>
+<p>在学习构造函数的过程中肯定会思考构造函数中的 this 到底是什么呢？</p>
+<pre><code class="language-js">function Person(name, job) {
+  //默认隐含的操作,将new创建的对象赋值给this
+  this.name = name
+  this.job = job
+  this.sayHello = function() {
+    console.log('hello')
+  }
+}
+
+var winter = new Person('winter', 'coding')
+</code></pre>
+<p>构造函数的执行过程:</p>
+<ul>
+<li>使用 new 关键字创建对象;</li>
+<li>调用构造函数,将新创建出来的对象赋值给对象函数内部的 this;//如何做到?</li>
+<li>在构造函数内部使用 this 为新创建的对象新增成员;</li>
+<li>默认返回新创建的对象,普通函数如果不写返回语句,会返回 undefined.</li>
+</ul>
+<blockquote>
+<p>new 关键字就做了一点微小的工作</p>
+</blockquote>
+<pre><code class="language-js">function new(F){
+    return function () {
+        var args = arguments;
+        var obj = {}
+        obj.__proto__ = F.prototype
+        F.call(obj,args)
+        return obj
+    }
+}
+</code></pre>
+<p>此处也是 call 与 apply 的一个典型用法.</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/thing-in-fab/">
+              <h3 class="post-title">
+                下一篇：关于斐波那契数列的一些思考
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

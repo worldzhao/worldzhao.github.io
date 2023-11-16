@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>双月谈-试用期思考 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">双月谈-试用期思考</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-07-07</span>
+          </div>
+          <div class="post-content">
+            <p>到新公司接近 2 个月了（4.29-7.07），这两个月里也许是我毕业一年思考最多的两个月，的确是有必要进行总结。当然，纯属个人看法。</p>
+<!-- more -->
+<h2 id="组织结构">组织结构</h2>
+<h3 id="背景">背景</h3>
+<p>我所在的事业部成立于去年八月，属于前台事业部，也就是所谓的“创业部门”，极少同事抽调于其他团队，大部分为新人，最长任职时间不到一年（此处只谈技术相关），以下“业务团队”字样指代我所在的部门，因为我并不了解其他部门。</p>
+<p>部门老大也就是技术老大，下面有若干前端与后端划分在不同的项目，但没有名义上的前端负责人与后端负责人，即使职称不一样，都是一线开发。</p>
+<p>公司内部是有前端架构团队的，提供一些基础类库以及相关服务，譬如 jssdk、埋点、脚手架以及发布工具。</p>
+<h3 id="问题">问题</h3>
+<p>这样的组织架构不少见，上家公司也是基本如此，但存在 2 点差异：</p>
+<ol>
+<li>得益于老东家规模以及业务类型，架构组能够较为容易的推行内部工具；</li>
+<li>业务线前后端是有负责人在的，可以理解为小组长，有一定的话语权。</li>
+</ol>
+<p>这 2 点差异导致了 3 点问题：</p>
+<ol>
+<li>选型不统一，已有项目经验难复用。公司规模大，架构组对业务团队基本没有约束力，导致业务团队除了一些公共基础服务必须使用内部工具，其他技术选型取决于具体项目的第一个开发者（大部分时候一言难尽），换一个项目可能要花一点时间适应一下，backup 困难；</li>
+<li>缺少规范，协作困难。项目内没有代码规范，eslint 存在感极低，缩进、空格混乱且没有<code>precommit lint</code>。说服所有人很难，而协作是可能与所有人发生的。（“每个人风格不一样，很难统一的”，我真的很讨厌这句话，那要团队做什么？规范就是让 <code>1+1&gt;2</code> 的）。</li>
+<li>一些好的实践难以推动。想推 typescript？看你有没有机会成为某一个新项目的第一个开发者吧，并且说服与你协作的同事（如果有的话）。</li>
+</ol>
+<h3 id="思考">思考</h3>
+<p>可能组织结构间接导致了下面我要谈的很多问题吧。</p>
+<p>当然，我资历尚浅，可能有更深的考量是我所不知晓的。可能我所在的部门就是不追求这些东西，抓紧时间完成需求就好了，这些并不重要，其他部门并不存在这些问题（感觉可能性不大），但是部门老大经常强调质量，我认为还是落地方面有些问题。</p>
+<h2 id="组件库">组件库</h2>
+<h3 id="现状">现状</h3>
+<p>没有统一组件库，具体问题表现在以下几点：</p>
+<ol>
+<li>数量：可复用组件少，经常需要造轮子，并且造完没有抽出来以供其他项目复用；</li>
+<li>文档：文档缺失，更换开发者大概率需要摸瞎看源码，而且很可能 A 项目已经存在了解决方案，B 项目的开发者并不知道（或者知道了却根本无从下手拷贝），重复造轮子；</li>
+<li>维护：1 中的轮子复用依靠复制粘贴，可维护性差，出现问题多方同步修改。</li>
+</ol>
+<p>可复用组件类型：</p>
+<ul>
+<li>UI 组件：譬如弹层（Popup）、轻提示(Toast)以及输入框（Input）等组件（往往还存在一些兼容性问题）；</li>
+<li>业务组件：相同业务类型可复用的组件，譬如抽奖转盘组件；</li>
+<li>逻辑组件：譬如传送门（Portal）、切换器（Toggler）以及校验器（Validator）等可以用来优化代码结构并减少重复代码等无形态组件。</li>
+</ul>
+<h3 id="思考-2">思考</h3>
+<p>活动页固然千奇百怪，但总有相似之处，如何与业务结合，分离可变与不可变，提高开发效率，正是工程师存在的意义（当然也需要产品【业务抽象】以及设计【ui 规范】同学的共同参与）。</p>
+<p>如果不同项目设计风格实在差异较大，也能够通过改改样式复用，而非重写一遍逻辑以及兼容性处理。</p>
+<p>既要有造轮子的能力（个人），也要有不造轮子的觉悟（团队）。</p>
+<p>画外音吐槽：为什么把一个组件文件夹在不同项目中拷来拷去？文档也没有，我怎么用，代码质量就不说了，没眼看，都是一个人用的一次性代码。</p>
+<h3 id="行动">行动</h3>
+<p>写了个 dora-ui，目前有以下组件：</p>
+<ul>
+<li>Countdown 倒计时</li>
+<li>Popup 弹层</li>
+<li>Portal 传送门</li>
+<li>Toast 轻提示</li>
+<li>Toggler 切换器</li>
+</ul>
+<p>感觉可以直接使用开源的组件库，为什么要自己写呢？</p>
+<ul>
+<li>反正没啥人用......(扎心了老铁</li>
+<li>后续会以业务组件为主</li>
+<li>也存在一点私心吧，锻炼自己，反正也支持按需加载，想和啥一起用就和啥一起用</li>
+<li>我会用心写好文档和单元测试的</li>
+</ul>
+<h2 id="脚手架模板">脚手架（模板）</h2>
+<h3 id="现状-2">现状</h3>
+<p>目前团队内新建项目都是用 CRA 或者 DVA（为啥不用 Umi）改一改，我还没有机会自己去新建一个项目，但我觉着这也太麻烦了吧。</p>
+<p>为什么不用公司内部的脚手架（框架）？我也不想看着五花八门的项目结构呀。</p>
+<ul>
+<li>我觉得可以用，但是团队内部没啥人用，架构组不强推，也没有前端负责人（话语权）...很难推呀；</li>
+<li>旧版本的 Bug。接的一个旧项目是用内部脚手架旧版本搭的，太多坑了，只能说勉强能用，团队其他人吓怕了，不过现在都修好了；</li>
+<li>公司内部的框架基本上都集成了我上面所说的内容。但框架定位是同构渲染，我们团队基本是纯前端项目，引入的很多概念概念配置增加了心智负担。建议把文档分开，给一个纯前端项目的最小知识集就好；</li>
+</ul>
+<p>用 DVA 搭建项目其实还好，本来就是最佳实践了，只需要自己配些环境变量控制下<code>publicPath</code>以及增加<code>precommit lint</code>就好，但是用<code>CRA</code>就很麻烦了，要自己改很多内容。</p>
+<h3 id="问题-2">问题</h3>
+<p>看项目内部架子（基于 CRA），最想吐槽的有 3 点：</p>
+<ul>
+<li>代码风格。前面说过。</li>
+<li>数据 Mock。为啥要在 src 里面根据环境变量引入 mock 文件，这不是开发时依赖吗？</li>
+<li>接口转发 Proxy。其实这个不算架子的问题。基本所有的架子都内置 Proxy 的，但是一些接口需要授权访问，这就需要鉴权，我们后台服务并没有提供给我们开发鉴权的形式，现在的解决方案比较麻烦：比如测试环境域名为<code>m.test.zzzzz.com</code>，使用<code>SwitchHosts</code>将本地 ip 映射为<code>m.dev.zzzzz.com</code>，前面<code>m.dev</code>可以自定义，后面保证一致，然后去 test 环境登录，这样就给浏览器注入 cookie 了，然后我们 Proxy 转发就能带着 cookie 转发了。可是缺点也很明显，内网 ip 会变化，把电脑带回家再带到公司，就要重新改 host，不知道还有什么好方案解决，感觉后端支持才是王道，也提到过这个问题，但是推不动。</li>
+</ul>
+<h3 id="思考-3">思考</h3>
+<p>我觉得团队内部初始化一个项目，模板必须集成以下功能：</p>
+<ul>
+<li>eslint/editorconfig（必须）</li>
+<li>precommit lint（必须）</li>
+<li>mock（必须）</li>
+<li>proxy（必须）</li>
+<li>自定义 webpack 配置（必须）</li>
+<li>集成 redux（可选）</li>
+<li>commitlint（可选）</li>
+<li>typescript（可选）</li>
+</ul>
+<p>当然有很多同学可能会说选型很多时候要考虑团队成员的能力。</p>
+<p>但是能力是有及格线的呀！能被工业化大规模使用的工具会很难吗？这个太重那个太复杂，又不是引入<code>angular</code> or <code>rxjs</code>，用某位大佬的话就是“你脑袋只有几 kb 吗？”。</p>
+<p>为什么要选择<code>redux-thunk</code>，是<code>dva</code>不好看还是<code>rematch</code>不好听？</p>
+<p>可能仅仅是因为第一个初始化项目的人只知道<code>redux-thunk</code>罢了（当然如果只是一个人开发，随便怎么玩），但如果是协作项目，建议由一个真正深入过思考的人去进行技术选型）。</p>
+<p>所以说脚手架很重要，但是 emmm...架构组的脚手架可能不适合所有业务场景（以及约束力因素），团队内部 emmm...大概率推不动（我正在写），说起来都是泪。</p>
+<h3 id="行动-2">行动</h3>
+<p>正在写一个适合团队内部使用的脚手架，会集成上述内容。</p>
+<p>尤其是预置代码规范以及风格，但是被关掉或者修改就没办法了呀，有些同事就是不喜欢用插件格式化代码，自己写的又达不到代码标准，真的好难。</p>
+<h2 id="前后端分离">前后端分离</h2>
+<p>惊不惊喜，意不意外。</p>
+<h3 id="现状-3">现状</h3>
+<p>前端项目如果初次发布，需要把<code>index.html</code>托管到后端那里，我们虽然把 html/js/css 都上传到了静态资源服务器，但 html 用的是后端托管的，打包出来的内容不能有 hash，如果资源地址变化，需要后端配合修改 html，每次上线要后端刷版本号（就是加个时间戳），避免请求到了缓存的 html。</p>
+<p>更多分析可以看我另外一篇文章——关于前端项目部署发布的相关思考。</p>
+<h3 id="思考-4">思考</h3>
+<p>Nginx 配置代理应当是最优的，不然更改打包策略还需要后端配合，着实无奈，可能的原因就是配置 Nginx 需要找人找人找人，但是后端上线难道就不找人了吗，这里不是很理解，听说有在解决这个问题，可能这种操作背后有什么历史原因吧，但放到今天，实在是很难接受。</p>
+<p>昨天在新生技术培训上向前端老大提了这个问题，听说架构组是有规划解决这个问题的，后面再看吧。</p>
+<h2 id="其他">其他</h2>
+<h3 id="关于上线流程">关于上线流程</h3>
+<p>目前是没有上线流程的，对，没有！</p>
+<ul>
+<li>开发完后一嗓子上线，有些需求少的、关联性不强的开发人员都不知道啥时候上线，上线的时候人不在结果没发；</li>
+<li>对线上发布没有敬畏之心，一天可以发几次。</li>
+</ul>
+<p>上周开了个会想要解决这个问题，希望能落地。</p>
+<p>无非就是固定上线日期以及发布次数，通过邮件以及文档等进行需求生命周期跟踪。</p>
+<pre><code>需求 =&gt; 视觉 =&gt; 开发 =&gt; 测试 =&gt; 预发 =&gt; 正式上线。
+</code></pre>
+<p>不过上线流程在我看来应该是公司统一的吧，不然新团队还要重新建立这些流程规范，一不小心就走偏了，捂脸哭。</p>
+<p>还有一个点就是公司内部没有使用邮件的习惯，见仁见智吧，我觉得比较神奇。</p>
+<h3 id="关于测试环境">关于测试环境</h3>
+<p>我从未见过如此不稳定的测试环境。</p>
+<h3 id="关于代码重构">关于代码重构</h3>
+<p>随着项目迭代，没有意义的代码要及时删除或注释，否则几经转手，没有人知道这些代码到底有没有用，反而还要在这些结构上进行新需求迭代，只会越来越乱，开发人员要有及时掏粪坑的决心与勇气（堆成屎山就完了- -!!），接过来的项目如果可复用程度不大，不如重做，当前项目架构不满足新需求时，应考虑及时扩展。</p>
+<h3 id="关于产品节奏">关于产品节奏</h3>
+<p>产品节奏很迷，一个需求提测后会有接近两周的空档，所以很感谢现在的项目，既让我了解到了一个项目能有多坑，又给我了如此多的时间去发现问题，修复缺陷。</p>
+<p>虽然我们公司基本不咋加班，但是这个节奏着实让我有点不太好意思。技术人员当然需要时间去复盘总结，学习新知识，但团队内部其他项目贼忙，对比起来好惭愧。</p>
+<p>但是心里面还是有些许动摇，虽然说成长靠自己（现在有时间去学习成长），但我还是想有一个更为优秀的团队以及平台，能够去落地一些事情。而现在团队内部，有极个别成员即使有许多时间，但也不见有何产出，一言难尽，虽然我现在有热情，但是我害怕有一天也会这样，可能就是贱吧。</p>
+<h2 id="总结">总结</h2>
+<p>以上就是一些思考以及吐槽，这两个月成长的太多太多，在上一家公司和一个人负责项目，来这边三个人一起负责一个项目（感觉有资源过剩），遇到了种种问题，有的问题解决了，有的问题人言微轻，影响不大。</p>
+<p>也有了 3 点感悟，哈哈。</p>
+<ol>
+<li>办法总比问题多；</li>
+<li>是问题还是绩效取决于自己；</li>
+<li>永远保持好奇心。</li>
+</ol>
+<p>一片荒芜。</p>
+<p>但大有可为。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/write-clean-code-in-react/">
+              <h3 class="post-title">
+                下一篇：编写干净的代码
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

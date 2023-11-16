@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>React 组件库搭建指南-准备工作 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">React 组件库搭建指南-准备工作</h2>
+          <div class="post-info post-detail-info">
+            <span>2019-12-18</span>
+          </div>
+          <div class="post-content">
+            <p>凡事预则立不预则废。</p>
+<!--more -->
+<ul>
+<li><a href="https://juejin.im/post/5df9a39f6fb9a0165b4cdb26">React 组件库搭建指南-准备工作</a></li>
+<li><a href="https://juejin.im/post/5dfb09b1e51d4558096d5f94">React 组件库搭建指南-开发调试</a></li>
+<li><a href="https://juejin.im/post/5e030b926fb9a0162c487c7b">React 组件库搭建指南-打包输出</a></li>
+<li><a href="https://juejin.im/post/5e23e4035188252c6c478665">React 组件库搭建指南-单元测试</a></li>
+</ul>
+<h2 id="概览">概览</h2>
+<p>本系列文章主要是开发组件库<a href="https://github.com/worldzhao/dora-ui">dora-ui</a>过程中的一些经验总结，大致包含以下内容：</p>
+<ul>
+<li>prepare: 组件库前期开发准备工作。<code>eslint</code>/<code>commit lint</code>/<code>typescript</code>等等；</li>
+<li>dev: 使用<a href="https://github.com/doczjs/docz">docz</a>进行开发调试以及文档编写；</li>
+<li>build: <s><code>umd</code></s>/<code>cjs</code>/<code>esm</code>、types、polyfill 以及按需加载；</li>
+<li>deploy: 使用<a href="https://zeit.co/home">now</a>部署文档站点；</li>
+<li>publish: 发布组件库至<code>npm</code>；</li>
+<li>others: 组件测试</li>
+</ul>
+<p>注意：<code>.gitignore</code>、<code>.eslintignore</code>以及<code>.editorconfig</code>等更多文件可在<a href="https://github.com/worldzhao/react-ui-library-tutorial/tree/chapter-1/before-start">chapter-1</a>章节代码中获取。</p>
+<h2 id="初始化项目">初始化项目</h2>
+<p>新建一个<code>happy-ui</code>文件夹，并初始化。</p>
+<pre><code class="language-bash">mkdir happy-ui
+
+cd happy-ui
+
+npm init --y
+
+mkdir components &amp;&amp; cd components &amp;&amp; touch index.ts # 新建源码文件夹以及入口文件
+
+</code></pre>
+<h2 id="代码规范">代码规范</h2>
+<p>此处直接使用<a href="https://github.com/umijs/fabric">@umijs/fabric</a>的配置。</p>
+<pre><code class="language-bash">yarn add @umijs/fabric --dev
+
+yarn add prettier --dev # 因为@umijs/fabric没有将prettier作为依赖 所以我们需要手动安装
+</code></pre>
+<p><strong>.eslintrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  extends: [require.resolve('@umijs/fabric/dist/eslint')],
+};
+</code></pre>
+<p><strong>.prettierrc.js</strong></p>
+<pre><code class="language-js">const fabric = require('@umijs/fabric');
+
+module.exports = {
+  ...fabric.prettier,
+};
+</code></pre>
+<p><strong>.stylelintrc.js</strong></p>
+<pre><code class="language-js">module.exports = {
+  extends: [require.resolve('@umijs/fabric/dist/stylelint')],
+};
+</code></pre>
+<p>想自行配置的同学可以参考以下文章：</p>
+<ul>
+<li><a href="https://medium.com/@dors718/linting-your-react-typescript-project-with-eslint-and-prettier-2423170c3d42">Linting Your React+Typescript Project with ESLint and Prettier!</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/62401626">使用 ESLint+Prettier 规范 React+Typescript 项目 </a></li>
+</ul>
+<h2 id="commit-lint">Commit Lint</h2>
+<p>进行<code>pre-commit</code>代码规范检测。</p>
+<pre><code class="language-bash">yarn add husky lint-staged --dev
+</code></pre>
+<p><strong>package.json</strong></p>
+<pre><code class="language-json">&quot;lint-staged&quot;: {
+  &quot;components/**/*.ts?(x)&quot;: [
+    &quot;prettier --write&quot;,
+    &quot;eslint --fix&quot;,
+    &quot;git add&quot;
+  ],
+  &quot;components/**/*.less&quot;: [
+    &quot;stylelint --syntax less --fix&quot;,
+    &quot;git add&quot;
+  ]
+},
+&quot;husky&quot;: {
+  &quot;hooks&quot;: {
+    &quot;pre-commit&quot;: &quot;lint-staged&quot;
+  }
+}
+</code></pre>
+<p>进行 Commit Message 检测。</p>
+<pre><code class="language-bash">yarn add @commitlint/cli @commitlint/config-conventional commitizen cz-conventional-changelog --dev
+</code></pre>
+<p>新增<code>.commitlintrc.js</code>写入以下内容</p>
+<pre><code class="language-js">module.exports = { extends: ['@commitlint/config-conventional'] };
+</code></pre>
+<p>package.json 写入以下内容：</p>
+<pre><code class="language-json">// ...
+&quot;scripts&quot;: {
+  &quot;commit&quot;: &quot;git-cz&quot;,
+}
+// ...
+&quot;husky&quot;: {
+  &quot;hooks&quot;: {
+    &quot;commit-msg&quot;: &quot;commitlint -E HUSKY_GIT_PARAMS&quot;,
+    &quot;pre-commit&quot;: &quot;lint-staged&quot;
+  }
+},
+&quot;config&quot;: {
+  &quot;commitizen&quot;: {
+    &quot;path&quot;: &quot;cz-conventional-changelog&quot;
+  }
+}
+</code></pre>
+<p>后续使用 <code>yarn commit</code> 替代 <code>git commit</code>生成规范的 Commit Message，当然为了效率你可以选择手写，但是要符合规范。</p>
+<h2 id="typescript">TypeScript</h2>
+<pre><code class="language-bash">yarn add typescript --dev
+</code></pre>
+<p>新建<code>tsconfig.json</code>并写入以下内容</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;allowJs&quot;: false,
+    &quot;target&quot;: &quot;esnext&quot;,
+    &quot;module&quot;: &quot;commonjs&quot;,
+    &quot;jsx&quot;: &quot;react&quot;,
+    &quot;declaration&quot;: true,
+    &quot;outDir&quot;: &quot;types&quot;,
+    &quot;strict&quot;: true,
+    &quot;moduleResolution&quot;: &quot;node&quot;,
+    &quot;allowSyntheticDefaultImports&quot;: true,
+    &quot;esModuleInterop&quot;: true
+  },
+  &quot;include&quot;: [&quot;components&quot;]
+}
+</code></pre>
+<h2 id="测试">测试</h2>
+<p>在<code>components</code>文件夹下新建<code>alert</code>文件夹，目录结构如下：</p>
+<pre><code>alert
+    ├── alert.tsx           # 源文件
+    ├── index.ts            # 入口文件
+    ├── interface.ts        # 类型声明文件
+    └── style
+        ├── index.less      # 样式文件
+        └── index.ts        # 样式文件里为什么存在一个index.ts - 按需加载样式 管理样式依赖 后面章节会提到
+</code></pre>
+<p>安装<code>React</code>相关依赖：</p>
+<pre><code class="language-bash">yarn add react react-dom @types/react @types/react-dom --dev # 开发时依赖，宿主环境一定存在
+
+yarn add prop-types            # 运行时依赖，宿主环境可能不存在 安装本组件库时一起安装
+</code></pre>
+<blockquote>
+<p>此处依旧安装了<code>prop-types</code>这个库，因为无法保证宿主环境也使用<code>typescript</code>，从而能够进行静态检查，故使用<code>prop-types</code>保证<code>javascript</code>用户也能得到友好的运行时报错信息。</p>
+</blockquote>
+<p><strong>components/alert/interface.ts</strong></p>
+<pre><code class="language-js">export type Kind = 'info' | 'positive' | 'negative' | 'warning';
+export type KindMap = Record&lt;Kind, string&gt;;
+
+export interface AlertProps {
+  /**
+   * Set this to change alert kind
+   * @default info
+   */
+  kind?: 'info' | 'positive' | 'negative' | 'warning';
+}
+</code></pre>
+<p><strong>components/alert/alter.tsx</strong></p>
+<pre><code class="language-jsx">import React from 'react';
+import t from 'prop-types';
+
+import { AlertProps, KindMap } from './interface';
+
+const prefixCls = 'happy-alert';
+
+const kinds: KindMap = {
+  info: '#5352ED',
+  positive: '#2ED573',
+  negative: '#FF4757',
+  warning: '#FFA502',
+};
+
+const Alert: React.FC&lt;AlertProps&gt; = ({ children, kind = 'info', ...rest }) =&gt; (
+  &lt;div
+    className={prefixCls}
+    style={{
+      background: kinds[kind],
+    }}
+    {...rest}
+  &gt;
+    {children}
+  &lt;/div&gt;
+);
+
+Alert.propTypes = {
+  kind: t.oneOf(['info', 'positive', 'negative', 'warning']),
+};
+
+export default Alert;
+</code></pre>
+<p><strong>components/alert/index.ts</strong></p>
+<pre><code class="language-js">import Alert from './alert';
+
+export default Alert;
+
+export * from './interface';
+</code></pre>
+<p><strong>components/alert/style/index.less</strong></p>
+<pre><code class="language-less">@popupPrefix: happy-alert;
+
+.@{popupPrefix} {
+  padding: 20px;
+  background: white;
+  border-radius: 3;
+  color: white;
+}
+</code></pre>
+<p><strong>components/alert/style/index.ts</strong></p>
+<pre><code class="language-js">import './index.less';
+</code></pre>
+<p><strong>components/index.ts</strong></p>
+<pre><code class="language-js">export { default as Alert } from './alert';
+</code></pre>
+<blockquote>
+<p>此处组件参考的<code>docz</code>项目<code>typescript</code>以及<code>less</code>示例。</p>
+</blockquote>
+<p>git 一把梭，可以看到控制台已经进行钩子检测了。</p>
+<pre><code class="language-bash">git add .
+
+yarn commit  # 或 git commit -m'feat: chapter-1 准备工作'
+
+git push
+</code></pre>
+<p>准备工作结束，欢迎指点交流。</p>
+<p>To be Continued...</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/thinking-in-ui-library/">
+              <h3 class="post-title">
+                下一篇：组件（库）开发相关总结
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

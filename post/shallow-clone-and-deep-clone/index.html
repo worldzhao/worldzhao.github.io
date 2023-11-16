@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>浅克隆与深克隆 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">浅克隆与深克隆</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-09-13</span>
+          </div>
+          <div class="post-content">
+            <h1 id="浅克隆与深克隆">浅克隆与深克隆</h1>
+<h2 id="一-js-中的对象">一. js 中的对象</h2>
+<p>谈到对象的克隆，必定要说一下对象的概念。</p>
+<p>js 中的数据类型分为两大类：原始类型和对象类型。</p>
+<p>原始类型包括：数值 number、字符串 string、布尔值 boolean、null、undefined.<br>
+基本数据类型保存在栈中，</p>
+<p>对象类型包括：对象即是属性的集合，当然这里又有两个特殊的对象—-函数 Array、数组（键值的有序集合）。<br>
+引用数据类型的值是对象，保存在堆中。</p>
+<p>这两种类型在复制克隆的时候是有很大区别的。原始类型存储的是对象的实际数据，而对象类型存储的是对象的引用地址（对象的实际内容单独存放，为了减少数据开销通常存放在内存中）</p>
+<p>这两种数据类型存储方式有很大区别，尤其是在参数传递上。可以看看下面的例子。</p>
+<p>参数的传递</p>
+<pre><code class="language-js">function setName(obj) {
+  obj.name = &quot;我是传递的&quot;;
+  obj = new Object();
+  obj.name = &quot;我是new出来的&quot;;
+}
+var person = new Object();
+setName(person);
+console.log(person.name);
+</code></pre>
+<p>以上代码的弹出值是:我是传递的，很多人可能会以为将会弹出“我是 new 出来的”，下面进行一下简单的分析:</p>
+<p>在函数外面创建一个对象，并将对象的引用赋值给变量 person，person 中存储的是对象在内存中的存储地址，当为函数传递参数时，就是传递的在函数外面创建的对象的地址。<br>
+在函数中，obj 的值即为 person 的值，指向外面创建的对象，并为其创建一个自定义属性 name，然后又创建一个新的对象，并将新对象的地址赋值给 obj(person 一直没有变化，始终指向原来的对象)，这个时候 obj 指向的并不是函数外面创建的对象，所以外面对象 name 属性不会被改变。</p>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww3.sinaimg.cn/large/006tNc79gy1g5sf8gif2wj30i408w0sk.jpg" alt="image.png" loading="lazy"></figure>
+<p>总的来说，就是函数内创建 object 对象不会改变外面的属性值。最好画个内存图，马老师教我的，碰到值传递和引用传递一图足矣。当然，这个小例子只是为了让大家复习一下克隆的前置知识。</p>
+<h2 id="克隆的概念">克隆的概念</h2>
+<ul>
+<li>
+<p>浅度克隆：原始类型为值传递，对象类型仍为引用传递，克隆对象修改引用类型的属性时会影响到原始对象。</p>
+</li>
+<li>
+<p>深度克隆：所有元素或属性均完全复制，与原对象完全脱离，也就是说所有对于新对象的修改都不会反映到原对象中。</p>
+</li>
+</ul>
+<h3 id="浅克隆">浅克隆</h3>
+<h4 id="浅克隆与赋值的区别">浅克隆与赋值的区别</h4>
+<pre><code class="language-js">var obj1 = {
+  name: &quot;zhangsan&quot;,
+  age: &quot;18&quot;,
+  language: [1, [2, 3], [4, 5]],
+};
+
+var obj2 = obj1;
+
+var obj3 = shallowCopy(obj1);
+function shallowCopy(src) {
+  var dst = {};
+  for (var prop in src) {
+    if (src.hasOwnProperty(prop)) {
+      dst[prop] = src[prop];
+    }
+  }
+  return dst;
+}
+
+obj2.name = &quot;lisi&quot;;
+obj3.age = &quot;20&quot;;
+
+obj2.language[1] = [&quot;二&quot;, &quot;三&quot;];
+obj3.language[2] = [&quot;四&quot;, &quot;五&quot;];
+
+console.log(obj1);
+//obj1 = {
+//    'name' : 'lisi',
+//    'age' :  '18',
+//    'language' : [1,[4,5]],
+//};
+
+console.log(obj2);
+//obj2 = {
+//    'name' : 'lisi',
+//    'age' :  '18',
+//    'language' : [1,[4,5]],
+//};
+
+console.log(obj3);
+//obj3 = {
+//    'name' : 'zhangsan',
+//    'age' :  '20',
+//    'language' : [1,[4,5]],
+//};
+</code></pre>
+<p>先定义个一个原始的对象 obj1，然后使用赋值得到第二个对象 obj2，然后通过浅拷贝，将 obj1 里面的属性都赋值到 obj3 中。也就是说：</p>
+<ul>
+<li>obj1：原始数据</li>
+<li>obj2：赋值操作得到</li>
+<li>obj3：浅拷贝得到</li>
+</ul>
+<p>然后我们改变 obj2 的 name 属性和 obj3 的 name 属性，可以看到，改变赋值得到的对象 obj2 同时也会改变原始值 obj1，而改变浅拷贝得到的的 obj3 则不会改变原始对象 obj1。这就可以说明赋值得到的对象 obj2 只是将指针改变，其引用的仍然是同一个对象，而浅拷贝得到的的 obj3 则是** 重新创建**了新对象。</p>
+<p>然而，我们接下来来看一下改变引用类型会是什么情况呢，我又改变了赋值得到的对象 obj2 和浅拷贝得到的 obj3 中的 language 属性的第二个值和第三个值（language 是一个数组，也就是引用类型）。结果见输出，可以看出来，无论是修改赋值得到的对象 obj2 和浅拷贝得到的 obj3 都会改变原始数据。</p>
+<p>这是因为浅拷贝只复制一层对象的属性，并不包括对象里面的为引用类型的数据。所以就会出现改变浅拷贝得到的 obj3 中的引用类型时，会使原始数据得到改变。</p>
+<p>深拷贝：将 B 对象拷贝到 A 对象中，包括 B 里面的子对象，</p>
+<p>浅拷贝：将 B 对象拷贝到 A 对象中，但不包括 B 里面的子对象</p>
+<h4 id="深克隆的实现">深克隆的实现</h4>
+<p>为了保证对象的所有属性都被复制到，我们必须知道如果 for 循环以后，得到的元素仍是 Object 或者 Array，那么需要再次循环，直到元素是原始类型或者函数为止。为了得到元素的类型，我们定义一个通用函数，用来返回传入对象的类型。</p>
+<pre><code class="language-js">//返回传递给他的任意对象的类
+function isClass(o) {
+  if (o === null) return &quot;Null&quot;;
+  if (o === undefined) return &quot;Undefined&quot;;
+  return Object.prototype.toString.call(o).slice(8, -1); //[Object Array] =&gt;Array
+}
+</code></pre>
+<ol>
+<li>
+<p>为什么不直接用 toString 方法？这是为了防止对象中的 toString 方法被重写，为了正确的调用 toString()版本，必须间接的调用 Function.call()方法</p>
+</li>
+<li>
+<p>为什么不使用 typeof 来直接判断类型？因为对于 Array 而言，使用 typeof（Array）返回的是 object，所以不能得到正确的 Array，这里对于后续的数组克隆将产生致命的问题。</p>
+</li>
+<li>
+<p>确定是那种基本数据类型用 typeof,确定是哪种引用数据类型用 instanceof</p>
+</li>
+</ol>
+<pre><code class="language-js">//深度克隆
+function deepClone(obj) {
+  var result,
+    oClass = isClass(obj);
+  //确定result的类型
+  if (oClass === &quot;Object&quot;) {
+    result = {};
+  } else if (oClass === &quot;Array&quot;) {
+    result = [];
+  } else {
+    return obj;
+  }
+  for (key in obj) {
+    var copy = obj[key];
+    if (isClass(copy) == &quot;Object&quot; || isClass(copy) == &quot;Array&quot;) {
+      result[key] = arguments.callee(copy); //递归调用
+    } else {
+      //如果为基本数据类型
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+//返回传递给他的任意对象的类
+function isClass(o) {
+  if (o === null) return &quot;Null&quot;;
+  if (o === undefined) return &quot;Undefined&quot;;
+  return Object.prototype.toString.call(o).slice(8, -1);
+}
+var oPerson = {
+  oName: &quot;rookiebob&quot;,
+  oAge: &quot;18&quot;,
+  oAddress: {
+    province: &quot;beijing&quot;,
+  },
+  ofavorite: [&quot;swimming&quot;, { reading: &quot;history book&quot; }],
+  skill: function () {
+    console.log(&quot;bob is coding&quot;);
+  },
+};
+//深度克隆一个对象
+var oNew = deepClone(oPerson);
+
+oNew.ofavorite[1].reading = &quot;picture&quot;;
+console.log(oNew.ofavorite[1].reading); //picture
+console.log(oPerson.ofavorite[1].reading); //history book
+
+oNew.oAddress.province = &quot;shanghai&quot;;
+console.log(oPerson.oAddress.province); //beijing
+console.log(oNew.oAddress.province); //shanghai
+</code></pre>
+<blockquote>
+<p>整理自：<a href="http://www.jianshu.com/p/ddc2bc57be55">浅拷贝 VS 深拷贝</a> &gt; <a href="http://www.zyy1217.com/2017/01/05/Javascript%E6%B7%B1%E5%85%8B%E9%9A%86%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/">Javascript 深克隆原理与实现</a></p>
+</blockquote>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/debounce-throttle/">
+              <h3 class="post-title">
+                下一篇：函数节流与函数防抖
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

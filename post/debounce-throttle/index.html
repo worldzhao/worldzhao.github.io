@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>函数节流与函数防抖 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">函数节流与函数防抖</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-09-12</span>
+          </div>
+          <div class="post-content">
+            <blockquote>
+<p>初稿：2017-07-15 <br><br>
+更新: 2018-07-28</p>
+</blockquote>
+<h1 id="函数节流与函数防抖">函数节流与函数防抖</h1>
+<p>函数防抖一部分我是学习于《JavaScript 高级程序设计》第三版，但是文中标题错误标为函数节流，实则为函数防抖。</p>
+<p>网上大部分文章也是节流[throttle]防抖[debounce]分不清楚，其实这两个名称是极其形象的。</p>
+<p>throttle-函数节流：一个水龙头在滴水，可能一次性会滴很多滴，但是我们只希望它每隔 500ms 滴一滴水，保持这个频率。即我们希望函数在以一个可以<strong>接受</strong>的频率重复调用。</p>
+<p>debounce-函数防抖：将一个弹簧按下，继续加压，继续按下，只会在最后放手的一瞬反弹。即我们希望函数只会调用一次，即使在这之前反复调用它，最终也只会调用一次而已。</p>
+<p>希望大家看完全文能够返回来看一看这段总结。</p>
+<h2 id="函数防抖">函数防抖</h2>
+<h3 id="为什么会有函数防抖">为什么会有函数防抖</h3>
+<p>先看一段代码：</p>
+<pre><code class="language-js">window.onresize = function() {
+  var div = document.getElementById('mydiv')
+  div.style.height = div.offsetWidth + 'px'
+  console.log('resize')
+}
+</code></pre>
+<p>很明显，监听浏览器窗口的 resize 事件，并基于该事件改变页面布局。首先，计算 offsetWidth 属性，如果该元素或者页面上其他元素有非常复杂的 CSS 样式，那么这个过程将会很复杂。其次，设置某个元素的高度需要对页面进行回流来令改动生效。如果页面有很多元素同时应用了相当数量的 CSS 的话，这又需要很多运算,可以通过'resize'输出的次数来观察函数调用的次数。</p>
+<blockquote>
+<p>浏览器中某些计算和处理要比其他的昂贵很多。例如，DOM 操作比起非 DOM 交互需要更多的内存和 CPU 时间。连续尝试进行过多的 DOM 相关操作可能会导致浏览器挂起，有时候甚至会崩溃。</p>
+</blockquote>
+<p>很明显，用户如果不断放大缩小浏览器窗口，那我们监听函数将会不停的被调用，倘若函数过“重”，即假设如上文描述的一般，那么对浏览器的压力将会非常之大，其高频率的更改可能会让浏览器崩溃。</p>
+<h3 id="什么是函数防抖">什么是函数防抖</h3>
+<p>但是你会发现在某些页面的时候，你<em>手指按住鼠标左键不动</em>拖拉扩大或缩小浏览器时，页面内部并没有同步变化，当你<em>松开手指</em>时，页面才重新根据浏览器窗口变化。</p>
+<p>此处便用到了函数防抖的思想，不论用户如何放大缩小，在他结束的的那一刻才进行我们的方法调用即可，不论怎么按弹簧，放手的时候才回弹。</p>
+<p>debounce-函数防抖：将一个弹簧按下，继续加压，继续按下，只会在最后放手的一瞬反弹。即我们希望函数只会调用一次，即使在这之前反复调用它，最终也只会调用一次而已。</p>
+<h3 id="基本思想">基本思想</h3>
+<p>某些代码不可以在没有间断的情况下连续重复执行。第一次调用函数，创建一个定时器，在指定的时间间隔之后运行代码。当第二次调用该函数时，它会清除前一次的定时器并设置另一个。如果前一个定时器已经执行过了，这个操作(清除定时器)就没有任何意义。然而，如果前一个定时器尚未执行，其实就是将其替换为一个新的定时器。目的是只有在执行函数的请求停止了一段时间之后才执行。</p>
+<h3 id="基本模式">基本模式</h3>
+<p>摘自高级程序设计</p>
+<pre><code class="language-js">var processor = {
+  timeoutId: null,
+
+  //实际进行处理的方法
+  performProcessing: function() {
+    //实际执行代码
+  },
+
+  //初始处理调用的方法
+  process: function() {
+    clearTimeout(this.timeoutId)
+    var that = this
+    this.timeoutId = setTimeout(function() {
+      that.performProcessing()
+    }, 100)
+  }
+}
+
+// 尝试开始执行
+processor.process()
+</code></pre>
+<p>但是大部分人一般对下面这种使用方式更为熟悉；</p>
+<pre><code class="language-js">function debounce(fn) {
+  var timer
+  var _self = fn
+  return function() {
+    clearTimeout(timer)
+    var args = arguments // fn所需要的参数
+    var _me = this // 当前的this
+    timer = setTimeout(function() {
+      _self.call(_me, args)
+    }, 200)
+  }
+}
+</code></pre>
+<p>通过<code>debounce(fn)</code>代替<code>fn</code>;</p>
+<p>debounce 函数接受要防抖的函数作为参数，返回值为一个匿名函数。</p>
+<p>返回的匿名函数首先清除之前的定时器。定时器代码使用 call()来确保方法在适当的环境中执行。</p>
+<h3 id="解决问题">解决问题</h3>
+<p>让我们回到最开始的代码：</p>
+<pre><code class="language-js">window.onresize = function() {
+  var div = document.getElementById('mydiv')
+  div.style.height = div.offsetWidth + 'px'
+  console.log('resize')
+}
+</code></pre>
+<p>现在看来这段代码弊端就很明显了，我们需要对这个函数防抖一下。让用户拉拉拖拖结束过后 200ms 再改变样式，节省浏览器资源。</p>
+<pre><code class="language-js">function debounce(fn) {
+  var timer
+  var _self = fn
+  return function() {
+    clearTimeout(timer)
+    var args = arguments // fn所需要的参数
+    var _me = this // 当前的this
+    timer = setTimeout(function() {
+      _self.call(_me, args)
+    }, 200)
+  }
+}
+
+function resizeDiv() {
+  var div = document.getElementById('mydiv')
+  div.style.height = div.offsetWidth + 'px'
+  console.log('resize')
+}
+
+window.onresize = debounce(resizeDiv)
+</code></pre>
+<h2 id="函数节流">函数节流</h2>
+<h3 id="为什么会有函数节流">为什么会有函数节流</h3>
+<p>基于上文的场景，我们完成了用户 resize 浏览器后 mydiv 的高度与宽度一致的这个需求。</p>
+<p>这时候产品来了，说“你们这个有点奇怪呀，我放手之后他才变化，有点突兀，我在拖动的时候不能也让他变化一致吗？”</p>
+<p>这就很尴尬了，好不容易想出来的防抖，就这样 pass 了？不，轮到节流登场了。</p>
+<h3 id="什么是函数节流">什么是函数节流</h3>
+<p>需求：优化用户体验，我们需要用户在 resize 浏览器窗口的过程中，height 与 width 也能保持一致，时刻触发函数肯定是不可以的，所以需要优化频率。</p>
+<p>resize 过程中如果重复调用一个函数，让其以 500ms 的间隔执行，而非重复执行。</p>
+<p>throttle-函数节流：一个水龙头在滴水，可能一次性会滴很多滴，但是我们只希望它每隔 500ms 滴一滴水，保持这个频率。即我们希望函数在以一个可以<strong>接受</strong>的频率重复调用。</p>
+<h3 id="基本模式-2">基本模式</h3>
+<pre><code class="language-js">function throttle(fn, interval) {
+  var _self = fn // 保存需要被延迟执行的函数引用
+  var firstTime = true // 是否初次调用
+  var timer // 定时器
+
+  return function() {
+    var args = arguments
+    var _me = this
+    if (firstTime) {
+      // 如果是第一次调用不需要延迟执行
+      _self.call(_me, args)
+      firstTime = false
+    }
+
+    if (timer) {
+      // 如果定时器还在，说明前一次延迟执行还没有完成
+      return false
+    }
+
+    timer = setTimeout(function() {
+      // 延迟一段时间执行
+      clearTimeout(timer) // 清除定时器 避免下一次return false
+      timer = null
+      _self.call(_me, args)
+    }, interval || 500)
+  }
+}
+</code></pre>
+<h3 id="解决问题-2">解决问题</h3>
+<pre><code class="language-js">function resizeDiv() {
+  var div = document.getElementById('mydiv')
+  div.style.height = div.offsetWidth + 'px'
+  console.log('resize')
+}
+
+window.onresize = throttle(resizeDiv)
+</code></pre>
+<p>现在我们即保证了用户体验也完成了性能保证。</p>
+<hr>
+<p>参考书籍：《JavaScript 高级程序设计第三版》《JavaScript 设计模式与开发实践》</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/data-structure-stack/">
+              <h3 class="post-title">
+                下一篇：数据结构-栈
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

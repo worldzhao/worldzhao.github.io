@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>最近遇到的一些css题目 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">最近遇到的一些css题目</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-10-22</span>
+          </div>
+          <div class="post-content">
+            <p>首发于 2017-10-22，更新于 2018-08-15</p>
+<hr>
+<p>最近被 CSS 怼成傻逼，总结一下平时没有注意的点，持续更新。</p>
+<ul>
+<li>问题 1：一个没有设置宽度的 div，它的宽度是多少？</li>
+<li>问题 2：把问题 1 里面的 div 设置为 float 为 left 呢？</li>
+<li>问题 3：float 脱离了文档流吗？</li>
+<li>问题 4：脱离了文档流文字为什么还会环绕呢？</li>
+<li>问题 5：postion:absolute 脱离了文档流吗？</li>
+<li>问题 6：postion:absolute 没有设置 left 与 top，div 位置在哪，宽度如何？</li>
+<li>问题 7：与 absolute 搭配的往往有 z-index 这个属性。那么如果有一个父元素 z-index 为 1000，子元素 z-index 为 100，谁在上面？</li>
+<li>问题 8：display: none; | visibility: hidden | opacity=0 的区别</li>
+</ul>
+<h3 id="问题-1一个没有设置宽度的-div它的宽度是多少">问题 1：一个没有设置宽度的 div，它的宽度是多少？</h3>
+<p>回答一：div 为块级元素，每个块级元素默认占一行,自动充满父级元素的内容区域。</p>
+<blockquote>
+<p>W3C:div 元素没有特定的含义。除此之外，由于它属于块级元素，浏览器会在其前后显示折行。</p>
+</blockquote>
+<h3 id="问题-2把问题-1-里面的-div-设置为-float-为-left-呢">问题 2：把问题 1 里面的 div 设置为 float 为 left 呢？</h3>
+<p>回答二：设置了 float:left 后，如果没有设置宽度，宽度是被内容撑开的，如果设置了宽度就是该宽度。</p>
+<blockquote>
+<p>W3C:如果浮动非替换元素，则要指定一个明确的宽度；否则，它们会尽可能地窄。<br>
+注：替换元素是浏览器根据其标签的元素与属性来判断显示具体的内容，如 input/img/select 等等。</p>
+</blockquote>
+<h3 id="问题-3float-脱离了文档流吗">问题 3：float 脱离了文档流吗？</h3>
+<h3 id="问题-4脱离了文档流文字为什么还会环绕呢">问题 4：脱离了文档流文字为什么还会环绕呢？</h3>
+<p>回答三：脱离了文档流，但仍然保持着部分的流动性。<br>
+回答四：同上。</p>
+<blockquote>
+<p>MDN:float CSS 属性指定一个元素应沿其容器的左侧或右侧放置，允许文本和内联元素环绕它。该元素从网页的正常流动中移除，尽管仍然保持部分的流动性（与绝对定位相反）。</p>
+</blockquote>
+<h3 id="问题-5postionabsolute-脱离了文档流吗">问题 5：postion:absolute 脱离了文档流吗？</h3>
+<p>回答五：脱离了文档流</p>
+<blockquote>
+<p>MDN:绝对定位的元素不再存在于正常文档布局流程中.相反，它坐在它自己的层独立于一切。</p>
+</blockquote>
+<h3 id="问题-6postionabsolute-没有设置-left-与-topdiv-位置在哪宽度如何">问题 6：postion:absolute 没有设置 left 与 top，div 位置在哪，宽度如何？</h3>
+<p>回答六：如果没有设置 left,top 又没有设置 right，bottom，它跟 static 时的位置一样。也就是说，如果其前面还有一个 div，他就在这个 div 后面，和 static 时一样，不会浮在上面，也不会在左上角（当然，如果前面没有元素就在左上角了）。</p>
+<p>测试：</p>
+<pre><code class="language-css">.wrapper {
+  width: 500px;
+  height: 500px;
+  background-color: grey;
+  position: relative;
+}
+.upper {
+  height: 100px;
+  background-color: yellow;
+}
+.inner {
+  width: 200px;
+  height: 200px;
+  background-color: red;
+}
+</code></pre>
+<pre><code class="language-html">&lt;div class=&quot;wrapper&quot;&gt;
+  &lt;div class=&quot;upper&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;inner&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>结果如图：</p>
+<figure data-type="image" tabindex="1"><img src="https://image.baidu.com/search/down?url=http://ww2.sinaimg.cn/large/006tNc79gy1g5sf81zxkjj30dz0du0s2.jpg" alt="image.png" loading="lazy"></figure>
+<p>我们再来给 inner 加上 position: absolute;</p>
+<pre><code class="language-css">.inner {
+  width: 200px;
+  height: 200px;
+  background-color: red;
+}
+</code></pre>
+<p>结果如图：</p>
+<figure data-type="image" tabindex="2"><img src="https://image.baidu.com/search/down?url=http://ww2.sinaimg.cn/large/006tNc79gy1g5sf81zxkjj30dz0du0s2.jpg" alt="image.png" loading="lazy"></figure>
+<p>可以看出，设置了 postion:absolute 后，inner 并没有如我们预想的那样和 left:0 top:0 一般蹲到左上角，而是乖乖的呆在了 upper 后面，和之前 static 一样。</p>
+<h3 id="问题-7与-absolute-搭配的往往有-z-index-这个属性-那么如果有一个父元素-z-index-为-1000子元素-z-index-为-100谁在上面">问题 7：与 absolute 搭配的往往有 z-index 这个属性。那么如果有一个父元素 z-index 为 1000，子元素 z-index 为 100，谁在上面？</h3>
+<p>回答七：子元素在上面。<br>
+先看代码：</p>
+<pre><code class="language-html">&lt;div class=&quot;par&quot;&gt;
+  &lt;div class=&quot;child&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="language-css">.par {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  z-index: 1000;
+  background-color: #000;
+}
+.child {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  z-index: 500;
+  background-color: #fff;
+}
+</code></pre>
+<p>效果如下：</p>
+<figure data-type="image" tabindex="3"><img src="https://image.baidu.com/search/down?url=http://ww4.sinaimg.cn/large/006tNc79gy1g5sf83esksj308d0870gu.jpg" alt="image.png" loading="lazy"></figure>
+<p>子元素在上面，即使父元素的 z-index 远远大于子元素的 z-index</p>
+<p>以下转自<a href="https://segmentfault.com/q/1010000009843297">segmentfault</a></p>
+<blockquote>
+<p>根据规范，z-index 是应用到定位元素的，也就是 position 属性不为 relative 的元素，否则，设置 z-index 是没有意义的；<br>
+z-index 的作用有两点，一是设置在当前堆叠上下文(stacking context)中的层级；二是创建一个新的堆叠上下文；<br>
+z-index 并不是设置的值越高，就会越靠近用户，还和堆叠上下文有关系；</p>
+</blockquote>
+<ol>
+<li>在同一个堆叠上下文中的元素，z-index 越高越靠近用户；</li>
+<li>在不同堆叠上下文中的元素，如果堆叠上下文一距离用户更近，那么它的所有子元素都在另一个堆叠上下文子元素的前面，也就是离用户更近，不同堆叠上下文中的子元素不可能发生交叉；</li>
+<li>所以，z-index 其实不是一个绝对值，而是一个相对值；</li>
+</ol>
+<hr>
+<p>以下内容为 2018-08-15 更新</p>
+<hr>
+<h3 id="问题-8-display-none-visibility-hidden-opacity0-的区别">问题 8: display: none; | visibility: hidden | opacity=0 的区别</h3>
+<h4 id="空间">空间</h4>
+<p>属性为 <code>display: none;</code> 的元素浏览器不会渲染，即不占据空间。<br>
+属性为 <code>visibility: hidden;</code> 的元素会被隐藏，但是不会消失，依然占据空间。<br>
+属性为<code>opacity:0;</code>的元素只是透明度为 0，元素隐藏，依然占据空间。</p>
+<h4 id="子元素">子元素</h4>
+<p><code>display: none;</code> 不会被子元素继承。<br>
+<code>visibility: hidden;</code>会被子类继承，子类也可以通过显示的设置 <code>visibility: visible;</code>来反隐藏。<br>
+<code>opacity:0;</code>会被子元素继承,但子元素并不能通过 <code>opacity:1;</code>，进行反隐藏。<br>
+与<code>transition</code>一起使用时，无效。</p>
+<h4 id="绑定事件">绑定事件</h4>
+<p><code>display: none;</code> 不会触发该元素已经绑定的事件。<br>
+<code>visibility: hidden;</code>不会触发该元素已经绑定的事件。<br>
+<code>opacity:0;</code>依然会触发该元素已经绑定的事件。<br>
+与<code>transition</code>一起使用时，无效。</p>
+<h4 id="重排与重绘">重排与重绘</h4>
+<p><code>display</code>被改变会触发浏览器重排。<br>
+<code>visibility</code>被改变会触发浏览器重绘。<br>
+<code>opacity</code>被改变会触发浏览器重绘。<br>
+可以与<code>transition</code>一起使用。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/some-js/">
+              <h3 class="post-title">
+                下一篇：一些js编程题
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

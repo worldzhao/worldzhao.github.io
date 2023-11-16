@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>简单继承 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">简单继承</h2>
+          <div class="post-info post-detail-info">
+            <span>2017-07-04</span>
+          </div>
+          <div class="post-content">
+            <h2 id="继承">继承</h2>
+<h3 id="混入式继承">混入式继承</h3>
+<p>最简单的继承,使用 for in 循环为对象动态添加成员,代码如下:</p>
+<pre><code class="language-js">var obj1 = {
+  name: 'zzw',
+  age: '18'
+}
+
+console.log(obj1)
+
+var obj2 = {}
+
+for (var k in obj1) {
+  obj2[k] = obj1[k]
+}
+
+console.log(obj2)
+</code></pre>
+<h3 id="原型式继承objectcreate">原型式继承：Object.create</h3>
+<p>ES5 为我们提供了一个方法 Object.create(obj),返回值为一个继承于 obj 对象的对象</p>
+<pre><code class="language-js">var subObj = Object.create(superObj) // subObj继承了superObj的成员
+</code></pre>
+<p>内部实现：</p>
+<pre><code class="language-js">function create(superObj) {
+  var F = function() {}
+  F.prototype = superObj
+  return new F()
+}
+</code></pre>
+<p>由于此方法是 ES5 提供的,所以存在兼容性问题.<br>
+如何解决兼容性问题呢?</p>
+<p>检测浏览器能力.</p>
+<pre><code class="language-js">if (Object.create) {
+  //若浏览器支持
+  var subObj = Object.create(superObj)
+} else {
+  //若浏览器不支持,自己添加这个方法
+  Object.create = function() {
+    var F = function() {}
+    F.prototype = superObj
+    return new F()
+  }
+}
+</code></pre>
+<p>封装成函数:</p>
+<pre><code class="language-js">function create(superObj) {
+  if (Object.create) {
+    return Object.create(superObj)
+  } else {
+    Object.create = function() {
+      var F = function() {}
+      F.prototype = superObj
+      return new F()
+    }
+  }
+}
+</code></pre>
+<h3 id="通过原型继承此处不讨论原型链单纯继承原型对象的成员">通过原型继承(此处不讨论原型链，单纯继承原型对象的成员)</h3>
+<ul>
+<li>给原型对象中添加成员(对象的动态特性,非严格意义上的继承)</li>
+</ul>
+<pre><code class="language-js">Person.prototype.sayHello = function() {
+  console.log('hello')
+}
+
+var p = new Person('冯巩', '50')
+
+p.sayHello() //这里的p对象就继承了原型对象
+</code></pre>
+<ul>
+<li>直接替换原型对象,原型对象原本的属性无法保存</li>
+</ul>
+<pre><code class="language-js">var parent = {
+  saygoodbye: function() {
+    console.log('goodbye')
+  }
+}
+
+Person.prototype = parent
+
+var p1 = new Person('zzw', '20')
+
+p1.saygoodbye() //p对象就继承了原型对象,也就是我们的parent对象
+</code></pre>
+<ul>
+<li>用混入的方式为原型对象添加成员,保存了原型对象原有的属性(sayhi 方法)</li>
+</ul>
+<pre><code class="language-js">Person.prototype.sayhi = function() {
+  console.log('hi')
+}
+
+var parent = {
+  saygoodbye: function() {
+    console.log('goodbye')
+  }
+}
+
+for (var k in parent) {
+  Person.prototype[k] = parent[k]
+}
+
+var p2 = new Person('zzw', '18')
+
+p2.saygoodbye()
+p2.sayhi()
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/jump-jump/">
+              <h3 class="post-title">
+                下一篇：我纵身一跃，跳进人的海洋
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>设计模式-策略模式 | 海秋</title>
+<meta name="description" content="君子生非异也，善假于物也。">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://worldzhao.github.io/favicon.ico?v=1700105526979">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://worldzhao.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://worldzhao.github.io" class="logo">
+        <h1 class="site-title">海秋</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i
+          class="icon"
+          :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }"
+          @click="menuVisible = !menuVisible"
+        ></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+       
+      <a href="/" class="menu">
+        首页
+      </a>
+        
+      <a href="/archives" class="menu">
+        归档
+      </a>
+           
+      <a href="/post/about" class="menu">
+        关于
+      </a>
+       
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">设计模式-策略模式</h2>
+          <div class="post-info post-detail-info">
+            <span>2018-11-24</span>
+          </div>
+          <div class="post-content">
+            <h1 id="设计模式-策略模式">设计模式-策略模式</h1>
+<h2 id="策略模式的定义">策略模式的定义</h2>
+<p>定义一系列的算法，把它们一个个封装起来，并使他们可以相互替换。</p>
+<p>将可变的部分和变化的部分隔开，目的就是将算法的使用与算法的实现分离开。</p>
+<blockquote>
+<p>“在函数作为一等对象的语言中，策略模式是隐形的。 strategy 就是值为函数的变量。”</p>
+</blockquote>
+<h2 id="策略模式应用场景">策略模式应用场景</h2>
+<h3 id="优化判断语句">优化判断语句</h3>
+<p>举一个简单的例子：</p>
+<p>后端返回一个 status 字段，如果是 0，就代表停用，如果是 1，就代表启用，要求前端在页面上显示出相应文案。</p>
+<pre><code class="language-js">/* 解法一：三元运算 */
+const text = status === 0 ? &quot;停用&quot; : &quot;启用&quot;;
+document.getElementById(&quot;root&quot;).innerText = &quot;text&quot;;
+
+/* 解法二：if判断 */
+function getText(status) {
+  if (status === 0) {
+    return &quot;停用&quot;;
+  } else if (status === 1) {
+    return &quot;启用&quot;;
+  } else {
+    return null;
+  }
+}
+
+document.getElementById(&quot;root&quot;).innerText = getText(status);
+
+/* 解法三：switch语句*/
+
+// 与if区别不大，就不做演示了
+</code></pre>
+<p>我们很轻松地解决了这个问题，如果 status 的可能的值不再是 0 或 1，而是 0-9，分别代表某个流程的 10 个步骤，对应 10 个不同的文案，上面的写法就有点麻烦了。</p>
+<p>可能会变成下面的样子：</p>
+<pre><code class="language-js">function getText(status) {
+  if (status === 0) {
+    return &quot;文案0&quot;;
+  } else if (status === 1) {
+    return &quot;文案1&quot;;
+  } else if (status === 2) {
+    // ...
+  }
+  // ...
+}
+
+document.getElementById(&quot;root&quot;).innerText = getText(status);
+</code></pre>
+<p>这样编写存在的问题：</p>
+<ul>
+<li>if-else 语句需要覆盖所有逻辑分支</li>
+<li>缺乏弹性，新增一种文案，则要 getText 方法内新增一句 if-else</li>
+</ul>
+<p>我们要使用策略模式优化</p>
+<pre><code class="language-js">// 定义一个策略对象
+const strategies = {
+  0: &quot;文案0&quot;,
+  1: &quot;文案1&quot;,
+  2: &quot;文案2&quot;,
+  // ...
+  9: &quot;文案9&quot;
+};
+// 通过输入[key]的不同，选择不同的策略算法[value]
+const text = strategies[status];
+document.getElementById(&quot;root&quot;).innerText = text;
+</code></pre>
+<p>此处要进行的操作比较简单，根据不同的 status 返回不同普通的 text。</p>
+<p>如果是针对 status 进行不同的操作，我们将字符串换成相应的操作方法即可。</p>
+<pre><code class="language-js">// 定义一个策略对象
+const strategies = {
+  0: function() {},
+  1: function() {},
+  2: function() {},
+  2: function() {}
+  // ...
+};
+strategies[status] &amp;&amp; strategies[status]();
+</code></pre>
+<p>这里是用的是匿名函数，如果将不同条件对应的算法抽出来定义成一个普通函数，算法的复用性也得到了增强。</p>
+<h3 id="表单校验">表单校验</h3>
+<p>在一个 Web 项目中，注册、登录、修改用户信息等功能的实现都离不开提交表单。</p>
+<p>在将用户输入的数据交给后台之前，常常要做一些客户端力所能及的校验工作，比如注册的 时候需要校验是否填写了用户名，密码的长度是否符合规定，等等。这样可以避免因为提交不合 法数据而带来的不必要网络开销。</p>
+<p>假设我们正在编写一个注册的页面，在点击注册按钮之前，有如下几条校验逻辑。</p>
+<ul>
+<li>用户名不能为空。</li>
+<li>密码长度不能少于 6 位。</li>
+<li>手机号码必须符合格式。</li>
+</ul>
+<h4 id="使用-if-else-进行表单校验">使用 if-else 进行表单校验</h4>
+<pre><code class="language-html">&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;使用判断语句进行表单校验&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;form action=&quot;http://xxx.com/register&quot; id=&quot;registerForm&quot; method=&quot;post&quot;&gt;
+      请输入用户名: &lt;input type=&quot;text&quot; name=&quot;userName&quot; /&gt; 请输入密码:
+      &lt;input type=&quot;text&quot; name=&quot;password&quot; /&gt;请输入手机号码:
+      &lt;input type=&quot;text&quot; name=&quot;phoneNumber&quot; /&gt; &lt;button&gt;提交&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;script&gt;
+      var registerForm = document.getElementById(&quot;registerForm&quot;);
+      registerForm.onsubmit = function() {
+        if (registerForm.userName.value === &quot;&quot;) {
+          alert(&quot;用户名不能为空&quot;);
+          return false;
+        }
+        if (registerForm.password.value.length &lt; 6) {
+          alert(&quot;密码长度不能少于 6 位&quot;);
+          return false;
+        }
+        if (!/(^1[3|5|8][0-9]{9}$)/.test(registerForm.phoneNumber.value)) {
+          alert(&quot;手机号码格式不正确&quot;);
+          return false;
+        }
+      };
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<ul>
+<li>registerForm.onsubmit 函数比较庞大，包含了很多 if-else 语句，这些语句需要覆盖所有的校验规则。</li>
+<li>registerForm.onsubmit 函数缺乏弹性，如果增加了一种新的校验规则，或者想把密码的长度校验从 6 改成 8，我们都必须深入 registerForm.onsubmit 函数的内部实现，这是违反开放—封闭原则的。</li>
+<li>算法的复用性差，如果在程序中增加了另外一个表单，这个表单也需要进行一些类似的校验，那我们很可能将这些校验逻辑复制得漫天遍野</li>
+</ul>
+<h4 id="使用策略模式进行优化">使用策略模式进行优化</h4>
+<h2 id="策略模式的优缺点">策略模式的优缺点</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li>策略模式可以有效避免多重条件选择语句</li>
+<li>策略模式提供了对开放—封闭原则的完美支持，将算法封装在独立的 strategy 中，使得它<br>
+们易于切换，易于理解，易于扩展</li>
+<li>策略模式的算法可以使用在其他地方，复用性较强</li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li>需要增加策略对象</li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a href="https://worldzhao.github.io/post/babel-note/">
+              <h3 class="post-title">
+                下一篇：babel学习笔记
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">君子生非异也，善假于物也。</div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/worldzhao" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://worldzhao.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'ae70790f8df61d7ce952',
+        clientSecret: 'dba663050bbe1ab7a23296198c9728128461dc35',
+        repo: 'worldzhao.github.io',
+        owner: 'worldzhao',
+        admin: ['worldzhao'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
